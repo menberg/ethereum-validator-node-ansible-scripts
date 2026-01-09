@@ -36,7 +36,7 @@
         state: stopped
 
     ##############################
-    # Copy Serivice Template Files
+    # Copy Service Template Files
 
     # Neue Templates nach /etc/systemd/system/ kopieren.
     - name: Copy service script

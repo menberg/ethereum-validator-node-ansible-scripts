@@ -202,7 +202,7 @@
         state: absent
 
     ##############################
-    # Copy Serivice Template Files
+    # Copy Service Template Files
 
     # systemd-Units aus Templates installieren und aktivieren.
     - name: Copy service script
