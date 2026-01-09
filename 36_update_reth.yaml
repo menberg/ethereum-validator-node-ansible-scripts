@@ -22,27 +22,26 @@
   gather_facts: false
 
   vars_files:
-    - "vars/config_project.yaml"
+    - vars/config_project.yaml
+    - vars/config_local.yaml
 
   tasks:
-
-
-################
-# Update reth
+    ################
+    # Update reth
 
     # Workspace für Source sicherstellen.
     - name: Ensure needed directories exist
       file:
         path: "{{ item }}"
         state: directory
-        mode: '0755'
+        mode: "0755"
       loop:
         - "{{ reth_source_directory }}"
- 
+
     # Source holen und gewünschte Version/Tag auschecken.
     - name: Fetch the latest source code and checkout specific version
       git:
-        repo: 'https://github.com/paradigmxyz/reth.git'
+        repo: "https://github.com/paradigmxyz/reth.git"
         dest: "{{ reth_source_directory }}"
         version: "{{ reth_version }}"
         force: yes
@@ -53,17 +52,15 @@
         HOME: "/home/{{ reth_system_user }}"
         PATH: "/home/{{ reth_system_user }}/.cargo/bin:{{ ansible_env.PATH }}"
 
-
     - name: Build Reth from source
       command:
         cmd: "/home/{{ reth_system_user }}/.cargo/bin/cargo build --release"
-        chdir: "{{ reth_source_directory }}"  
+        chdir: "{{ reth_source_directory }}"
       environment:
         HOME: "/home/{{ reth_system_user }}"
         PATH: "/home/{{ reth_system_user }}/.cargo/bin:{{ ansible_env.PATH }}"
 
-
-########## Stop Reth and replace ############
+    ########## Stop Reth and replace ############
 
     # Service stoppen, um Binary sicher zu ersetzen.
     - name: Stop service
@@ -71,14 +68,13 @@
         name: "{{ reth_system_user }}"
         state: stopped
 
-
     # Neu gebautes Binary an Zielpfad kopieren.
     - name: Copy the built binary to the target directory
       copy:
         src: "{{ reth_source_directory }}/target/release/reth"
         dest: "{{ reth_binary_path }}"
         remote_src: yes
-        mode: '0755'
+        mode: "0755"
 
     - name: Adjust ownership of the reth directories and binary
       file:
@@ -96,7 +92,6 @@
         path: "{{ reth_source_directory }}"
         state: absent
 
-
     ##############################
     # Copy Serivice Template Files
 
@@ -107,16 +102,14 @@
         dest: /etc/systemd/system/{{ reth_system_user }}.service
         owner: root
         group: root
-        mode: '0664'
+        mode: "0664"
       notify: daemon-reload
-
 
     # Service neu starten, damit das neue Binary läuft.
     - name: (re)start {{ reth_system_user }} service
       systemd:
         name: "{{ reth_system_user }}"
         state: restarted
-
 
   handlers:
     # Handler für daemon-reload und Service-Restart.
@@ -130,4 +123,3 @@
     - name: daemon-reload
       systemd:
         daemon_reload: yes
-

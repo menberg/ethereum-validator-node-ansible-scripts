@@ -18,12 +18,12 @@
   become: true
   become_method: sudo
   gather_facts: false
-  
+
   vars_files:
-    - "vars/config_project.yaml"
+    - vars/config_project.yaml
+    - vars/config_local.yaml
 
   tasks:
-
     # Services stoppen, bevor Units ersetzt werden.
     - name: Stop service - nimbusCL
       systemd:
@@ -35,7 +35,6 @@
         name: nimbusValidator
         state: stopped
 
-
     ##############################
     # Copy Serivice Template Files
 
@@ -46,7 +45,7 @@
         dest: "/etc/systemd/system/{{ item }}.service"
         owner: root
         group: root
-        mode: '0664'
+        mode: "0664"
       loop:
         - nimbusCL
         - nimbusValidator
@@ -69,4 +68,3 @@
       systemd:
         name: nimbusValidator
         state: started
-

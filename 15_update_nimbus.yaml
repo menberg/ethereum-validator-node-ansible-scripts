@@ -24,13 +24,13 @@
   gather_facts: false
 
   vars_files:
-    - "vars/config_project.yaml"
-#
-# https://github.com/status-im/nimbus-eth2/releases/latest
-# https://nimbus.guide/binaries.html
+    - vars/config_project.yaml
+    - vars/config_local.yaml
+  #
+  # https://github.com/status-im/nimbus-eth2/releases/latest
+  # https://nimbus.guide/binaries.html
 
   tasks:
-
     # Validator-User sicherstellen (idempotent).
     - name: Ensure group 'nimbusValidator' exists
       group:
@@ -40,11 +40,10 @@
     - name: Add the user 'nimbusValidator'
       user:
         name: nimbusValidator
-        group: 'nimbusValidator'
-        groups: 'Ethereum'
+        group: "nimbusValidator"
+        groups: "Ethereum"
         create_home: no
         shell: /usr/bin/false
-
 
     ###################
     # Stop nimbus
@@ -61,9 +60,8 @@
         state: stopped
       ignore_errors: true
 
-
-###########
-  # Neueste Linux amd64 Release-Asset von GitHub ermitteln und laden.
+    ###########
+    # Neueste Linux amd64 Release-Asset von GitHub ermitteln und laden.
     - name: Get the latest Nimbus Eth2 release URL for Linux amd64
       ansible.builtin.uri:
         url: "https://api.github.com/repos/status-im/nimbus-eth2/releases/latest"
@@ -71,7 +69,7 @@
         return_content: yes
         body_format: json
       register: release_data
-     # requires installing jq on the remote host
+      # requires installing jq on the remote host
 
     - name: Set binaries_url from the release data
       set_fact:
@@ -94,9 +92,9 @@
       ansible.builtin.file:
         path: "/home/mm/nimbus"
         state: directory
-        owner: mm  # Optional: Specify the owner of the directory
-        group: mm  # Optional: Specify the group of the directory
-        mode: '0755'  # Optional: Set the permissions of the directory
+        owner: mm # Optional: Specify the owner of the directory
+        group: mm # Optional: Specify the group of the directory
+        mode: "0755" # Optional: Set the permissions of the directory
 
     - name: Extract Nimbus Eth2 tar.gz to the home directory
       ansible.builtin.unarchive:
@@ -105,7 +103,7 @@
         owner: nimbusCL
         group: nimbusCL
         remote_src: yes
-        extra_opts: [--strip-components=1]  # Assuming the tar structure allows this, adjust if needed
+        extra_opts: [--strip-components=1] # Assuming the tar structure allows this, adjust if needed
 
     - name: Cleanup downloaded tar.gz
       ansible.builtin.file:
@@ -127,7 +125,7 @@
         path: "{{ nimbus_bin_dir }}/nimbus_beacon_node"
         owner: nimbusCL
         group: nimbusCL
-        mode: '0700'
+        mode: "0700"
       become: true
 
     - name: Set secure permissions on nimbusValidator binaries
@@ -135,7 +133,7 @@
         path: "{{ nimbus_bin_dir }}/nimbus_validator_client"
         owner: nimbusValidator
         group: nimbusValidator
-        mode: '0700'
+        mode: "0700"
       become: true
 
     - name: Check nimbus_beacon_node version
@@ -162,14 +160,14 @@
         dest: /etc/systemd/system/nimbusCL.service
         owner: root
         group: root
-        mode: '0664'
+        mode: "0664"
     - name: Copy service scripts
       template:
         src: "templates/{{ item }}.service.j2"
         dest: "/etc/systemd/system/{{ item }}.service"
         owner: root
         group: root
-        mode: '0664'
+        mode: "0664"
       loop:
         - nimbusCL
         - nimbusValidator
@@ -191,7 +189,6 @@
       systemd:
         name: nimbusValidator
         state: started
-
 
     ###################
     # Warte 30 Sekunden dann frage die Version über die API ab

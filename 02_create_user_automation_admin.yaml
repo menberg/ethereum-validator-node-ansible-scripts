@@ -27,10 +27,9 @@
   hosts: ethnode
   become: true
 
-  vars:
-    automation_admin_uid: 11011
-    automation_admin_home: /var/lib/automation_admin
-    automation_admin_password_hash: "$6$REPLACE_ME$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  # mkpasswd --method=sha-512
+  vars_files:
+    - vars/config_project.yaml
+    - vars/config_local.yaml
 
   tasks:
     # Primärgruppe für den User sicherstellen.
@@ -60,4 +59,4 @@
         content: "automation_admin ALL=(ALL) NOPASSWD: ALL\n"
         owner: root
         group: root
-        mode: '0440'
+        mode: "0440"

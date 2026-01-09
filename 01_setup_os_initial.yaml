@@ -24,7 +24,8 @@
   gather_facts: yes
 
   vars_files:
-    - "vars/config_project.yaml"
+    - vars/config_project.yaml
+    - vars/config_local.yaml
 
   tasks:
     # FQDN Hostname setzen.

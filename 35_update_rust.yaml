@@ -17,12 +17,11 @@
   hosts: ethnode
   become: yes
 
-
   vars_files:
-    - "vars/config_project.yaml"
+    - vars/config_project.yaml
+    - vars/config_local.yaml
 
   tasks:
-
     # Home des Ziel-Users korrekt besitzen lassen (keine Permission-Issues).
     - name: Ensure correct ownership and permissions on the home directory
       ansible.builtin.command:
@@ -53,7 +52,7 @@
       ansible.builtin.get_url:
         url: https://sh.rustup.rs
         dest: "/home/{{ reth_system_user }}/rustup.sh"
-        mode: '0755'
+        mode: "0755"
         owner: "{{ reth_system_user }}"
         group: "{{ reth_system_user }}"
       become: yes
@@ -82,14 +81,14 @@
     - name: Set executable permissions on rustup binary
       ansible.builtin.file:
         path: "/home/{{ reth_system_user }}/.cargo/bin/rustup"
-        mode: '0755'
+        mode: "0755"
         state: file
       become: yes
 
     - name: Set executable permissions on rustc binary
       ansible.builtin.file:
         path: "/home/{{ reth_system_user }}/.cargo/bin/rustc"
-        mode: '0755'
+        mode: "0755"
         state: file
       become: yes
 
@@ -100,7 +99,7 @@
         state: touch
         owner: "{{ reth_system_user }}"
         group: "{{ reth_system_user }}"
-        mode: '0644'
+        mode: "0644"
       become: yes
 
     - name: Set Rust PATH for the user
@@ -126,4 +125,3 @@
       ansible.builtin.debug:
         var: rustc_version.stdout
       become: no
-
