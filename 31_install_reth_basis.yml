@@ -62,8 +62,9 @@
             - pkg-config
             - build-essential
 
-    - name: Reboot
-      include_tasks: tasks/reboot.yml
+    # Reboot zur Anwendung der Änderungen.
+    - name: Reboot host
+      reboot:
 
     ################
     # Install rust for the user rethEL
