@@ -49,7 +49,6 @@
       user:
         name: nimbusCL
         group: "nimbusCL"
-        groups: "Ethereum"
         create_home: yes
         shell: /bin/bash
 
@@ -57,7 +56,6 @@
       user:
         name: nimbusValidator
         group: "nimbusValidator"
-        groups: "Ethereum"
         create_home: no
         shell: /bin/bash
 
@@ -79,7 +77,7 @@
         path: "{{ nimbus_bin_dir }}"
         state: directory
         owner: nimbusCL
-        group: Ethereum
+        group: nimbusCL
         mode: "0755"
 
     - name: Make sure needed directories exist (cl client)

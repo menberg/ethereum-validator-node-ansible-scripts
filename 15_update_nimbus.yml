@@ -40,7 +40,6 @@
       user:
         name: nimbusValidator
         group: "nimbusValidator"
-        groups: "Ethereum"
         create_home: no
         shell: /usr/bin/false
 

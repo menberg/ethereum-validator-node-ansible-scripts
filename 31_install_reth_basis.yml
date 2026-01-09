@@ -29,12 +29,7 @@
     ###################
     # Create rethEL User with home
 
-    # Ethereum-Gruppe und dedizierten reth-User anlegen.
-    - name: Ensure group Ethereum exists
-      group:
-        name: Ethereum
-        state: present
-
+    # Dedizierten reth-User anlegen.
     - name: Ensure group "{{ reth_system_user }}" exists
       group:
         name: "{{ reth_system_user }}"
@@ -44,7 +39,6 @@
       user:
         name: "{{ reth_system_user }}"
         group: "{{ reth_system_user }}"
-        groups: "Ethereum"
         shell: /bin/bash
         create_home: yes
 
