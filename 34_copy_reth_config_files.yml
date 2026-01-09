@@ -24,7 +24,7 @@
 
   tasks:
     # Service stoppen, um Unit sicher zu ersetzen.
-    - name: Stop service
+    - name: Stop service - {{ reth_system_user }}
       systemd:
         name: "{{ reth_system_user }}"
         state: stopped
@@ -47,6 +47,4 @@
     - name: Restart service
       systemd:
         name: "{{ reth_system_user }}"
-        state: restarted
-        enabled: yes
-        daemon_reload: yes
+        state: started
