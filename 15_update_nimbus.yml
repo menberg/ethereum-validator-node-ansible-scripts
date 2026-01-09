@@ -200,7 +200,7 @@
 
     - name: Fetch and display the node version from local ETH node
       ansible.builtin.shell: |
-        curl -s GET http://localhost:5052/eth/v1/node/version | jq '.data.version' | awk '{ printf "%s\n", $1 }'
+        curl -s http://localhost:{{ nimbus_cl_rest_port }}/eth/v1/node/version | jq '.data.version' | awk '{ printf "%s\n", $1 }'
       register: node_version
       failed_when: node_version.rc != 0
 
