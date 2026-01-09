@@ -33,7 +33,7 @@
     - name: Copy service script
       template:
         src: templates/{{ reth_system_user }}.service.j2
-        dest: /etc/systemd/system/rethEL.service
+        dest: /etc/systemd/system/{{ reth_system_user }}.service
         owner: root
         group: root
         mode: "0664"
