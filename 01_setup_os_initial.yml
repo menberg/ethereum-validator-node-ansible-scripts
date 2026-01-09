@@ -61,7 +61,7 @@
       changed_when: locale_lang != config_system_locale or locale_language != config_system_language
 
     # Zeitzone setzen.
-    - name: Set timezone to Europe/Zurich
+    - name: Set timezone
       timezone:
         name: "{{ config_system_timezone }}"
 
