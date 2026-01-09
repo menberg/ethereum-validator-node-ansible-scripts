@@ -2,7 +2,6 @@
 ##
 ## Playbook: OS-Hardening, SSH-Setup und UFW-Basisregeln
 ## Ziel: Frischen Host für den ersten Validator-Run vorbereiten durch
-## - SSH auf Custom-Port absichern
 ## - UFW mit Default-Deny aktivieren
 ## - Reboot zum Anwenden aller Änderungen
 ##
@@ -12,7 +11,7 @@
 ## Targets: Inventory-Gruppe 'ethnode' (frischer Server)
 ## Privilege: become: yes (Root nötig für Firewall und sshd)
 ## Variablen:
-## - lädt vars/initial_os_setup.yml (z.B. custom_ssh_port)
+## - lädt vars/initial_os_setup.yml
 ## - setzt ansible_port einmalig auf 22 für das Bootstrap
 ## Voraussetzungen:
 ## - Host ist initial über Port 22 erreichbar
