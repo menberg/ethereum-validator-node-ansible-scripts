@@ -153,13 +153,6 @@
     # Copy Serivice Template Files
 
     # systemd-Units aktualisieren (no-op falls identisch).
-    - name: Copy service script
-      template:
-        src: templates/nimbusCL.service.j2
-        dest: /etc/systemd/system/nimbusCL.service
-        owner: root
-        group: root
-        mode: "0664"
     - name: Copy service scripts
       template:
         src: "templates/{{ item }}.service.j2"
