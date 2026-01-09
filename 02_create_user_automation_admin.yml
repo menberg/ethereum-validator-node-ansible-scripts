@@ -21,8 +21,7 @@
 ## - Passwordless sudo ist mächtig; nur in kontrollierten Umgebungen verwenden.
 ## - Optional: SSH Public Keys hinterlegen (authorized_keys) und Passwort-Login deaktivieren.
 ##
-#
-# Create automation_admin user and sudoers entry
+
 - name: Create automation_admin user
   hosts: ethnode
   become: true

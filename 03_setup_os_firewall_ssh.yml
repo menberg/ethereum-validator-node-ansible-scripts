@@ -31,7 +31,6 @@
 
   tasks:
     # sshd sichern (Port/Auth), Vorlage anpassen und Handler triggern.
-
     - name: Make local copy of current sshd_config
       copy:
         remote_src: yes
@@ -56,12 +55,14 @@
         proto: tcp
         from_ip: "10.0.10.1"
         comment: SSH custom port from Jump Host
+
     # UFW Default-Deny aktivieren; weitere Ports (CL/EL) später öffnen.
     - name: UFW - Deny all other incoming traffic by default
       ufw:
         state: enabled
         policy: deny
         direction: incoming
+
     # Reboot, damit sshd/UFW Änderungen greifen.
     - name: Reboot host
       reboot:
