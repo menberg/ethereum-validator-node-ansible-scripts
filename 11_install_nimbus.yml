@@ -217,7 +217,7 @@
       loop:
         - nimbusCL
         - nimbusValidator
-      notify: daemon_reload
+      notify: daemon-reload
 
     - name: enable service to start on boot
       systemd:
