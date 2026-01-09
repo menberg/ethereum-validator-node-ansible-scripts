@@ -13,7 +13,7 @@
 ## Targets: Inventory-Gruppe 'ethnode'
 ## Variablen (in vars/config_project.yaml erwartet):
 ## - server_fqdn_hostname
-## - config_system_locale, config_system_locale_2, config_system_locale_3
+## - config_system_locale
 ## - config_system_language
 ## - sys_packages (Liste von Packages)
 ##
@@ -27,28 +27,15 @@
     - "vars/config_project.yaml"
 
   tasks:
-
     # FQDN Hostname setzen.
     - name: Set the full hostname (FQDN)
       ansible.builtin.hostname:
         name: "{{ server_fqdn_hostname }}"
 
-    # Locale-Dateien generieren (z.B. de_CH.UTF-8, en_US.UTF-8).
-    - name: Ensure localisation files are available
+    # Locale-Datei generieren (z.B. en_US.UTF-8).
+    - name: Ensure localisation file is available
       locale_gen:
         name: "{{ config_system_locale }}"
-        state: present
-
-    # Zweite Locale hinzufügen.
-    - name: Ensure localisation files are available
-      locale_gen:
-        name: "{{ config_system_locale_2 }}"
-        state: present
-
-    # Dritte Locale hinzufügen.
-    - name: Ensure localisation files are available
-      locale_gen:
-        name: "{{ config_system_locale_3 }}"
         state: present
 
     # Aktuelle Locale/Language abfragen.
@@ -69,13 +56,13 @@
 
     # Locale/Language setzen (localectl), nur wenn abweichend.
     - name: Configure locale to '{{ config_system_locale }}' and language to '{{ config_system_language }}'
-      command: localectl set-locale LANG={{ config_system_locale }} LANGUAGE={{ config_system_language }} LC_MESSAGES={{ config_system_locale_3 }}
+      command: localectl set-locale LANG={{ config_system_locale }} LANGUAGE={{ config_system_language }} LC_MESSAGES={{ config_system_locale }}
       changed_when: locale_lang != config_system_locale or locale_language != config_system_language
 
     # Zeitzone setzen.
     - name: Set timezone to Europe/Zurich
       timezone:
-        name: Europe/Zurich
+        name: "{{ config_system_timezone }}"
 
     # Paket-Index aktualisieren.
     - name: Run <apt-get update>
@@ -85,7 +72,7 @@
     # System-Pakete upgraden und bereinigen.
     - name: Run <apt-get upgrade>
       apt:
-        upgrade: 'yes'
+        upgrade: "yes"
         force_apt_get: yes
         autoremove: yes
 
@@ -94,9 +81,9 @@
       apt:
         name: "{{ sys_packages }}"
         state: latest
-      ignore_errors: 'yes'
+      ignore_errors: "yes"
 
     # Reboot zur Anwendung der Änderungen.
     - name: Reboot host
       reboot:
-      ignore_errors: 'yes'
+      ignore_errors: "yes"

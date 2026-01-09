@@ -1,72 +1,84 @@
 ---
+##########################################
+# SYSTEM
+##########################################
 
-# Local Netowrk IP (für Firewall Rules)
-server_hostname: ethnode
-server_ip_dmz: '192.168.1.101'
-localhost_ip: '127.0.0.1'
+sys_packages:
+  - chrony
+  - git
+  - curl
+  - gnupg
+  - build-essential
+  - jq
+  - ccze
+  - libclang-dev
+  - ufw
+  - glances
+  - zip
+  - unzip
+  - tree
 
-server_ip: '192.168.1.101'
-server_short_hostname: ethnode
-server_fqdn_hostname: 'ethnode.local'
+##########################################
+# SERVER
+##########################################
 
-# Language Settings
-config_system_locale: 'de_DE.UTF-8'
-config_system_locale_2: 'en_GB.UTF-8'
-config_system_locale_3: 'en_US.UTF-8'
-config_system_language: 'de_DE.UTF-8:en_GB.UTF-8:en_US.UTF-8'
+# Network
+server_fqdn_hostname: "ethnode.local"
+localhost_ip: "127.0.0.1"
 
+# Language and Timezone
+config_system_locale: "de_CH.UTF-8"
+config_system_language: "en_US.UTF-8"
+config_system_timezone: "Europe/Zurich"
 
-################
-# Divers ETH Ethereum Network und Client
+##########################################
+# ETH ETHEREUM NETWORK
+##########################################
 
-network: 'hoodi'  # set up an environment, e.g 'hoodi' or 'mainnet'
-eth2client: 'nimbus' # set 'Prysm' 'lighthouse' 'nimbus'
-fee_recipient_wallet_address: "0x....deine_receipientadresse"  
+network: "hoodi" # set up an environment, e.g 'hoodi' or 'mainnet'
+fee_recipient_wallet_address: "0x....deine_receipientadresse"
 
-
-##################
-# reth ####
-
+##########################################
+# RETH EXECUTION LAYER
+##########################################
 # Latest release at "https://github.com/paradigmxyz/reth/releases/latest"
+
 reth_version: "v1.9.3 "
 reth_system_user: rethEL
 reth_source_directory: "/tmp/reth"
 reth_bin_dir: "/opt/reth/bin"
-reth_binary_path: "{{ reth_bin_dir }}/reth"  # Full path to the binary
+reth_binary_path: "{{ reth_bin_dir }}/reth" # Full path to the binary
 reth_home_dir: "/mnt/ssd1/rethEL"
 reth_data_dir: "/mnt/ssd1/rethEL"
-reth_backup_dir: "/mnt/ssd_backup/reth_backup"
 reth_log_dir: "/var/log/reth"
-reth_log_level: info  # debug, info, warn, error
+reth_log_level: info # debug, info, warn, error
 reth_ext_port: 59404
 reth_max_peers_out: 20
 reth_max_peers_in: 20
 reth_rpc_http_port: 8547
 reth_rpc_ws_port: 8548
-reth_metrics_address: '127.0.0.1'
+reth_metrics_address: "127.0.0.1"
 reth_metrics_port: 6060
 reth_jwtsecret: "/var/lib/jwtsecret/jwt.hex"
-reth_authrpc_addr: '127.0.0.1'
+reth_authrpc_addr: "127.0.0.1"
 reth_authrpc_port: 8550
 
-
-#####################
-# nimbus ####
+##########################################
+# NIMBUS CONSENSUS LAYER
+##########################################
 # Latest release at "https://github.com/status-im/nimbus-eth2/releases/latest"
 
 nimbus_bin_dir: /opt/nimbus/bin
 nimbus_cl_system_user: "nimbusCL"
 nimbus_cl_data_dir: /mnt/ssd1/nimbusCL/data
-nimbus_cl_rest_port: '5050'
-nimbus_cl_metrics_port: '8080'
+nimbus_cl_rest_port: "5050"
+nimbus_cl_metrics_port: "8080"
 nimbus_cl_node_name: MaNode
-nimbus_ext_tcp_port: '59400'
-nimbus_ext_udp_port: '59400'
-nimbus_max_peers: '30'
+nimbus_ext_tcp_port: "59400"
+nimbus_ext_udp_port: "59400"
+nimbus_max_peers: "30"
 nimbus_jwt_secret: "/var/lib/jwtsecret/jwt.hex"
-el_ws: "ws://127.0.0.1:8550" 
-el_http: "http://127.0.0.1:8550" 
-
+el_http: "http://127.0.0.1:8550"
 
 nimbus_validator_system_user: "nimbusValidator"
 nimbus_validator_data_dir: /mnt/ssd1/nimbusValidator
@@ -80,32 +92,3 @@ nimbus_log_level: "NOTICE" # DEBUG, INFO, NOTICE, WARN, ERROR
 nimbus_log_dir: "/var/log/nimbus"
 nimbus_cl_log_file: "nimbusCL.jsonl"
 nimbus_validator_log_file: "nimbusValidator.jsonl"
-
-#################################
-
-# Packages für das System im Projekt
-sys_packages:
-  - chrony
-  - git
-  - curl
-  - unzip
-  - gnupg
-  - build-essential
-  - jq
-  - ccze
-  - libclang-dev
-  - ufw
-  - glances
-  - zip
-  - tree
-  - net-tools
-  - jq
-
-
-
-#################
-# Other vars ####
-
-# Intel eher amd64; finde Architekur mit
-# "dpkg --print-architecture", alternativ (anders) "uname -m"
-arch: amd64
