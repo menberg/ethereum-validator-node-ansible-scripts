@@ -51,7 +51,7 @@ fee_recipient_wallet_address: "" # overridden by vars/config_local.yml
 ##########################################
 # Latest release at "https://github.com/paradigmxyz/reth/releases/latest"
 
-reth_version: "v1.9.3 "
+reth_version: "v1.9.3"
 reth_system_user: rethEL
 reth_source_directory: "/tmp/reth"
 reth_bin_dir: "/opt/reth/bin"
