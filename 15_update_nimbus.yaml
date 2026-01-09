@@ -9,7 +9,7 @@
 ## - Services neu starten und Version via API prüfen
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory.ini 15_update_nimbus.yaml
+## ansible-playbook -i inventory/hosts.yaml 15_update_nimbus.yaml
 ##
 ## Variablen: vars/config_project.yaml (nimbus_bin_dir, User etc.)
 ## Hinweise:

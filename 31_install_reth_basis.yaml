@@ -8,7 +8,7 @@
 ## - systemd-Service installieren und starten
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory.ini 31_install_reth_basis.yaml
+## ansible-playbook -i inventory/hosts.yaml 31_install_reth_basis.yaml
 ##
 ## Variablen: vars/config_project.yaml, z.B.
 ##   - reth_system_user, reth_source_directory, reth_bin_dir, reth_binary_path

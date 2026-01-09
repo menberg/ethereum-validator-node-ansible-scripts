@@ -7,7 +7,7 @@
 ## - systemd reload und Service neu starten
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory.ini 34_copy_reth_config_files.yaml
+## ansible-playbook -i inventory/hosts.yaml 34_copy_reth_config_files.yaml
 ##
 ## Variablen: vars/config_project.yaml (reth_system_user)
 ## Template: templates/rethEL.service.j2

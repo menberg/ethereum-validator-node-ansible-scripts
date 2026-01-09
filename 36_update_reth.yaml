@@ -8,7 +8,7 @@
 ## - Binary ersetzen und Service neu starten
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory.ini 36_update_reth.yaml
+## ansible-playbook -i inventory/hosts.yaml 36_update_reth.yaml
 ##
 ## Variablen: vars/config_project.yaml
 ##   - reth_version steuert Tag/Commit

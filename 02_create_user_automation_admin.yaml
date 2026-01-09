@@ -7,7 +7,7 @@
 ## - Passwordless sudo (NOPASSWD) via sudoers.d aktivieren
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory.ini 01_create_user_automation_admin.yml
+## ansible-playbook -i inventory/hosts.yaml 01_create_user_automation_admin.yml
 ##
 ## Targets: Inventory-Gruppe 'ethnode'
 ## Privilege: become: true (Root nötig für User/Sudoers)

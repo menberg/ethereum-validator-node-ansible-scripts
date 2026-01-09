@@ -8,7 +8,7 @@
 ## - PATH via .profile hinterlegen
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory.ini 35_update_rust.yaml
+## ansible-playbook -i inventory/hosts.yaml 35_update_rust.yaml
 ##
 ## Variablen: vars/config_project.yaml (reth_system_user)
 ##

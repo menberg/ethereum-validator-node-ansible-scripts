@@ -8,7 +8,7 @@
 ## - Standard-Packages installieren und System aktualisieren
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory.ini 01_setup_os_initial.yaml
+## ansible-playbook -i inventory/hosts.yaml 01_setup_os_initial.yaml
 ##
 ## Targets: Inventory-Gruppe 'ethnode'
 ## Variablen (in vars/config_project.yaml erwartet):

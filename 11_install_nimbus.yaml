@@ -9,7 +9,7 @@
 ## - systemd-Services für Beacon und Validator deployen/aktivieren
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory.ini 11_install_nimbus.yaml
+## ansible-playbook -i inventory/hosts.yaml 11_install_nimbus.yaml
 ##
 ## Targets: Inventory-Gruppe 'ethnode'
 ## Variablen: aus vars/config_project.yaml, z.B.
