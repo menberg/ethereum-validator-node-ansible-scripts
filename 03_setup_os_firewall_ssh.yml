@@ -47,14 +47,13 @@
         mode: "0644"
         validate: /usr/sbin/sshd -T -f %s
 
-    # SSH auf Custom-Port nur vom Jump Host erlauben (from_ip anpassen).
-    - name: UFW - Allow SSH from Jump Host
+    # SSH erlauben.
+    - name: UFW - Allow SSH
       ufw:
         rule: allow
         port: 22
         proto: tcp
-        from_ip: "10.0.10.1"
-        comment: SSH custom port from Jump Host
+        comment: SSH access
 
     # UFW Default-Deny aktivieren; weitere Ports (CL/EL) später öffnen.
     - name: UFW - Deny all other incoming traffic by default

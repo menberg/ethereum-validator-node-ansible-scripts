@@ -29,6 +29,7 @@ sys_packages:
 # Network
 server_fqdn_hostname: "ethnode.local"
 localhost_ip: "127.0.0.1"
+external_ip: "" # overridden by vars/config_local.yml
 
 # Language and Timezone
 config_system_locale: "de_CH.UTF-8"
@@ -61,10 +62,10 @@ reth_max_peers_out: 20
 reth_max_peers_in: 20
 reth_rpc_http_port: 8547
 reth_rpc_ws_port: 8548
-reth_metrics_address: "127.0.0.1"
+reth_metrics_address: "{{ localhost_ip }}"
 reth_metrics_port: 6060
 reth_jwtsecret: "/var/lib/jwtsecret/jwt.hex"
-reth_authrpc_addr: "127.0.0.1"
+reth_authrpc_addr: "{{ localhost_ip }}"
 reth_authrpc_port: 8550
 
 ##########################################
@@ -80,9 +81,10 @@ nimbus_cl_metrics_port: "8080"
 nimbus_cl_node_name: MaNode
 nimbus_ext_tcp_port: "59400"
 nimbus_ext_udp_port: "59400"
+nimbus_ext_ip: "{{ external_ip }}"
 nimbus_max_peers: "30"
 nimbus_jwt_secret: "/var/lib/jwtsecret/jwt.hex"
-el_http: "http://127.0.0.1:8550"
+el_http: "http://{{ localhost_ip }}:8550"
 
 nimbus_validator_system_user: "nimbusValidator"
 nimbus_validator_data_dir: /mnt/ssd1/nimbusValidator
