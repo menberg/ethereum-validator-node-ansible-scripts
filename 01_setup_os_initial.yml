@@ -86,3 +86,10 @@
     # Reboot zur Anwendung der Änderungen.
     - name: Reboot host
       reboot:
+        reboot_timeout: 300
+
+    # Warten bis der Host wieder erreichbar ist.
+    - name: Wait for host to come back online
+      wait_for_connection:
+        timeout: 360
+        delay: 10
