@@ -70,6 +70,8 @@ reth_metrics_port: 6060
 reth_jwtsecret: "/var/lib/jwtsecret/jwt.hex"
 reth_authrpc_addr: "{{ localhost_ip }}"
 reth_authrpc_port: 8550
+reth_http_corsdomain: "" # empty = no CORS (recommended for localhost-only), or "http://localhost,http://127.0.0.1" for browser tools
+reth_ws_origins: "" # empty = no origin checking (recommended for localhost-only), or "http://localhost,http://127.0.0.1" for browser tools
 
 ##########################################
 # NIMBUS CONSENSUS LAYER

@@ -24,11 +24,15 @@ ExecStart={{ reth_binary_path }} node --full \
         --http.api eth,net,web3,admin \
         --http.addr {{ localhost_ip }} \
         --http.port {{ reth_rpc_http_port }} \
-        --http.corsdomain '*' \
+{% if reth_http_corsdomain | length > 0 %}
+        --http.corsdomain '{{ reth_http_corsdomain }}' \
+{% endif %}
+{% if reth_ws_origins | length > 0 %}
+        --ws.origins '{{ reth_ws_origins }}' \
+{% endif %}
         --ws.api eth,net,web3,admin \
         --ws.addr {{ localhost_ip }} \
         --ws.port {{ reth_rpc_ws_port }} \
-        --ws.origins '*' \
         --max-outbound-peers {{ reth_max_peers_out }} \
         --max-inbound-peers {{ reth_max_peers_in }} \
         --metrics {{ reth_metrics_address }}:{{ reth_metrics_port }} \
