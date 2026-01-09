@@ -151,8 +151,8 @@
       ansible.builtin.unarchive:
         src: "/tmp/nimbus.tar.gz"
         dest: "/home/{{ system_user }}/nimbus"
-        owner: nimbusCL
-        group: nimbusCL
+        owner: "{{ system_user }}"
+        group: "{{ system_user }}"
         remote_src: yes
         extra_opts: [--strip-components=1] # Assuming the tar structure allows this, adjust if needed
 
