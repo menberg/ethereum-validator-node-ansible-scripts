@@ -26,6 +26,9 @@ sys_packages:
 # SERVER
 ##########################################
 
+## User
+system_user: "janos"
+
 # Network
 server_fqdn_hostname: "ethnode.local"
 localhost_ip: "127.0.0.1"

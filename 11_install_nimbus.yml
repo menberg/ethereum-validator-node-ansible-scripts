@@ -143,16 +143,16 @@
     # Temporär entpacken, später Binaries nach {{ nimbus_bin_dir }} verschieben.
     - name: Ensure the destination directory exists
       ansible.builtin.file:
-        path: "/home/mm/nimbus"
+        path: "/home/{{ system_user }}/nimbus"
         state: directory
-        owner: mm # Optional: Specify the owner of the directory
-        group: mm # Optional: Specify the group of the directory
+        owner: "{{ system_user }}"
+        group: "{{ system_user }}"
         mode: "0755" # Optional: Set the permissions of the directory
 
     - name: Extract Nimbus Eth2 tar.gz to the home directory
       ansible.builtin.unarchive:
         src: "/tmp/nimbus.tar.gz"
-        dest: "/home/mm/nimbus"
+        dest: "/home/{{ system_user }}/nimbus"
         owner: nimbusCL
         group: nimbusCL
         remote_src: yes
@@ -166,7 +166,7 @@
     # Binaries in das Zielverzeichnis verschieben.
     - name: Move Nimbus binaries to "{{ nimbus_bin_dir }}/"
       ansible.builtin.command:
-        cmd: "mv /home/mm/nimbus/build/{{ item }} {{ nimbus_bin_dir }}/{{ item }}"
+        cmd: "mv /home/{{ system_user }}/nimbus/build/{{ item }} {{ nimbus_bin_dir }}/{{ item }}"
       loop:
         - nimbus_beacon_node
         - nimbus_validator_client
@@ -200,7 +200,7 @@
 
     - name: Cleanup Nimbus folder
       ansible.builtin.file:
-        path: "/home/mm/nimbus"
+        path: "/home/{{ system_user }}/nimbus"
         state: absent
 
     ##############################
