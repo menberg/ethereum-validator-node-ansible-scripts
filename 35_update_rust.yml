@@ -8,9 +8,9 @@
 ## - PATH via .profile hinterlegen
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory/hosts.yaml 35_update_rust.yaml
+## ansible-playbook -i inventory/hosts.yml 35_update_rust.yml
 ##
-## Variablen: vars/config_project.yaml (reth_system_user)
+## Variablen: vars/config_project.yml (reth_system_user)
 ##
 
 - name: Install or update rust
@@ -18,8 +18,8 @@
   become: yes
 
   vars_files:
-    - vars/config_project.yaml
-    - vars/config_local.yaml
+    - vars/config_project.yml
+    - vars/config_local.yml
 
   tasks:
     # Home des Ziel-Users korrekt besitzen lassen (keine Permission-Issues).

@@ -7,9 +7,9 @@
 ## - systemd reload und Service neu starten
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory/hosts.yaml 34_copy_reth_config_files.yaml
+## ansible-playbook -i inventory/hosts.yml 34_copy_reth_config_files.yml
 ##
-## Variablen: vars/config_project.yaml (reth_system_user)
+## Variablen: vars/config_project.yml (reth_system_user)
 ## Template: templates/rethEL.service.j2
 ##
 
@@ -19,8 +19,8 @@
   gather_facts: false
 
   vars_files:
-    - vars/config_project.yaml
-    - vars/config_local.yaml
+    - vars/config_project.yml
+    - vars/config_local.yml
 
   tasks:
     # Service stoppen, um Unit sicher zu ersetzen.

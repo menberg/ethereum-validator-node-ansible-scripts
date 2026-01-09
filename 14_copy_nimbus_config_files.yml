@@ -7,9 +7,9 @@
 ## - systemd reload und Services neu starten
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory/hosts.yaml 14_copy_nimbus_config_files.yaml
+## ansible-playbook -i inventory/hosts.yml 14_copy_nimbus_config_files.yml
 ##
-## Variablen: vars/config_project.yaml
+## Variablen: vars/config_project.yml
 ## Templates: templates/nimbusCL.service.j2, templates/nimbusValidator.service.j2
 ##
 
@@ -20,8 +20,8 @@
   gather_facts: false
 
   vars_files:
-    - vars/config_project.yaml
-    - vars/config_local.yaml
+    - vars/config_project.yml
+    - vars/config_local.yml
 
   tasks:
     # Services stoppen, bevor Units ersetzt werden.

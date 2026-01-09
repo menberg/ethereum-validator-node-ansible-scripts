@@ -8,9 +8,9 @@
 ## - Binary ersetzen und Service neu starten
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory/hosts.yaml 36_update_reth.yaml
+## ansible-playbook -i inventory/hosts.yml 36_update_reth.yml
 ##
-## Variablen: vars/config_project.yaml
+## Variablen: vars/config_project.yml
 ##   - reth_version steuert Tag/Commit
 ##   - reth_system_user, reth_source_directory, reth_binary_path
 ## Hinweis: Rust muss für den Ziel-User vorhanden sein.
@@ -22,8 +22,8 @@
   gather_facts: false
 
   vars_files:
-    - vars/config_project.yaml
-    - vars/config_local.yaml
+    - vars/config_project.yml
+    - vars/config_local.yml
 
   tasks:
     ################

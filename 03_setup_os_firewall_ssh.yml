@@ -8,12 +8,12 @@
 ## - Reboot zum Anwenden aller Änderungen
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory/hosts.yaml 01_setup_os_firewall_ssh.yaml
+## ansible-playbook -i inventory/hosts.yml 01_setup_os_firewall_ssh.yml
 ##
 ## Targets: Inventory-Gruppe 'ethnode' (frischer Server)
 ## Privilege: become: yes (Root nötig für Firewall und sshd)
 ## Variablen:
-## - lädt vars/initial_os_setup.yaml (z.B. custom_ssh_port)
+## - lädt vars/initial_os_setup.yml (z.B. custom_ssh_port)
 ## - setzt ansible_port einmalig auf 22 für das Bootstrap
 ## Voraussetzungen:
 ## - Host ist initial über Port 22 erreichbar
@@ -26,8 +26,8 @@
   gather_facts: no
 
   vars_files:
-    - vars/config_project.yaml
-    - vars/config_local.yaml
+    - vars/config_project.yml
+    - vars/config_local.yml
 
   tasks:
     # sshd sichern (Port/Auth), Vorlage anpassen und Handler triggern.

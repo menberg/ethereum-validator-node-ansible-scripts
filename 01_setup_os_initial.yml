@@ -8,10 +8,10 @@
 ## - Standard-Packages installieren und System aktualisieren
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory/hosts.yaml 01_setup_os_initial.yaml
+## ansible-playbook -i inventory/hosts.yml 01_setup_os_initial.yml
 ##
 ## Targets: Inventory-Gruppe 'ethnode'
-## Variablen (in vars/config_project.yaml erwartet):
+## Variablen (in vars/config_project.yml erwartet):
 ## - server_fqdn_hostname
 ## - config_system_locale
 ## - config_system_language
@@ -24,8 +24,8 @@
   gather_facts: yes
 
   vars_files:
-    - vars/config_project.yaml
-    - vars/config_local.yaml
+    - vars/config_project.yml
+    - vars/config_local.yml
 
   tasks:
     # FQDN Hostname setzen.

@@ -1,0 +1,2 @@
+automation_admin_password_hash: "$6$REPLACE_ME_WITH_YOUR_PASSWORD_HASH"
+fee_recipient_wallet_address: "0x....REPLACE_ME_WITH_YOUR_FEE_RECIPIENT_ADDRESS"

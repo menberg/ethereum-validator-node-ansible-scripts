@@ -8,9 +8,9 @@
 ## - systemd-Service installieren und starten
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory/hosts.yaml 31_install_reth_basis.yaml
+## ansible-playbook -i inventory/hosts.yml 31_install_reth_basis.yml
 ##
-## Variablen: vars/config_project.yaml, z.B.
+## Variablen: vars/config_project.yml, z.B.
 ##   - reth_system_user, reth_source_directory, reth_bin_dir, reth_binary_path
 ##   - reth_data_dir, reth_log_dir, reth_version
 ## Templates: templates/rethEL.service.j2 (benannt nach reth_system_user)
@@ -22,8 +22,8 @@
   gather_facts: true
 
   vars_files:
-    - vars/config_project.yaml
-    - vars/config_local.yaml
+    - vars/config_project.yml
+    - vars/config_local.yml
 
   tasks:
     ###################
@@ -63,7 +63,7 @@
             - build-essential
 
     - name: Reboot
-      include_tasks: tasks/reboot.yaml
+      include_tasks: tasks/reboot.yml
 
     ################
     # Install rust for the user rethEL
