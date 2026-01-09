@@ -57,7 +57,6 @@
       systemd:
         name: nimbusValidator
         state: stopped
-      ignore_errors: true
 
     ###########
     # Neueste Linux amd64 Release-Asset von GitHub ermitteln und laden.
