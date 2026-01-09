@@ -1,0 +1,50 @@
+[Unit]
+Description=reth Execution Layer Client
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ reth_system_user }}
+Group={{ reth_system_user }}
+Restart=always
+RestartSec=10
+StandardOutput=null
+StandardError=journal
+SyslogLevel=err
+ExecStart={{ reth_binary_path }} node --full \
+        --ws --http \
+        --chain {{ network }} \
+        --datadir {{ reth_data_dir }} \
+        --port {{ reth_ext_port }} \
+        --authrpc.addr {{ reth_authrpc_addr }} \
+        --authrpc.port {{ reth_authrpc_port }} \
+        --authrpc.jwtsecret {{ reth_jwtsecret }} \
+        --ipcpath {{ reth_home_dir }}/reth.ipc \
+        --http.api eth,net,web3,admin \
+        --http.addr {{ localhost_ip }} \
+        --http.port {{ reth_rpc_http_port }} \
+        --http.corsdomain '*' \
+        --ws.api eth,net,web3,admin \
+        --ws.addr {{ localhost_ip }} \
+        --ws.port {{ reth_rpc_ws_port }} \
+        --ws.origins '*' \
+        --max-outbound-peers {{ reth_max_peers_out }} \
+        --max-inbound-peers {{ reth_max_peers_in }} \
+        --metrics {{ reth_metrics_address }}:{{ reth_metrics_port }} \
+        --log.stdout.format terminal \
+        --log.file.format json \
+        --log.file.directory {{ reth_log_dir }} \
+        --log.file.filter '{{ reth_log_level }}' \
+        --log.journald \
+        --log.journald.filter error \
+        --prune.bodies.pre-merge \
+        --prune.receipts.distance 100000 \
+        --prune.senderrecovery.full \
+        --prune.transactionlookup.full \
+        --prune.accounthistory.distance 50000 \
+        --prune.storagehistory.distance 50000 \
+        --era.enable
+
+[Install]
+WantedBy=multi-user.target

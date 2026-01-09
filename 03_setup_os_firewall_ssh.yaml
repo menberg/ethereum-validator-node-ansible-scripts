@@ -1,0 +1,78 @@
+---
+##
+## Playbook: OS-Hardening, SSH-Setup und UFW-Basisregeln
+## Ziel: Frischen Host für den ersten Validator-Run vorbereiten durch
+## - SSH auf Custom-Port absichern
+## - SSH-Zugang nur vom Jump Host erlauben
+## - UFW mit Default-Deny aktivieren
+## - Reboot zum Anwenden aller Änderungen
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory.ini 01_setup_os_firewall_ssh.yaml
+##
+## Targets: Inventory-Gruppe 'ethnode' (frischer Server)
+## Privilege: become: yes (Root nötig für Firewall und sshd)
+## Variablen:
+## - lädt vars/initial_os_setup.yaml (z.B. custom_ssh_port)
+## - setzt ansible_port einmalig auf 22 für das Bootstrap
+## Voraussetzungen:
+## - Host ist initial über Port 22 erreichbar
+## - Jump-Host-IP in der UFW-Rule anpassen
+##
+
+- name: Setup OS - Config SSH Firewall User
+  hosts: ethnode
+  become: yes
+  gather_facts: no
+
+
+  vars_files:
+    - "vars/config_project.yaml"
+
+
+  tasks:
+
+    # sshd sichern (Port/Auth), Vorlage anpassen und Handler triggern.
+
+    - name: Make local copy of current sshd_config
+      copy:
+        remote_src: yes
+        src: "/etc/ssh/sshd_config"
+        dest: "/etc/ssh/sshd_config_initaldefaults_lastbackup"
+
+
+    - name: sshd configuration file update
+      template:
+        src: templates/sshd_config.j2
+        dest: /etc/ssh/sshd_config
+        backup: yes
+        owner: root
+        group: root
+        mode: '0644'
+        validate: /usr/sbin/sshd -T -f %s
+
+  # SSH auf Custom-Port nur vom Jump Host erlauben (from_ip anpassen).
+    - name: UFW - Allow SSH from Jump Host
+      ufw:
+        rule: allow
+        port: 22
+        proto: tcp
+        from_ip: '10.0.10.1'
+        comment: SSH custom port from Jump Host
+  # UFW Default-Deny aktivieren; weitere Ports (CL/EL) später öffnen.
+    - name: UFW - Deny all other incoming traffic by default
+      ufw:
+        state: enabled
+        policy: deny
+        direction: incoming
+  # Reboot, damit sshd/UFW Änderungen greifen.
+    - name: Reboot host
+      reboot:
+      ignore_errors: 'yes'
+
+  handlers:
+    # sshd neu starten, wenn Config geändert wurde.
+    - name: restart sshd
+      service:
+        name: sshd
+        state: restarted

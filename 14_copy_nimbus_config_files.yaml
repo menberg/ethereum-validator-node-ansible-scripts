@@ -1,0 +1,72 @@
+---
+##
+## Playbook: Nimbus systemd-Configs ausrollen
+## Ziel: Geänderte Nimbus-Unit-Templates sicher deployen durch
+## - Services stoppen
+## - Templates kopieren
+## - systemd reload und Services neu starten
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory.ini 14_copy_nimbus_config_files.yaml
+##
+## Variablen: vars/config_project.yaml
+## Templates: templates/nimbusCL.service.j2, templates/nimbusValidator.service.j2
+##
+
+- name: Change Nimbus Config und Service Files
+  hosts: ethnode
+  become: true
+  become_method: sudo
+  gather_facts: false
+  
+  vars_files:
+    - "vars/config_project.yaml"
+
+  tasks:
+
+    # Services stoppen, bevor Units ersetzt werden.
+    - name: Stop service - nimbusCL
+      systemd:
+        name: nimbusCL
+        state: stopped
+
+    - name: Stop service - nimbusValidator
+      systemd:
+        name: nimbusValidator
+        state: stopped
+
+
+    ##############################
+    # Copy Serivice Template Files
+
+    # Neue Templates nach /etc/systemd/system/ kopieren.
+    - name: Copy service script
+      template:
+        src: "templates/{{ item }}.service.j2"
+        dest: "/etc/systemd/system/{{ item }}.service"
+        owner: root
+        group: root
+        mode: '0664'
+      loop:
+        - nimbusCL
+        - nimbusValidator
+
+    # systemd neu laden, damit Units erkannt werden.
+    - name: daemon-reload
+      systemd:
+        daemon_reload: yes
+
+        ###################
+    # Starte nimbus
+
+    # Services neu starten, damit die neue Config aktiv ist.
+    - name: Start nimbusCL service
+      systemd:
+        name: nimbusCL
+        state: started
+
+    - name: Start nimbusValidator service
+      systemd:
+        name: nimbusValidator
+        state: started
+

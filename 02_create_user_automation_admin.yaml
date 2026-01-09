@@ -1,0 +1,63 @@
+---
+##
+## Playbook: Admin-Automation-User erstellen (automation_admin)
+## Ziel: Einen dedizierten Admin-User für Automation anlegen und
+## - Primärgruppe bereitstellen
+## - User mit festem UID/Home/Shell/Password-Hash erstellen
+## - Passwordless sudo (NOPASSWD) via sudoers.d aktivieren
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory.ini 01_create_user_automation_admin.yml
+##
+## Targets: Inventory-Gruppe 'ethnode'
+## Privilege: become: true (Root nötig für User/Sudoers)
+## Variablen:
+## - automation_admin_uid: feste UID des Users
+## - automation_admin_home: Home-Verzeichnis
+## - automation_admin_password_hash: SHA-512 Passwort-Hash (mkpasswd --method=sha-512)
+##
+## Sicherheitshinweis:
+## - Ersetze den Platzhalter-Hash durch einen echten Hash (kein Klartext).
+## - Passwordless sudo ist mächtig; nur in kontrollierten Umgebungen verwenden.
+## - Optional: SSH Public Keys hinterlegen (authorized_keys) und Passwort-Login deaktivieren.
+##
+#
+# Create automation_admin user and sudoers entry
+- name: Create automation_admin user
+  hosts: ethnode
+  become: true
+
+  vars:
+    automation_admin_uid: 11011
+    automation_admin_home: /var/lib/automation_admin
+    automation_admin_password_hash: "$6$REPLACE_ME$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"  # mkpasswd --method=sha-512
+
+  tasks:
+    # Primärgruppe für den User sicherstellen.
+    - name: Ensure primary group exists
+      ansible.builtin.group:
+        name: automation_admin
+        state: present
+
+    # Admin-User mit festen Parametern anlegen (UID, Home, Shell, Passwort-Hash).
+    - name: Create automation_admin user
+      ansible.builtin.user:
+        name: automation_admin
+        uid: "{{ automation_admin_uid }}"
+        group: automation_admin
+        shell: /bin/bash
+        home: "{{ automation_admin_home }}"
+        comment: "Automation admin with full system privileges"
+        create_home: yes
+        password: "{{ automation_admin_password_hash }}"
+        state: present
+
+    # Passwordless sudo (NOPASSWD) via /etc/sudoers.d aktivieren.
+    # Hinweis: Visudo-Syntax wird durch Dateirechte und Pfad abgesichert.
+    - name: Allow passwordless sudo for automation_admin
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/automation_admin
+        content: "automation_admin ALL=(ALL) NOPASSWD: ALL\n"
+        owner: root
+        group: root
+        mode: '0440'

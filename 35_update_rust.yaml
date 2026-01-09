@@ -1,0 +1,129 @@
+---
+##
+## Playbook: Rust Toolchain für reth-User installieren/aktualisieren
+## Ziel: Sicherstellen, dass der Ziel-User eine aktuelle Rust Toolchain hat durch
+## - vorhandene Installation erkennen
+## - rustup installieren falls fehlend
+## - Toolchains updaten und default auf stable setzen
+## - PATH via .profile hinterlegen
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory.ini 35_update_rust.yaml
+##
+## Variablen: vars/config_project.yaml (reth_system_user)
+##
+
+- name: Install or update rust
+  hosts: ethnode
+  become: yes
+
+
+  vars_files:
+    - "vars/config_project.yaml"
+
+  tasks:
+
+    # Home des Ziel-Users korrekt besitzen lassen (keine Permission-Issues).
+    - name: Ensure correct ownership and permissions on the home directory
+      ansible.builtin.command:
+        cmd: "chown -R {{ reth_system_user }}:{{ reth_system_user }} /home/{{ reth_system_user }}"
+      become: yes
+
+    - name: Check if Rust is already installed
+      ansible.builtin.stat:
+        path: "/home/{{ reth_system_user }}/.cargo/bin/rustup"
+      register: rust_installed
+      become: yes
+
+    - name: Get rustc version
+      ansible.builtin.command:
+        cmd: "/home/{{ reth_system_user }}/.cargo/bin/rustc --version"
+      register: rustc_version
+      when: rust_installed.stat.exists
+      become: yes
+
+    - name: Display rustc version
+      ansible.builtin.debug:
+        var: rustc_version.stdout
+      when: rust_installed.stat.exists
+      become: no
+
+    # rustup-Installer ins Home laden.
+    - name: Download rustup script
+      ansible.builtin.get_url:
+        url: https://sh.rustup.rs
+        dest: "/home/{{ reth_system_user }}/rustup.sh"
+        mode: '0755'
+        owner: "{{ reth_system_user }}"
+        group: "{{ reth_system_user }}"
+      become: yes
+
+    # Rust per rustup für den User installieren (idempotent).
+    - name: Install Rust using rustup for the user "{{ reth_system_user }}"
+      ansible.builtin.command:
+        cmd: "sudo -u {{ reth_system_user }} /home/{{ reth_system_user }}/rustup.sh -y"
+      environment:
+        HOME: "/home/{{ reth_system_user }}"
+        RUSTUP_HOME: "/home/{{ reth_system_user }}/.rustup"
+        CARGO_HOME: "/home/{{ reth_system_user }}/.cargo"
+      become: no
+
+    # Installierte Toolchains auf neuesten Stand bringen.
+    - name: Update Rust to the latest version
+      ansible.builtin.command:
+        cmd: "sudo -u {{ reth_system_user }} /home/{{ reth_system_user }}/.cargo/bin/rustup update"
+      environment:
+        HOME: "/home/{{ reth_system_user }}"
+        RUSTUP_HOME: "/home/{{ reth_system_user }}/.rustup"
+        CARGO_HOME: "/home/{{ reth_system_user }}/.cargo"
+      become: no
+
+    # Binaries ausführbar setzen.
+    - name: Set executable permissions on rustup binary
+      ansible.builtin.file:
+        path: "/home/{{ reth_system_user }}/.cargo/bin/rustup"
+        mode: '0755'
+        state: file
+      become: yes
+
+    - name: Set executable permissions on rustc binary
+      ansible.builtin.file:
+        path: "/home/{{ reth_system_user }}/.cargo/bin/rustc"
+        mode: '0755'
+        state: file
+      become: yes
+
+    # Login-Shell soll Cargo-Bin im PATH haben.
+    - name: Ensure .profile exists for setting PATH
+      file:
+        path: "/home/{{ reth_system_user }}/.profile"
+        state: touch
+        owner: "{{ reth_system_user }}"
+        group: "{{ reth_system_user }}"
+        mode: '0644'
+      become: yes
+
+    - name: Set Rust PATH for the user
+      lineinfile:
+        path: "/home/{{ reth_system_user }}/.profile"
+        line: 'export PATH="$HOME/.cargo/bin:$PATH"'
+        create: yes
+      become: yes
+
+    # Stable als Default-Toolchain setzen.
+    - name: Set default Rust toolchain to stable
+      ansible.builtin.command:
+        cmd: "sudo -u {{ reth_system_user }} /home/{{ reth_system_user }}/.cargo/bin/rustup default stable"
+      become: no
+
+    - name: Get rustc version
+      ansible.builtin.command:
+        cmd: "sudo -u {{ reth_system_user }} /home/{{ reth_system_user }}/.cargo/bin/rustc --version"
+      register: rustc_version
+      become: no
+
+    - name: Display rustc version
+      ansible.builtin.debug:
+        var: rustc_version.stdout
+      become: no
+

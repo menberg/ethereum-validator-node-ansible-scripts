@@ -1,0 +1,17 @@
+#$Id$
+#{{ ansible_managed }}
+Include /etc/ssh/sshd_config.d/*.conf
+
+Port 22
+# ListenAddress {{ ansible_host }}
+LoginGraceTime 2m
+PermitRootLogin no
+StrictModes yes
+MaxAuthTries 60
+PubkeyAuthentication yes
+AuthorizedKeysFile %h/.ssh/authorized_keys %h/.ssh/authorized_keys2
+PasswordAuthentication no
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+UsePAM no
+Subsystem sftp internal-sftp

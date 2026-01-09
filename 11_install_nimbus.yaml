@@ -1,0 +1,240 @@
+---
+##
+## Playbook: Nimbus installieren (Consensus Layer + Validator)
+## Ziel: Validator-Host mit Nimbus CL/VC provisionieren durch
+## - Anlegen von Service-Usern und Verzeichnissen
+## - Basis-Pakete (chrony) installieren
+## - letzte Nimbus-Binaries von GitHub Releases laden
+## - Binaries sicher nach nimbus_bin_dir legen
+## - systemd-Services für Beacon und Validator deployen/aktivieren
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory.ini 11_install_nimbus.yaml
+##
+## Targets: Inventory-Gruppe 'ethnode'
+## Variablen: aus vars/config_project.yaml, z.B.
+##   - nimbus_bin_dir, nimbus_log_dir
+##   - nimbus_cl_system_user, nimbus_validator_system_user
+##   - nimbus_cl_data_dir, nimbus_validator_data_dir, ...
+## Voraussetzungen:
+## - SSH mit Privilege Escalation
+## - Templates nimbusCL.service.j2 / nimbusValidator.service.j2 vorhanden
+## - Outbound Internet zu GitHub
+##
+
+- name: Install Nimbus
+  hosts: ethnode
+  become: true
+  become_method: sudo
+  gather_facts: false
+
+
+  vars_files:
+    - "vars/config_project.yaml"
+
+  tasks:
+
+
+    #################
+    # Service-Gruppen und -User für Nimbus anlegen.
+    - name: Ensure group 'nimbusCL' exists
+      group:
+        name: nimbusCL
+        state: present
+
+    - name: Ensure group 'nimbusValidator' exists
+      group:
+        name: nimbusValidator
+        state: present
+
+    - name: Add the user 'nimbusCL'
+      user:
+        name: nimbusCL
+        group: 'nimbusCL'
+        groups: 'Ethereum'
+        create_home: yes
+        shell: /bin/bash
+
+    - name: Add the user 'nimbusValidator'
+      user:
+        name: nimbusValidator
+        group: 'nimbusValidator'
+        groups: 'Ethereum'
+        create_home: no
+        shell: /bin/bash
+
+    ##################
+    # Paket-Cache aktualisieren und chrony für Zeit-Sync installieren.
+    - name: Run <apt-get update>
+      apt:
+        update_cache: yes
+
+    - name: Install system packages
+      apt:
+        name: chrony
+        state: latest
+
+    ################
+    # Verzeichnisse für Binaries, Daten und Logs mit korrekten Rechten anlegen.
+    - name: Create the bin directory
+      file:
+        path: "{{ nimbus_bin_dir }}"
+        state: directory
+        owner: nimbusCL
+        group: Ethereum
+        mode: '0755'
+
+
+    - name: Make sure needed directories exist (cl client)
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0700'
+        owner: "{{ nimbus_cl_system_user }}"
+        group: "{{ nimbus_cl_system_user }}"
+      loop:
+        - "{{ nimbus_cl_data_dir }}"
+
+    - name: Make sure needed directories exist (validator client)
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0700'
+        owner: "{{ nimbus_validator_system_user }}"
+        group: "{{ nimbus_validator_system_user }}"
+      loop:
+        - "{{ nimbus_validator_data_dir }}"
+        - "{{ nimbus_validator_validators_dir }}"
+        - "{{ nimbus_validator_keys_dir }}"
+        - "{{ nimbus_validator_secrets_dir }}"
+   
+    - name: Ensure the log file directory exists
+      file:
+        path: "{{ nimbus_log_dir }}"
+        state: directory
+        mode: '0755'
+        owner: "{{ nimbus_cl_system_user }}"
+        group: "syslog"
+
+    ###############
+    # Neueste Release-Asset von GitHub ermitteln und laden.
+    - name: Get the latest Nimbus Eth2 release URL for Linux amd64
+      ansible.builtin.uri:
+        url: "https://api.github.com/repos/status-im/nimbus-eth2/releases/latest"
+        method: GET
+        return_content: yes
+        body_format: json
+      register: release_data
+     # requires installing jq on the remote host
+
+    - name: Set binaries_url from the release data
+      set_fact:
+        binaries_urls: "{{ release_data.json.assets | map(attribute='browser_download_url') | select('match', '^https://github.com/status-im/nimbus-eth2/releases/download/v[0-9]+\\.[0-9]+\\.[0-9]+/nimbus-eth2_Linux_amd64_.*\\.tar\\.gz$') | list }}"
+    - name: Set first match
+      set_fact:
+        binaries_url: "{{ binaries_urls | first | default('') }}"
+
+    - name: Display binaries_url
+      ansible.builtin.debug:
+        msg: "{{ binaries_url }}"
+
+    - name: Download the Nimbus Eth2 tar.gz
+      ansible.builtin.get_url:
+        url: "{{ binaries_url }}"
+        dest: "/tmp/nimbus.tar.gz"
+
+    # Temporär entpacken, später Binaries nach {{ nimbus_bin_dir }} verschieben.
+    - name: Ensure the destination directory exists
+      ansible.builtin.file:
+        path: "/home/mm/nimbus"
+        state: directory
+        owner: mm  # Optional: Specify the owner of the directory
+        group: mm  # Optional: Specify the group of the directory
+        mode: '0755'  # Optional: Set the permissions of the directory
+
+    - name: Extract Nimbus Eth2 tar.gz to the home directory
+      ansible.builtin.unarchive:
+        src: "/tmp/nimbus.tar.gz"
+        dest: "/home/mm/nimbus"
+        owner: nimbusCL
+        group: nimbusCL
+        remote_src: yes
+        extra_opts: [--strip-components=1]  # Assuming the tar structure allows this, adjust if needed
+
+    - name: Cleanup downloaded tar.gz
+      ansible.builtin.file:
+        path: "/tmp/nimbus.tar.gz"
+        state: absent
+
+    # Binaries in das Zielverzeichnis verschieben.
+    - name: Move Nimbus binaries to "{{ nimbus_bin_dir }}/"
+      ansible.builtin.command:
+        cmd: "mv /home/mm/nimbus/build/{{ item }} {{ nimbus_bin_dir }}/{{ item }}"
+      loop:
+        - nimbus_beacon_node
+        - nimbus_validator_client
+      become: true
+
+    # Je Dienst eigene Binary mit restriktiven Rechten betreiben.
+    - name: Set secure permissions on nimbusCL binaries
+      ansible.builtin.file:
+        path: "{{ nimbus_bin_dir }}/nimbus_beacon_node"
+        owner: nimbusCL
+        group: nimbusCL
+        mode: '0700'
+      become: true
+
+    - name: Set secure permissions on nimbusValidator binaries
+      ansible.builtin.file:
+        path: "{{ nimbus_bin_dir }}/nimbus_validator_client"
+        owner: nimbusValidator
+        group: nimbusValidator
+        mode: '0700'
+      become: true
+
+    - name: Check nimbus_beacon_node version
+      ansible.builtin.command:
+        cmd: "/opt/nimbus/bin/nimbus_beacon_node --version"
+      register: nimbus_version
+
+    - name: Display nimbus_beacon_node version
+      ansible.builtin.debug:
+        msg: "{{ nimbus_version.stdout }}"
+
+    - name: Cleanup Nimbus folder
+      ansible.builtin.file:
+        path: "/home/mm/nimbus"
+        state: absent
+
+    ##############################
+    # Copy Serivice Template Files
+
+    # systemd-Units aus Templates installieren und aktivieren.
+    - name: Copy service script
+      template:
+        src: "templates/{{ item }}.service.j2"
+        dest: "/etc/systemd/system/{{ item }}.service"
+        owner: root
+        group: root
+        mode: '0664'
+      loop:
+        - nimbusCL
+        - nimbusValidator
+      notify: daemon_reload
+
+    - name: enable service to start on boot
+      systemd:
+        name: nimbusCL
+        enabled: yes
+
+    - name: enable service to start on boot
+      systemd:
+        name: nimbusValidator
+        enabled: yes
+
+
+  handlers:
+    # systemd neu laden, wenn Templates geändert wurden.
+    - name: daemon-reload
+      systemd:
+        daemon_reload: yes

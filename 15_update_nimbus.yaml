@@ -1,0 +1,212 @@
+---
+##
+## Playbook: Nimbus auf letzte Release aktualisieren
+## Ziel: Beacon & Validator sicher upgraden durch
+## - Services stoppen
+## - letzte Linux amd64 Release von GitHub holen
+## - Binaries mit korrekten Rechten ersetzen
+## - systemd reload bei Bedarf
+## - Services neu starten und Version via API prüfen
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory.ini 15_update_nimbus.yaml
+##
+## Variablen: vars/config_project.yaml (nimbus_bin_dir, User etc.)
+## Hinweise:
+## - Outbound Internet zu GitHub nötig
+## - Owner des Temp-Pfads (/home/mm) an Umgebung anpassen
+##
+
+- name: Update Nimbus
+  hosts: ethnode
+  become: true
+  become_method: sudo
+  gather_facts: false
+
+  vars_files:
+    - "vars/config_project.yaml"
+#
+# https://github.com/status-im/nimbus-eth2/releases/latest
+# https://nimbus.guide/binaries.html
+
+  tasks:
+
+    # Validator-User sicherstellen (idempotent).
+    - name: Ensure group 'nimbusValidator' exists
+      group:
+        name: nimbusValidator
+        state: present
+
+    - name: Add the user 'nimbusValidator'
+      user:
+        name: nimbusValidator
+        group: 'nimbusValidator'
+        groups: 'Ethereum'
+        create_home: no
+        shell: /usr/bin/false
+
+
+    ###################
+    # Stop nimbus
+
+    # Services stoppen, bevor Binaries getauscht werden.
+    - name: Stop service - nimbusCL
+      systemd:
+        name: nimbusCL
+        state: stopped
+
+    - name: Stop service - nimbusValidator
+      systemd:
+        name: nimbusValidator
+        state: stopped
+      ignore_errors: true
+
+
+###########
+  # Neueste Linux amd64 Release-Asset von GitHub ermitteln und laden.
+    - name: Get the latest Nimbus Eth2 release URL for Linux amd64
+      ansible.builtin.uri:
+        url: "https://api.github.com/repos/status-im/nimbus-eth2/releases/latest"
+        method: GET
+        return_content: yes
+        body_format: json
+      register: release_data
+     # requires installing jq on the remote host
+
+    - name: Set binaries_url from the release data
+      set_fact:
+        binaries_urls: "{{ release_data.json.assets | map(attribute='browser_download_url') | select('match', '^https://github.com/status-im/nimbus-eth2/releases/download/v[0-9]+\\.[0-9]+\\.[0-9]+/nimbus-eth2_Linux_amd64_.*\\.tar\\.gz$') | list }}"
+    - name: Set first match
+      set_fact:
+        binaries_url: "{{ binaries_urls | first | default('') }}"
+
+    - name: Display binaries_url
+      ansible.builtin.debug:
+        msg: "{{ binaries_url }}"
+
+    - name: Download the Nimbus Eth2 tar.gz
+      ansible.builtin.get_url:
+        url: "{{ binaries_url }}"
+        dest: "/tmp/nimbus.tar.gz"
+
+    # Temporär entpacken; Binaries später nach nimbus_bin_dir verschieben.
+    - name: Ensure the destination directory exists
+      ansible.builtin.file:
+        path: "/home/mm/nimbus"
+        state: directory
+        owner: mm  # Optional: Specify the owner of the directory
+        group: mm  # Optional: Specify the group of the directory
+        mode: '0755'  # Optional: Set the permissions of the directory
+
+    - name: Extract Nimbus Eth2 tar.gz to the home directory
+      ansible.builtin.unarchive:
+        src: "/tmp/nimbus.tar.gz"
+        dest: "/home/mm/nimbus"
+        owner: nimbusCL
+        group: nimbusCL
+        remote_src: yes
+        extra_opts: [--strip-components=1]  # Assuming the tar structure allows this, adjust if needed
+
+    - name: Cleanup downloaded tar.gz
+      ansible.builtin.file:
+        path: "/tmp/nimbus.tar.gz"
+        state: absent
+
+    # Neue Binaries an den Zielpfad verschieben.
+    - name: Move Nimbus binaries to "{{ nimbus_bin_dir }}/"
+      ansible.builtin.command:
+        cmd: "mv /home/mm/nimbus/build/{{ item }} {{ nimbus_bin_dir }}/{{ item }}"
+      loop:
+        - nimbus_beacon_node
+        - nimbus_validator_client
+      become: true
+
+    # Restriktive Rechte pro Service-Binary setzen.
+    - name: Set secure permissions on nimbusCL binaries
+      ansible.builtin.file:
+        path: "{{ nimbus_bin_dir }}/nimbus_beacon_node"
+        owner: nimbusCL
+        group: nimbusCL
+        mode: '0700'
+      become: true
+
+    - name: Set secure permissions on nimbusValidator binaries
+      ansible.builtin.file:
+        path: "{{ nimbus_bin_dir }}/nimbus_validator_client"
+        owner: nimbusValidator
+        group: nimbusValidator
+        mode: '0700'
+      become: true
+
+    - name: Check nimbus_beacon_node version
+      ansible.builtin.command:
+        cmd: "/opt/nimbus/bin/nimbus_beacon_node --version"
+      register: nimbus_version
+
+    - name: Display nimbus_beacon_node version
+      ansible.builtin.debug:
+        msg: "{{ nimbus_version.stdout }}"
+
+    - name: Cleanup Nimbus folder
+      ansible.builtin.file:
+        path: "/home/mm/nimbus"
+        state: absent
+
+    ##############################
+    # Copy Serivice Template Files
+
+    # systemd-Units aktualisieren (no-op falls identisch).
+    - name: Copy service script
+      template:
+        src: templates/nimbusCL.service.j2
+        dest: /etc/systemd/system/nimbusCL.service
+        owner: root
+        group: root
+        mode: '0664'
+    - name: Copy service scripts
+      template:
+        src: "templates/{{ item }}.service.j2"
+        dest: "/etc/systemd/system/{{ item }}.service"
+        owner: root
+        group: root
+        mode: '0664'
+      loop:
+        - nimbusCL
+        - nimbusValidator
+
+    - name: daemon-reload
+      systemd:
+        daemon_reload: yes
+
+    ###################
+    # Starte nimbus
+
+    # Services nach dem Upgrade neu starten.
+    - name: Start nimbusCL service
+      systemd:
+        name: nimbusCL
+        state: started
+
+    - name: Start nimbusValidator service
+      systemd:
+        name: nimbusValidator
+        state: started
+
+
+    ###################
+    # Warte 30 Sekunden dann frage die Version über die API ab
+
+    # Beacon kurz booten lassen, dann Version via REST API prüfen.
+    - name: Pause for 30 seconds for Nimbus to start
+      pause:
+        seconds: 30
+
+    - name: Fetch and display the node version from local ETH node
+      ansible.builtin.shell: |
+        curl -s GET http://localhost:5052/eth/v1/node/version | jq '.data.version' | awk '{ printf "%s\n", $1 }'
+      register: node_version
+      failed_when: node_version.rc != 0
+
+    - name: Display node version
+      ansible.builtin.debug:
+        msg: "Node version is: {{ node_version.stdout }}"

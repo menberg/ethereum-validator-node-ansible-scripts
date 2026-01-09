@@ -1,0 +1,208 @@
+---
+##
+## Playbook: Reth (Execution Layer) bauen und installieren
+## Ziel: Host für Reth EL vorbereiten durch
+## - dedizierten System-User anlegen
+## - Build-Dependencies und Rust Toolchain installieren
+## - reth aus Source bauen und Binary deployen
+## - systemd-Service installieren und starten
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory.ini 31_install_reth_basis.yaml
+##
+## Variablen: vars/config_project.yaml, z.B.
+##   - reth_system_user, reth_source_directory, reth_bin_dir, reth_binary_path
+##   - reth_data_dir, reth_log_dir, reth_version
+## Templates: templates/rethEL.service.j2 (benannt nach reth_system_user)
+##
+
+- name: Install reth
+  hosts: ethnode
+  become: true
+  gather_facts: true
+
+
+  vars_files:
+    - "vars/config_project.yaml"
+
+  tasks:
+
+    ###################
+    # Create rethEL User with home 
+
+    # Ethereum-Gruppe und dedizierten reth-User anlegen.
+    - name: Ensure group Ethereum exists
+      group:
+        name: Ethereum
+        state: present
+
+    - name: Ensure group "{{ reth_system_user }}" exists
+      group:
+        name: "{{ reth_system_user }}"
+        state: present
+
+    - name: Add the user "{{ reth_system_user }}"
+      user:
+        name: "{{ reth_system_user }}"
+        group: "{{ reth_system_user }}"
+        groups: "Ethereum"
+        shell: /bin/bash
+        create_home: yes
+
+    - name: Run <apt-get update>
+      apt:
+        update_cache: yes
+
+    - name: Install dependencies - system packages 
+      apt:
+        name: "{{ packages }}"
+        state: latest
+        vars:
+          packages:
+            - libclang-dev
+            - pkg-config
+            - build-essential
+
+    - name: Reboot
+      include_tasks: tasks/reboot.yaml
+
+
+################
+    # Install rust for the user rethEL
+  
+    # Rust via rustup im Home des Ziel-Users installieren.
+    - name: Install Rust using rustup for the specified user
+      ansible.builtin.shell: |
+        curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sudo -u {{ reth_system_user }} sh -s -- -y
+      args:
+        executable: /bin/bash
+        creates: "/home/{{ reth_system_user }}/.cargo/bin/rustup"
+      environment:
+        HOME: "/home/{{ reth_system_user }}"
+        RUSTUP_HOME: "/home/{{ reth_system_user }}/.rustup"
+        CARGO_HOME: "/home/{{ reth_system_user }}/.cargo" 
+  
+
+    - name: Ensure .profile exists for setting PATH
+      file:
+        path: "/home/{{ reth_system_user }}/.profile"
+        state: touch
+        owner: "{{ reth_system_user }}"
+        group: "{{ reth_system_user }}"
+        mode: '0644'
+
+    - name: Set Rust PATH for the user
+      lineinfile:
+        path: "/home/{{ reth_system_user }}/.profile"
+        line: 'export PATH="$HOME/.cargo/bin:$PATH"'
+        create: yes
+      become: yes
+
+
+################
+# Install reth
+
+    # Source-, Binary- und Daten-Verzeichnisse für reth anlegen.
+    - name: Ensure needed directories exist
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+        owner: "{{ reth_system_user }}"
+        group: "{{ reth_system_user }}"
+      loop:
+        - "{{ reth_source_directory }}"
+        - "{{ reth_bin_dir }}"
+        - "{{ reth_data_dir }}"
+    
+    - name: Ensure the log file directory exists
+      file:
+        path: "{{ reth_log_dir }}"
+        state: directory
+        mode: '0755'
+        owner: "{{ reth_system_user }}"
+        group: "syslog"
+
+    - name: Fetch the latest source code and checkout specific version
+      git:
+        repo: 'https://github.com/paradigmxyz/reth.git'
+        dest: "{{ reth_source_directory }}"
+        version: "{{ reth_version }}"
+        force: yes
+
+    - name: Set default Rust toolchain to stable
+      command: "/home/{{ reth_system_user }}/.cargo/bin/rustup default stable"
+      environment:
+        HOME: "/home/{{ reth_system_user }}"
+        PATH: "/home/{{ reth_system_user }}/.cargo/bin:{{ ansible_env.PATH }}"
+
+
+    - name: Build Reth from source
+      command:
+        cmd: "/home/{{ reth_system_user }}/.cargo/bin/cargo build --release"
+        chdir: "{{ reth_source_directory }}"  
+      environment:
+        HOME: "/home/{{ reth_system_user }}"
+        PATH: "/home/{{ reth_system_user }}/.cargo/bin:{{ ansible_env.PATH }}"
+
+
+    - name: Copy the built binary to the target directory
+      copy:
+        src: "{{ reth_source_directory }}/target/release/reth"
+        dest: "{{ reth_binary_path }}"
+        remote_src: yes
+        mode: '0755'
+
+    - name: Adjust ownership of the reth directories and binary
+      file:
+        path: "{{ item }}"
+        owner: "{{ reth_system_user }}"
+        group: "{{ reth_system_user }}"
+        recurse: yes
+      loop:
+        - "{{ reth_source_directory }}"
+        - "{{ reth_bin_dir }}"
+        - "{{ reth_data_dir }}"
+
+    - name: Cleanup the build directory
+      file:
+        path: "{{ reth_source_directory }}"
+        state: absent
+
+
+    ##############################
+    # Copy Serivice Template Files
+
+    # systemd-Unit installieren, reload/enable/start auslösen.
+    - name: Copy service script
+      template:
+        src: templates/{{ reth_system_user }}.service.j2
+        dest: /etc/systemd/system/{{ reth_system_user }}.service
+        owner: root
+        group: root
+        mode: '0664'
+      notify: daemon-reload
+
+    - name: enable service to start on boot
+      systemd:
+        name: "{{ reth_system_user }}"
+        enabled: yes
+
+    - name: (re)start {{ reth_system_user }} service
+      systemd:
+        name: "{{ reth_system_user }}"
+        state: restarted
+
+
+  handlers:
+    # Handler für Service-Restart und systemd-Reload bei Bedarf.
+    - name: reth-daemon-restart
+      systemd:
+        name: "{{ reth_system_user }}"
+        state: restarted
+        enabled: yes
+        daemon_reload: yes
+
+    - name: daemon-reload
+      systemd:
+        daemon_reload: yes

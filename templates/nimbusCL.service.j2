@@ -1,0 +1,44 @@
+[Unit]
+Description=Nimbus Consensus Layer Client
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=nimbusCL
+Group=nimbusCL
+Restart=on-failure
+RestartSec=10
+KillSignal=SIGINT
+TimeoutStopSec=900
+StandardOutput=append:{{ nimbus_log_dir }}/{{ nimbus_cl_log_file }}
+StandardError=journal
+ExecStart=/opt/nimbus/bin/nimbus_beacon_node \
+    --network="{{ network }}" \
+    --data-dir="{{ nimbus_cl_data_dir }}" \
+    --tcp-port={{ nimbus_ext_tcp_port }} \
+    --udp-port={{ nimbus_ext_udp_port }} \
+    --el={{ el_http }} \
+    --doppelganger-detection=off \
+    --non-interactive=true \
+    --enr-auto-update=true \
+    --listen-address="0.0.0.0" \
+    --rest=true \
+    --rest-address="127.0.0.1" \
+    --rest-port={{ nimbus_cl_rest_port }} \
+    --node-name="{{ nimbus_cl_node_name }}" \
+    --metrics=true \
+    --metrics-port={{ nimbus_cl_metrics_port }} \
+    --max-peers={{ nimbus_max_peers }} \
+    --suggested-fee-recipient={{ fee_recipient_wallet_address }} \
+    --jwt-secret={{ nimbus_jwt_secret }} \
+    --subscribe-all-subnets \
+    --payload-builder=true \
+    --log-level="{{ nimbus_log_level }}" \
+    --log-format=json \
+    --suggested-gas-limit=60000000 \
+    --nat=extip:84.254.81.81 \
+    --enr-auto-update=true
+
+[Install]
+WantedBy=multi-user.target

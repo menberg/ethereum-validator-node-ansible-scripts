@@ -1,0 +1,133 @@
+---
+##
+## Playbook: Reth aktualisieren und neu starten (Execution Layer)
+## Ziel: Reth auf gewünschte Version aus Source aktualisieren durch
+## - gewünschte Version aus Git holen
+## - mit Rust Toolchain bauen
+## - laufenden Service stoppen
+## - Binary ersetzen und Service neu starten
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory.ini 36_update_reth.yaml
+##
+## Variablen: vars/config_project.yaml
+##   - reth_version steuert Tag/Commit
+##   - reth_system_user, reth_source_directory, reth_binary_path
+## Hinweis: Rust muss für den Ziel-User vorhanden sein.
+##
+
+- name: Update and build reth copy binary and restart Service
+  hosts: ethnode
+  become: true
+  gather_facts: false
+
+  vars_files:
+    - "vars/config_project.yaml"
+
+  tasks:
+
+
+################
+# Update reth
+
+    # Workspace für Source sicherstellen.
+    - name: Ensure needed directories exist
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - "{{ reth_source_directory }}"
+ 
+    # Source holen und gewünschte Version/Tag auschecken.
+    - name: Fetch the latest source code and checkout specific version
+      git:
+        repo: 'https://github.com/paradigmxyz/reth.git'
+        dest: "{{ reth_source_directory }}"
+        version: "{{ reth_version }}"
+        force: yes
+
+    - name: Set default Rust toolchain to stable
+      command: "/home/{{ reth_system_user }}/.cargo/bin/rustup default stable"
+      environment:
+        HOME: "/home/{{ reth_system_user }}"
+        PATH: "/home/{{ reth_system_user }}/.cargo/bin:{{ ansible_env.PATH }}"
+
+
+    - name: Build Reth from source
+      command:
+        cmd: "/home/{{ reth_system_user }}/.cargo/bin/cargo build --release"
+        chdir: "{{ reth_source_directory }}"  
+      environment:
+        HOME: "/home/{{ reth_system_user }}"
+        PATH: "/home/{{ reth_system_user }}/.cargo/bin:{{ ansible_env.PATH }}"
+
+
+########## Stop Reth and replace ############
+
+    # Service stoppen, um Binary sicher zu ersetzen.
+    - name: Stop service
+      systemd:
+        name: "{{ reth_system_user }}"
+        state: stopped
+
+
+    # Neu gebautes Binary an Zielpfad kopieren.
+    - name: Copy the built binary to the target directory
+      copy:
+        src: "{{ reth_source_directory }}/target/release/reth"
+        dest: "{{ reth_binary_path }}"
+        remote_src: yes
+        mode: '0755'
+
+    - name: Adjust ownership of the reth directories and binary
+      file:
+        path: "{{ item }}"
+        owner: "{{ reth_system_user }}"
+        group: "{{ reth_system_user }}"
+        recurse: yes
+      loop:
+        - "{{ reth_source_directory }}"
+        - "{{ reth_bin_dir }}"
+        - "{{ reth_data_dir }}"
+
+    - name: Cleanup the build directory
+      file:
+        path: "{{ reth_source_directory }}"
+        state: absent
+
+
+    ##############################
+    # Copy Serivice Template Files
+
+    # systemd-Unit aus Template aktualisieren.
+    - name: Copy service script
+      template:
+        src: templates/{{ reth_system_user }}.service.j2
+        dest: /etc/systemd/system/{{ reth_system_user }}.service
+        owner: root
+        group: root
+        mode: '0664'
+      notify: daemon-reload
+
+
+    # Service neu starten, damit das neue Binary läuft.
+    - name: (re)start {{ reth_system_user }} service
+      systemd:
+        name: "{{ reth_system_user }}"
+        state: restarted
+
+
+  handlers:
+    # Handler für daemon-reload und Service-Restart.
+    - name: reth-daemon-restart
+      systemd:
+        name: "{{ reth_system_user }}"
+        state: restarted
+        enabled: yes
+        daemon_reload: yes
+
+    - name: daemon-reload
+      systemd:
+        daemon_reload: yes
+

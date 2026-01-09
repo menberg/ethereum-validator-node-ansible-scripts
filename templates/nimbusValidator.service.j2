@@ -1,0 +1,29 @@
+[Unit]
+Description=Nimbus Validator Client service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=nimbusValidator
+Group=nimbusValidator
+Restart=on-failure
+RestartSec=5
+KillSignal=SIGINT
+TimeoutStopSec=900
+StandardOutput=append:{{ nimbus_log_dir }}/{{ nimbus_validator_log_file }}
+StandardError=journal
+ExecStart=/opt/nimbus/bin/nimbus_validator_client \
+    --data-dir="{{ nimbus_validator_data_dir }}" \
+    --validators-dir="{{ nimbus_validator_validators_dir }}" \
+    --secrets-dir="{{ nimbus_validator_secrets_dir }}" \
+    --beacon-node=http://127.0.0.1:{{ nimbus_cl_rest_port }} \
+    --suggested-fee-recipient={{ fee_recipient_wallet_address }} \
+    --graffiti="{{ nimbus_validator_graffiti }}" \
+    --payload-builder=true \
+    --doppelganger-detection=off \
+    --log-level="{{ nimbus_log_level }}" \
+    --log-format=json 
+
+[Install]
+WantedBy=multi-user.target
