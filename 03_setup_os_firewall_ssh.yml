@@ -44,6 +44,7 @@
         group: root
         mode: "0644"
         validate: /usr/sbin/sshd -T -f %s
+      notify: restart sshd
 
     # SSH erlauben.
     - name: UFW - Allow SSH
@@ -59,11 +60,6 @@
         state: enabled
         policy: deny
         direction: incoming
-
-    # Reboot, damit sshd/UFW Änderungen greifen.
-    - name: Reboot host
-      reboot:
-      ignore_errors: "yes"
 
   handlers:
     # sshd neu starten, wenn Config geändert wurde.

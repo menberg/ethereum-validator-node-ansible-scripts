@@ -62,10 +62,6 @@
             - pkg-config
             - build-essential
 
-    # Reboot zur Anwendung der Änderungen.
-    - name: Reboot host
-      reboot:
-
     ################
     # Install rust for the user rethEL
 
