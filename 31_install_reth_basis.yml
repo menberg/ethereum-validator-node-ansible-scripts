@@ -84,7 +84,6 @@
         path: "/home/{{ reth_system_user }}/.profile"
         line: 'export PATH="$HOME/.cargo/bin:$PATH"'
         create: yes
-      become: yes
 
     ################
     # Install reth

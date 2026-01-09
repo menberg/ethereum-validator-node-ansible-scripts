@@ -26,20 +26,17 @@
     - name: Ensure correct ownership and permissions on the home directory
       ansible.builtin.command:
         cmd: "chown -R {{ reth_system_user }}:{{ reth_system_user }} /home/{{ reth_system_user }}"
-      become: yes
 
     - name: Check if Rust is already installed
       ansible.builtin.stat:
         path: "/home/{{ reth_system_user }}/.cargo/bin/rustup"
       register: rust_installed
-      become: yes
 
     - name: Get rustc version
       ansible.builtin.command:
         cmd: "/home/{{ reth_system_user }}/.cargo/bin/rustc --version"
       register: rustc_version
       when: rust_installed.stat.exists
-      become: yes
 
     - name: Display rustc version
       ansible.builtin.debug:
@@ -55,7 +52,6 @@
         mode: "0755"
         owner: "{{ reth_system_user }}"
         group: "{{ reth_system_user }}"
-      become: yes
 
     # Rust per rustup für den User installieren (idempotent).
     - name: Install Rust using rustup for the user "{{ reth_system_user }}"
@@ -65,7 +61,6 @@
         HOME: "/home/{{ reth_system_user }}"
         RUSTUP_HOME: "/home/{{ reth_system_user }}/.rustup"
         CARGO_HOME: "/home/{{ reth_system_user }}/.cargo"
-      become: no
 
     # Installierte Toolchains auf neuesten Stand bringen.
     - name: Update Rust to the latest version
@@ -75,7 +70,6 @@
         HOME: "/home/{{ reth_system_user }}"
         RUSTUP_HOME: "/home/{{ reth_system_user }}/.rustup"
         CARGO_HOME: "/home/{{ reth_system_user }}/.cargo"
-      become: no
 
     # Binaries ausführbar setzen.
     - name: Set executable permissions on rustup binary
@@ -83,14 +77,12 @@
         path: "/home/{{ reth_system_user }}/.cargo/bin/rustup"
         mode: "0755"
         state: file
-      become: yes
 
     - name: Set executable permissions on rustc binary
       ansible.builtin.file:
         path: "/home/{{ reth_system_user }}/.cargo/bin/rustc"
         mode: "0755"
         state: file
-      become: yes
 
     # Login-Shell soll Cargo-Bin im PATH haben.
     - name: Ensure .profile exists for setting PATH
@@ -100,26 +92,22 @@
         owner: "{{ reth_system_user }}"
         group: "{{ reth_system_user }}"
         mode: "0644"
-      become: yes
 
     - name: Set Rust PATH for the user
       lineinfile:
         path: "/home/{{ reth_system_user }}/.profile"
         line: 'export PATH="$HOME/.cargo/bin:$PATH"'
         create: yes
-      become: yes
 
     # Stable als Default-Toolchain setzen.
     - name: Set default Rust toolchain to stable
       ansible.builtin.command:
         cmd: "sudo -u {{ reth_system_user }} /home/{{ reth_system_user }}/.cargo/bin/rustup default stable"
-      become: no
 
     - name: Get rustc version
       ansible.builtin.command:
         cmd: "sudo -u {{ reth_system_user }} /home/{{ reth_system_user }}/.cargo/bin/rustc --version"
       register: rustc_version
-      become: no
 
     - name: Display rustc version
       ansible.builtin.debug:

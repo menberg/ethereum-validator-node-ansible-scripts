@@ -168,7 +168,6 @@
       loop:
         - nimbus_beacon_node
         - nimbus_validator_client
-      become: true
 
     # Je Dienst eigene Binary mit restriktiven Rechten betreiben.
     - name: Set secure permissions on nimbusCL binaries
@@ -177,7 +176,6 @@
         owner: nimbusCL
         group: nimbusCL
         mode: "0700"
-      become: true
 
     - name: Set secure permissions on nimbusValidator binaries
       ansible.builtin.file:
@@ -185,7 +183,6 @@
         owner: nimbusValidator
         group: nimbusValidator
         mode: "0700"
-      become: true
 
     - name: Check nimbus_beacon_node version
       ansible.builtin.command:
