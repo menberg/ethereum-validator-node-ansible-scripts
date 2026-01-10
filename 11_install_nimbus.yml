@@ -33,28 +33,28 @@
 
   tasks:
     #################
-    # Service-Gruppen und -User für Nimbus anlegen.
-    - name: Ensure group 'nimbusCL' exists
+    # Service-Gruppen und Service-User für Nimbus anlegen.
+    - name: Ensure group for Nimbus CL exists
       group:
-        name: nimbusCL
+        name: "{{ nimbus_cl_system_user }}"
         state: present
 
-    - name: Ensure group 'nimbusValidator' exists
+    - name: Ensure group for Nimbus Validator exists
       group:
-        name: nimbusValidator
+        name: "{{ nimbus_validator_system_user }}"
         state: present
 
-    - name: Add the user 'nimbusCL'
+    - name: Add the user for Nimbus CL
       user:
-        name: nimbusCL
-        group: "nimbusCL"
+        name: "{{ nimbus_cl_system_user }}"
+        group: "{{ nimbus_cl_system_user }}"
         create_home: yes
         shell: /bin/bash
 
-    - name: Add the user 'nimbusValidator'
+    - name: Add the user for Nimbus Validator
       user:
-        name: nimbusValidator
-        group: "nimbusValidator"
+        name: "{{ nimbus_validator_system_user }}"
+        group: "{{ nimbus_validator_system_user }}"
         create_home: no
         shell: /bin/bash
 
