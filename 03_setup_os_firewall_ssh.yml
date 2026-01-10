@@ -43,7 +43,7 @@
         group: root
         mode: "0644"
         validate: /usr/sbin/sshd -T -f %s
-      notify: restart sshd
+      notify: restart-sshd
 
     # SSH erlauben.
     - name: UFW - Allow SSH
@@ -62,7 +62,7 @@
 
   handlers:
     # sshd neu starten, wenn Config geändert wurde.
-    - name: restart sshd
+    - name: restart-sshd
       service:
         name: sshd
         state: restarted
