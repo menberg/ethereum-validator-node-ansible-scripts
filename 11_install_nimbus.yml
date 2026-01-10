@@ -107,8 +107,25 @@
         path: "{{ nimbus_log_dir }}"
         state: directory
         mode: "0755"
-        owner: "{{ nimbus_cl_system_user }}"
-        group: "syslog"
+        owner: root
+        group: root
+
+    - name: Ensure log files exist with correct ownership
+      file:
+        path: "{{ nimbus_log_dir }}/{{ item.file }}"
+        state: touch
+        mode: "0644"
+        owner: "{{ item.owner }}"
+        group: "{{ item.owner }}"
+      loop:
+        - {
+            file: "{{ nimbus_cl_log_file }}",
+            owner: "{{ nimbus_cl_system_user }}",
+          }
+        - {
+            file: "{{ nimbus_validator_log_file }}",
+            owner: "{{ nimbus_validator_system_user }}",
+          }
 
     ###############
     # Neueste Release-Asset von GitHub ermitteln und laden.

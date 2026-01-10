@@ -107,7 +107,7 @@
         state: directory
         mode: "0755"
         owner: "{{ reth_system_user }}"
-        group: "syslog"
+        group: "{{ reth_system_user }}"
 
     - name: Fetch the latest source code and checkout specific version
       git:
