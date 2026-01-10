@@ -56,8 +56,8 @@ reth_system_user: rethEL
 reth_source_directory: "/tmp/reth"
 reth_bin_dir: "/opt/reth/bin"
 reth_binary_path: "{{ reth_bin_dir }}/reth" # Full path to the binary
-reth_home_dir: "/mnt/ssd1/rethEL"
-reth_data_dir: "/mnt/ssd1/rethEL"
+reth_home_dir: "/mnt/nvme1/rethEL"
+reth_data_dir: "/mnt/nvme1/rethEL"
 reth_log_dir: "/var/log/reth"
 reth_log_level: info # debug, info, warn, error
 reth_ext_port: 59404
@@ -80,10 +80,10 @@ reth_ws_origins: "" # empty = no origin checking (recommended for localhost-only
 
 nimbus_bin_dir: /opt/nimbus/bin
 nimbus_cl_system_user: "nimbusCL"
-nimbus_cl_data_dir: /mnt/ssd1/nimbusCL/data
+nimbus_cl_data_dir: /opt/nimbus/nimbusCL/data
 nimbus_cl_rest_port: "5050"
 nimbus_cl_metrics_port: "8080"
-nimbus_cl_node_name: MaNode
+nimbus_cl_node_name: JaNode
 nimbus_ext_tcp_port: "59400"
 nimbus_ext_udp_port: "59400"
 nimbus_ext_ip: "{{ external_ip }}"
@@ -92,10 +92,10 @@ nimbus_jwt_secret: "/var/lib/jwtsecret/jwt.hex"
 el_http: "http://{{ localhost_ip }}:8550"
 
 nimbus_validator_system_user: "nimbusValidator"
-nimbus_validator_data_dir: /mnt/ssd1/nimbusValidator
-nimbus_validator_secrets_dir: /mnt/ssd1/nimbusValidator/secrets
-nimbus_validator_validators_dir: /mnt/ssd1/nimbusValidator/validators
-nimbus_validator_keys_dir: /mnt/ssd1/nimbusValidator/validator_keys
+nimbus_validator_data_dir: /opt/nimbus/nimbusValidator/data
+nimbus_validator_secrets_dir: /opt/nimbus/nimbusValidator/secrets
+nimbus_validator_validators_dir: /opt/nimbus/nimbusValidator/validators
+nimbus_validator_keys_dir: /opt/nimbus/nimbusValidator/validator_keys
 nimbus_validator_graffiti: "janode"
 
 # Nimbus Logging
