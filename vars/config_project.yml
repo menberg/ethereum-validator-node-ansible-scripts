@@ -57,7 +57,7 @@ reth_source_directory: "/tmp/reth"
 reth_bin_dir: "/opt/reth/bin"
 reth_binary_path: "{{ reth_bin_dir }}/reth" # Full path to the binary
 reth_home_dir: "/mnt/nvme1/rethEL"
-reth_data_dir: "/mnt/nvme1/rethEL"
+reth_data_dir: "/mnt/nvme1/rethEL/data"
 reth_log_dir: "/var/log/reth"
 reth_log_level: info # debug, info, warn, error
 reth_ext_port: 59404
