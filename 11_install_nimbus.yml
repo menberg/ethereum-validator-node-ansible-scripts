@@ -226,19 +226,25 @@
         group: root
         mode: "0664"
       loop:
-        - nimbusCL
-        - nimbusValidator
+        - "{{ nimbus_cl_system_user }}"
+        - "{{ nimbus_validator_system_user }}"
       notify: daemon-reload
 
-    - name: enable service to start on boot
+    - name: Start Nimbus services
       systemd:
-        name: nimbusCL
-        enabled: yes
+      name: "{{ item }}"
+      state: restarted
+      loop:
+        - "{{ nimbus_cl_system_user }}"
+        - "{{ nimbus_validator_system_user }}"
 
-    - name: enable service to start on boot
+    - name: Enable Nimbus services to start on boot
       systemd:
-        name: nimbusValidator
-        enabled: yes
+      name: "{{ item }}"
+      enabled: yes
+      loop:
+        - "{{ nimbus_cl_system_user }}"
+        - "{{ nimbus_validator_system_user }}"
 
   handlers:
     # systemd neu laden, wenn Templates geändert wurden.
