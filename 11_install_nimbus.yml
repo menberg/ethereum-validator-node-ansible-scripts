@@ -76,8 +76,8 @@
       file:
         path: "{{ nimbus_bin_dir }}"
         state: directory
-        owner: nimbusCL
-        group: nimbusCL
+        owner: "{{ nimbus_cl_system_user }}"
+        group: "{{ nimbus_cl_system_user }}"
         mode: "0755"
 
     - name: Make sure needed directories exist (cl client)
@@ -173,15 +173,15 @@
     - name: Set secure permissions on nimbusCL binaries
       ansible.builtin.file:
         path: "{{ nimbus_bin_dir }}/nimbus_beacon_node"
-        owner: nimbusCL
-        group: nimbusCL
+        owner: "{{ nimbus_cl_system_user }}"
+        group: "{{ nimbus_cl_system_user }}"
         mode: "0700"
 
     - name: Set secure permissions on nimbusValidator binaries
       ansible.builtin.file:
         path: "{{ nimbus_bin_dir }}/nimbus_validator_client"
-        owner: nimbusValidator
-        group: nimbusValidator
+        owner: "{{ nimbus_validator_system_user }}"
+        group: "{{ nimbus_validator_system_user }}"
         mode: "0700"
 
     - name: Check nimbus_beacon_node version

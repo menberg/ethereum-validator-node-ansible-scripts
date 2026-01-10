@@ -97,8 +97,8 @@
       ansible.builtin.unarchive:
         src: "/tmp/nimbus.tar.gz"
         dest: "/home/{{ system_user }}/nimbus"
-        owner: nimbusCL
-        group: nimbusCL
+        owner: "{{ nimbus_cl_system_user }}"
+        group: "{{ nimbus_cl_system_user }}"
         remote_src: yes
         extra_opts: [--strip-components=1] # Assuming the tar structure allows this, adjust if needed
 
@@ -119,15 +119,15 @@
     - name: Set secure permissions on nimbusCL binaries
       ansible.builtin.file:
         path: "{{ nimbus_bin_dir }}/nimbus_beacon_node"
-        owner: nimbusCL
-        group: nimbusCL
+        owner: "{{ nimbus_cl_system_user }}"
+        group: "{{ nimbus_cl_system_user }}"
         mode: "0700"
 
     - name: Set secure permissions on nimbusValidator binaries
       ansible.builtin.file:
         path: "{{ nimbus_bin_dir }}/nimbus_validator_client"
-        owner: nimbusValidator
-        group: nimbusValidator
+        owner: "{{ nimbus_validator_system_user }}"
+        group: "{{ nimbus_validator_system_user }}"
         mode: "0700"
 
     - name: Check nimbus_beacon_node version
