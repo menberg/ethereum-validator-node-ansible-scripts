@@ -16,7 +16,6 @@
 - name: Change Nimbus Config und Service Files
   hosts: ethnode
   become: true
-  become_method: sudo
   gather_facts: false
 
   vars_files:

@@ -19,7 +19,6 @@
 - name: Update Nimbus
   hosts: ethnode
   become: true
-  become_method: sudo
   gather_facts: false
 
   vars_files:
