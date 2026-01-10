@@ -76,8 +76,8 @@
       file:
         path: "{{ nimbus_bin_dir }}"
         state: directory
-        owner: "{{ nimbus_cl_system_user }}"
-        group: "{{ nimbus_cl_system_user }}"
+        owner: root
+        group: root
         mode: "0755"
 
     - name: Make sure needed directories exist (cl client)
