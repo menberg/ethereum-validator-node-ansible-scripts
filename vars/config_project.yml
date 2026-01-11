@@ -79,6 +79,7 @@ reth_ws_origins: "" # empty = no origin checking (recommended for localhost-only
 # Latest release at "https://github.com/status-im/nimbus-eth2/releases/latest"
 
 nimbus_bin_dir: /opt/nimbus/bin
+
 nimbus_cl_system_user: "nimbusCL"
 nimbus_cl_data_dir: /opt/nimbus/nimbusCL/data
 nimbus_cl_rest_port: "5050"
