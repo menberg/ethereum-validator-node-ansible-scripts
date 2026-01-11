@@ -25,7 +25,7 @@
 
   vars_files:
     - vars/config_project.yml
-    - vars/config_local.yml
+    - vars/config_untracked.yml
 
   tasks:
     # FQDN Hostname setzen.

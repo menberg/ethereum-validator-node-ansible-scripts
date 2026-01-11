@@ -5,7 +5,7 @@
 
 automation_admin_uid: 11011
 automation_admin_home: /home/automation_admin
-automation_admin_password_hash: "" # overridden by vars/config_local.yml
+automation_admin_password_hash: "" # overridden by vars/config_untracked.yml
 
 sys_packages:
   - chrony
@@ -30,7 +30,7 @@ system_user: "janos"
 # Network
 server_fqdn_hostname: "ethnode.local"
 localhost_ip: "127.0.0.1"
-external_ip: "" # overridden by vars/config_local.yml
+external_ip: "" # overridden by vars/config_untracked.yml
 
 # Language and Timezone
 config_system_locale: "de_CH.UTF-8"
@@ -42,7 +42,7 @@ config_system_timezone: "Europe/Zurich"
 ##########################################
 
 network: "hoodi" # set up an environment, e.g 'hoodi' or 'mainnet'
-fee_recipient_wallet_address: "" # overridden by vars/config_local.yml
+fee_recipient_wallet_address: "" # overridden by vars/config_untracked.yml
 
 ##########################################
 # RETH EXECUTION LAYER

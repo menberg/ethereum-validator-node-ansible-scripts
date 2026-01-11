@@ -23,7 +23,7 @@
 
   vars_files:
     - vars/config_project.yml
-    - vars/config_local.yml
+    - vars/config_untracked.yml
   #
   # https://github.com/status-im/nimbus-eth2/releases/latest
   # https://nimbus.guide/binaries.html
