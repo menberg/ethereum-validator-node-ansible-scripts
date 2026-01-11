@@ -75,10 +75,9 @@ reth_ws_origins: "" # empty = no origin checking (recommended for localhost-only
 ##########################################
 # Latest release at "https://github.com/status-im/nimbus-eth2/releases/latest"
 
-nimbus_bin_dir: /opt/nimbus/bin
-
 nimbus_cl_system_user: "nimbusCL"
-nimbus_cl_data_dir: /opt/nimbus/nimbusCL/data
+nimbus_cl_bin_dir: /opt/nimbusCL/bin
+nimbus_cl_data_dir: /opt/nimbusCL/data
 nimbus_cl_rest_port: "5050"
 nimbus_cl_metrics_port: "8080"
 nimbus_cl_node_name: JaNode
@@ -90,10 +89,11 @@ nimbus_jwt_secret: "/var/lib/jwtsecret/jwt.hex"
 el_http: "http://{{ localhost_ip }}:8550"
 
 nimbus_validator_system_user: "nimbusValidator"
-nimbus_validator_data_dir: /opt/nimbus/nimbusValidator/data
-nimbus_validator_secrets_dir: /opt/nimbus/nimbusValidator/secrets
-nimbus_validator_validators_dir: /opt/nimbus/nimbusValidator/validators
-nimbus_validator_keys_dir: /opt/nimbus/nimbusValidator/validator_keys
+nimbus_validator_bin_dir: /opt/nimbusValidator/bin
+nimbus_validator_data_dir: /opt/nimbusValidator/data
+nimbus_validator_secrets_dir: /opt/nimbusValidator/secrets
+nimbus_validator_validators_dir: /opt/nimbusValidator/validators
+nimbus_validator_keys_dir: /opt/nimbusValidator/validator_keys
 nimbus_validator_graffiti: "janode"
 
 # Nimbus Logging

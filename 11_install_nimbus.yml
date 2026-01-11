@@ -5,7 +5,7 @@
 ## - Anlegen von Service-Usern und Verzeichnissen
 ## - Basis-Pakete (chrony) installieren
 ## - letzte Nimbus-Binaries von GitHub Releases laden
-## - Binaries sicher nach nimbus_bin_dir legen
+## - Binaries sicher nach nimbus_cl_bin_dir und nimbus_validator_bin_dir legen
 ## - systemd-Services für Beacon und Validator deployen/aktivieren
 ##
 ## Ausführen (Beispiel):
@@ -13,7 +13,7 @@
 ##
 ## Targets: Inventory-Gruppe 'ethnode'
 ## Variablen: aus vars/config_project.yml, z.B.
-##   - nimbus_bin_dir, nimbus_log_dir
+##   - nimbus_cl_bin_dir, nimbus_valdidator_bin_dir, nimbus_log_dir
 ##   - nimbus_cl_system_user, nimbus_validator_system_user
 ##   - nimbus_cl_data_dir, nimbus_validator_data_dir, ...
 ## Voraussetzungen:
@@ -71,31 +71,37 @@
 
     ################
     # Verzeichnisse für Binaries, Daten und Logs mit korrekten Rechten anlegen.
-    - name: Create the bin directory
+    - name: Create the Nimbus CL bin directory
       file:
-        path: "{{ nimbus_bin_dir }}"
+        path: "{{ nimbus_cl_bin_dir }}"
         state: directory
         owner: root
         group: root
         mode: "0755"
 
-    - name: Make sure needed directories exist (cl client)
+    - name: Make sure the Nimbus CL data directory exists
       file:
-        path: "{{ item }}"
+        path: "{{ nimbus_cl_data_dir }}"
         state: directory
-        mode: "0700"
         owner: "{{ nimbus_cl_system_user }}"
         group: "{{ nimbus_cl_system_user }}"
-      loop:
-        - "{{ nimbus_cl_data_dir }}"
+        mode: "0700"
 
-    - name: Make sure needed directories exist (validator client)
+    - name: Create the Nimbus Validator bin directory
+      file:
+        path: "{{ nimbus_validator_bin_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Make sure needed directories for Nimbus Validator exist
       file:
         path: "{{ item }}"
         state: directory
-        mode: "0700"
         owner: "{{ nimbus_validator_system_user }}"
         group: "{{ nimbus_validator_system_user }}"
+        mode: "0700"
       loop:
         - "{{ nimbus_validator_data_dir }}"
         - "{{ nimbus_validator_validators_dir }}"
@@ -106,17 +112,17 @@
       file:
         path: "{{ nimbus_log_dir }}"
         state: directory
-        mode: "0755"
         owner: root
         group: root
+        mode: "0755"
 
     - name: Ensure log files exist with correct ownership
       file:
         path: "{{ nimbus_log_dir }}/{{ item.file }}"
         state: touch
-        mode: "0644"
         owner: "{{ item.owner }}"
         group: "{{ item.owner }}"
+        mode: "0644"
       loop:
         - {
             file: "{{ nimbus_cl_log_file }}",
@@ -154,7 +160,7 @@
         url: "{{ binaries_url }}"
         dest: "/tmp/nimbus.tar.gz"
 
-    # Temporär entpacken, später Binaries nach {{ nimbus_bin_dir }} verschieben.
+    # Temporär entpacken.
     - name: Ensure the destination directory exists
       ansible.builtin.file:
         path: "/home/{{ system_user }}/nimbus"
@@ -177,39 +183,41 @@
         path: "/tmp/nimbus.tar.gz"
         state: absent
 
-    # Binaries in das Zielverzeichnis verschieben.
-    - name: Move Nimbus binaries to "{{ nimbus_bin_dir }}/"
+    # nimbusCL binary an den Zielpfad verschieben.
+    - name: Move nimbusCL binary to "{{ nimbus_cl_bin_dir }}"
       ansible.builtin.command:
-        cmd: "mv /home/{{ system_user }}/nimbus/build/{{ item }} {{ nimbus_bin_dir }}/{{ item }}"
-      loop:
-        - nimbus_beacon_node
-        - nimbus_validator_client
+        cmd: "mv /home/{{ system_user }}/nimbus/build/nimbus_beacon_node {{ nimbus_cl_bin_dir }}/nimbus_beacon_node"
+
+    # nimbusValidator binary an den Zielpfad verschieben.
+    - name: Move nimbusValidator binary to "{{ nimbus_validator_bin_dir }}"
+      ansible.builtin.command:
+        cmd: "mv /home/{{ system_user }}/nimbus/build/nimbus_validator_client {{ nimbus_validator_bin_dir }}/nimbus_validator_client"
 
     # Je Dienst eigene Binary mit restriktiven Rechten betreiben.
-    - name: Set secure permissions on nimbusCL binaries
+    - name: Set secure permissions on nimbusCL binary
       ansible.builtin.file:
-        path: "{{ nimbus_bin_dir }}/nimbus_beacon_node"
+        path: "{{ nimbus_cl_bin_dir }}/nimbus_beacon_node"
         owner: "{{ nimbus_cl_system_user }}"
         group: "{{ nimbus_cl_system_user }}"
         mode: "0700"
 
-    - name: Set secure permissions on nimbusValidator binaries
+    - name: Set secure permissions on nimbusValidator binary
       ansible.builtin.file:
-        path: "{{ nimbus_bin_dir }}/nimbus_validator_client"
+        path: "{{ nimbus_validator_bin_dir }}/nimbus_validator_client"
         owner: "{{ nimbus_validator_system_user }}"
         group: "{{ nimbus_validator_system_user }}"
         mode: "0700"
 
     - name: Check nimbus_beacon_node version
       ansible.builtin.command:
-        cmd: "{{ nimbus_bin_dir }}/nimbus_beacon_node --version"
+        cmd: "{{ nimbus_cl_bin_dir }}/nimbus_beacon_node --version"
       register: nimbus_version
 
     - name: Display nimbus_beacon_node version
       ansible.builtin.debug:
         msg: "{{ nimbus_version.stdout }}"
 
-    - name: Cleanup Nimbus folder
+    - name: Cleanup nimbus folder
       ansible.builtin.file:
         path: "/home/{{ system_user }}/nimbus"
         state: absent
