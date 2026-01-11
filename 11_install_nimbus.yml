@@ -232,16 +232,16 @@
 
     - name: Start Nimbus services
       systemd:
-      name: "{{ item }}"
-      state: restarted
+        name: "{{ item }}"
+        state: restarted
       loop:
         - "{{ nimbus_cl_system_user }}"
         - "{{ nimbus_validator_system_user }}"
 
     - name: Enable Nimbus services to start on boot
       systemd:
-      name: "{{ item }}"
-      enabled: yes
+        name: "{{ item }}"
+        enabled: yes
       loop:
         - "{{ nimbus_cl_system_user }}"
         - "{{ nimbus_validator_system_user }}"
