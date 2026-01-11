@@ -12,10 +12,8 @@ sys_packages:
   - git
   - curl
   - gnupg
-  - build-essential
   - jq
   - ccze
-  - libclang-dev
   - ufw
   - glances
   - zip
@@ -53,7 +51,6 @@ fee_recipient_wallet_address: "" # overridden by vars/config_local.yml
 
 reth_version: "v1.9.3"
 reth_system_user: rethEL
-reth_source_directory: "/tmp/reth"
 reth_bin_dir: "/opt/reth/bin"
 reth_binary_path: "{{ reth_bin_dir }}/reth" # Full path to the binary
 reth_home_dir: "/mnt/nvme1/rethEL"

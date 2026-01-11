@@ -1,17 +1,16 @@
 ---
 ##
-## Playbook: Reth (Execution Layer) bauen und installieren
+## Playbook: Reth (Execution Layer) installieren
 ## Ziel: Host für Reth EL vorbereiten durch
 ## - dedizierten System-User anlegen
-## - Build-Dependencies und Rust Toolchain installieren
-## - reth aus Source bauen und Binary deployen
+## - reth Binary von GitHub Releases herunterladen und installieren
 ## - systemd-Service installieren und starten
 ##
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml 31_install_reth_basis.yml
 ##
 ## Variablen: vars/config_project.yml, z.B.
-##   - reth_system_user, reth_source_directory, reth_bin_dir, reth_binary_path
+##   - reth_system_user, reth_bin_dir, reth_binary_path
 ##   - reth_data_dir, reth_log_dir, reth_version
 ## Templates: templates/rethEL.service.j2 (benannt nach reth_system_user)
 ##
@@ -26,69 +25,22 @@
     - vars/config_local.yml
 
   tasks:
-    ###################
-    # Create rethEL User with home
-
-    # Dedizierten reth-User anlegen.
-    - name: Ensure group "{{ reth_system_user }}" exists
+    #################
+    # Service-Gruppen und Service-User für reth anlegen.
+    - name: Ensure group for reth exists
       group:
         name: "{{ reth_system_user }}"
         state: present
 
-    - name: Add the user "{{ reth_system_user }}"
+    - name: Add the user for reth
       user:
         name: "{{ reth_system_user }}"
         group: "{{ reth_system_user }}"
         shell: /bin/bash
         create_home: yes
 
-    - name: Run <apt-get update>
-      apt:
-        update_cache: yes
-
-    - name: Install dependencies - system packages
-      apt:
-        name: "{{ packages }}"
-        state: latest
-        vars:
-          packages:
-            - libclang-dev
-            - pkg-config
-            - build-essential
-
     ################
-    # Install rust for the user rethEL
-
-    # Rust via rustup im Home des Ziel-Users installieren.
-    - name: Install Rust using rustup for the specified user
-      ansible.builtin.shell: |
-        curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sudo -u {{ reth_system_user }} sh -s -- -y
-      args:
-        executable: /bin/bash
-        creates: "/home/{{ reth_system_user }}/.cargo/bin/rustup"
-      environment:
-        HOME: "/home/{{ reth_system_user }}"
-        RUSTUP_HOME: "/home/{{ reth_system_user }}/.rustup"
-        CARGO_HOME: "/home/{{ reth_system_user }}/.cargo"
-
-    - name: Ensure .profile exists for setting PATH
-      file:
-        path: "/home/{{ reth_system_user }}/.profile"
-        state: touch
-        owner: "{{ reth_system_user }}"
-        group: "{{ reth_system_user }}"
-        mode: "0644"
-
-    - name: Set Rust PATH for the user
-      lineinfile:
-        path: "/home/{{ reth_system_user }}/.profile"
-        line: 'export PATH="$HOME/.cargo/bin:$PATH"'
-        create: yes
-
-    ################
-    # Install reth
-
-    # Source-, Binary- und Daten-Verzeichnisse für reth anlegen.
+    # Verzeichnisse für Binary, Daten und Logs mit korrekten Rechten anlegen.
     - name: Ensure needed directories exist
       file:
         path: "{{ item }}"
@@ -97,7 +49,6 @@
         owner: "{{ reth_system_user }}"
         group: "{{ reth_system_user }}"
       loop:
-        - "{{ reth_source_directory }}"
         - "{{ reth_bin_dir }}"
         - "{{ reth_data_dir }}"
 
@@ -106,57 +57,91 @@
         path: "{{ reth_log_dir }}"
         state: directory
         mode: "0755"
-        owner: "{{ reth_system_user }}"
-        group: "{{ reth_system_user }}"
+        owner: root
+        group: root
 
-    - name: Fetch the latest source code and checkout specific version
-      git:
-        repo: "https://github.com/paradigmxyz/reth.git"
-        dest: "{{ reth_source_directory }}"
-        version: "{{ reth_version }}"
-        force: yes
+    ###############
+    # Neueste Release-Asset von GitHub ermitteln und laden.
+    # Reth Binary von GitHub Releases herunterladen.
+    - name: Get the latest reth release URL for Linux amd64
+      ansible.builtin.uri:
+        url: "https://api.github.com/repos/paradigmxyz/reth/releases/latest"
+        method: GET
+        return_content: yes
+        body_format: json
+      register: release_data
+      # requires installing jq on the remote host
 
-    - name: Set default Rust toolchain to stable
-      command: "/home/{{ reth_system_user }}/.cargo/bin/rustup default stable"
-      environment:
-        HOME: "/home/{{ reth_system_user }}"
-        PATH: "/home/{{ reth_system_user }}/.cargo/bin:{{ ansible_env.PATH }}"
+    - name: Set binary_url from the release data
+      set_fact:
+        binary_urls: "{{ release_data.json.assets | map(attribute='browser_download_url') | select('match', '^https://github.com/paradigmxyz/reth/releases/download/v[0-9]+\\.[0-9]+\\.[0-9]+/reth-v[0-9]+\\.[0-9]+\\.[0-9]+-aarch64-unknown-linux-gnu\\.tar\\.gz$') | list }}"
+    - name: Set first match
+      set_fact:
+        binary_url: "{{ binary_urls | first | default('') }}"
 
-    - name: Build Reth from source
-      command:
-        cmd: "/home/{{ reth_system_user }}/.cargo/bin/cargo build --release"
-        chdir: "{{ reth_source_directory }}"
-      environment:
-        HOME: "/home/{{ reth_system_user }}"
-        PATH: "/home/{{ reth_system_user }}/.cargo/bin:{{ ansible_env.PATH }}"
+    - name: Display binary_url
+      ansible.builtin.debug:
+        msg: "{{ binayrys_url }}"
 
-    - name: Copy the built binary to the target directory
-      copy:
-        src: "{{ reth_source_directory }}/target/release/reth"
-        dest: "{{ reth_binary_path }}"
-        remote_src: yes
+    - name: Download the reth tar.gz
+      ansible.builtin.get_url:
+        url: "{{ binary_url }}"
+        dest: "/tmp/reth.tar.gz"
+
+    # Temporär entpacken, später Binary nach {{ reth_bin_dir }} verschieben.
+    - name: Ensure the destination directory exists
+      ansible.builtin.file:
+        path: "/home/{{ system_user }}/reth"
+        state: directory
+        owner: "{{ system_user }}"
+        group: "{{ system_user }}"
         mode: "0755"
 
-    - name: Adjust ownership of the reth directories and binary
-      file:
-        path: "{{ item }}"
+    - name: Extract reth tar.gz to the home directory
+      ansible.builtin.unarchive:
+        src: "/tmp/reth.tar.gz"
+        dest: "/home/{{ system_user }}/reth"
+        owner: "{{ system_user }}"
+        group: "{{ system_user }}"
+        remote_src: yes
+        extra_opts: [--strip-components=1] # Assuming the tar structure allows this, adjust if needed
+
+    - name: Cleanup downloaded tar.gz
+      ansible.builtin.file:
+        path: "/tmp/reth.tar.gz"
+        state: absent
+
+    # Binary in das Zielverzeichnis verschieben.
+    - name: Move reth binary to "{{ reth_binary_path }}"
+      ansible.builtin.command:
+        cmd: "mv /home/{{ system_user }}/reth/reth {{ reth_binary_path  }}"
+
+    # Binary mit restriktiven Rechten betreiben.
+    - name: Set secure permissions on reth binary
+      ansible.builtin.file:
+        path: "{{ reth_binary_path }}"
         owner: "{{ reth_system_user }}"
         group: "{{ reth_system_user }}"
-        recurse: yes
-      loop:
-        - "{{ reth_source_directory }}"
-        - "{{ reth_bin_dir }}"
-        - "{{ reth_data_dir }}"
+        mode: "0700"
 
-    - name: Cleanup the build directory
-      file:
-        path: "{{ reth_source_directory }}"
+    - name: Check reth version
+      ansible.builtin.command:
+        cmd: "{{ reth_binary_path }} --version"
+      register: reth_version
+
+    - name: Display reth version
+      ansible.builtin.debug:
+        msg: "{{ reth_version.stdout }}"
+
+    - name: Cleanup reth folder
+      ansible.builtin.file:
+        path: "/home/{{ system_user }}/reth"
         state: absent
 
     ##############################
     # Copy Serivice Template Files
 
-    # systemd-Unit installieren, reload/enable/start auslösen.
+    # systemd-Unit aus Template installieren und aktivieren.
     - name: Copy service script
       template:
         src: templates/{{ reth_system_user }}.service.j2
@@ -166,25 +151,18 @@
         mode: "0664"
       notify: daemon-reload
 
-    - name: enable service to start on boot
-      systemd:
-        name: "{{ reth_system_user }}"
-        enabled: yes
-
-    - name: (re)start {{ reth_system_user }} service
+    - name: Start {{ reth_system_user }} service
       systemd:
         name: "{{ reth_system_user }}"
         state: restarted
+
+    - name: Enable {{ reth_system_user }} service to start on boot
+      systemd:
+        name: "{{ reth_system_user }}"
+        enabled: yes
 
   handlers:
-    # Handler für Service-Restart und systemd-Reload bei Bedarf.
-    - name: reth-daemon-restart
-      systemd:
-        name: "{{ reth_system_user }}"
-        state: restarted
-        enabled: yes
-        daemon_reload: yes
-
+    # Handler für systemd-Reload.
     - name: daemon-reload
       systemd:
         daemon_reload: yes

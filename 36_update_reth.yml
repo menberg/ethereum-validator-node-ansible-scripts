@@ -1,9 +1,8 @@
 ---
 ##
 ## Playbook: Reth aktualisieren und neu starten (Execution Layer)
-## Ziel: Reth auf gewünschte Version aus Source aktualisieren durch
-## - gewünschte Version aus Git holen
-## - mit Rust Toolchain bauen
+## Ziel: Reth auf gewünschte Version aktualisieren durch
+## - gewünschte Version von GitHub Releases herunterladen
 ## - laufenden Service stoppen
 ## - Binary ersetzen und Service neu starten
 ##
@@ -11,12 +10,11 @@
 ## ansible-playbook -i inventory/hosts.yml 36_update_reth.yml
 ##
 ## Variablen: vars/config_project.yml
-##   - reth_version steuert Tag/Commit
-##   - reth_system_user, reth_source_directory, reth_binary_path
-## Hinweis: Rust muss für den Ziel-User vorhanden sein.
+##   - reth_version steuert Release-Tag (z.B. v1.9.3)
+##   - reth_system_user, reth_binary_path
 ##
 
-- name: Update and build reth copy binary and restart Service
+- name: Update reth binary and restart Service
   hosts: ethnode
   become: true
   gather_facts: false
@@ -29,52 +27,50 @@
     ################
     # Update reth
 
-    # Workspace für Source sicherstellen.
-    - name: Ensure needed directories exist
+    # Download-Verzeichnis sicherstellen.
+    - name: Ensure download directory exists
       file:
-        path: "{{ item }}"
+        path: "/tmp/reth_download"
         state: directory
         mode: "0755"
-      loop:
-        - "{{ reth_source_directory }}"
+        owner: "{{ reth_system_user }}"
+        group: "{{ reth_system_user }}"
 
-    # Source holen und gewünschte Version/Tag auschecken.
-    - name: Fetch the latest source code and checkout specific version
-      git:
-        repo: "https://github.com/paradigmxyz/reth.git"
-        dest: "{{ reth_source_directory }}"
-        version: "{{ reth_version }}"
-        force: yes
+    # Reth Binary von GitHub Releases herunterladen.
+    - name: Download reth binary from GitHub releases
+      get_url:
+        url: "https://github.com/paradigmxyz/reth/releases/download/{{ reth_version }}/reth-{{ reth_version }}-x86_64-unknown-linux-gnu.tar.gz"
+        dest: "/tmp/reth_download/reth-{{ reth_version }}-x86_64-unknown-linux-gnu.tar.gz"
+        mode: "0644"
+        owner: "{{ reth_system_user }}"
+        group: "{{ reth_system_user }}"
 
-    - name: Set default Rust toolchain to stable
-      command: "/home/{{ reth_system_user }}/.cargo/bin/rustup default stable"
-      environment:
-        HOME: "/home/{{ reth_system_user }}"
-        PATH: "/home/{{ reth_system_user }}/.cargo/bin:{{ ansible_env.PATH }}"
-
-    - name: Build Reth from source
-      command:
-        cmd: "/home/{{ reth_system_user }}/.cargo/bin/cargo build --release"
-        chdir: "{{ reth_source_directory }}"
-      environment:
-        HOME: "/home/{{ reth_system_user }}"
-        PATH: "/home/{{ reth_system_user }}/.cargo/bin:{{ ansible_env.PATH }}"
+    # Tarball extrahieren.
+    - name: Extract reth binary tarball
+      unarchive:
+        src: "/tmp/reth_download/reth-{{ reth_version }}-x86_64-unknown-linux-gnu.tar.gz"
+        dest: "/tmp/reth_download"
+        remote_src: yes
+        owner: "{{ reth_system_user }}"
+        group: "{{ reth_system_user }}"
 
     ########## Stop Reth and replace ############
 
     # Service stoppen, um Binary sicher zu ersetzen.
-    - name: Stop service
+    - name: Stop {{ reth_system_user }} service
       systemd:
         name: "{{ reth_system_user }}"
         state: stopped
 
-    # Neu gebautes Binary an Zielpfad kopieren.
-    - name: Copy the built binary to the target directory
+    # Neues Binary an Zielpfad kopieren.
+    - name: Copy the binary to the target directory
       copy:
-        src: "{{ reth_source_directory }}/target/release/reth"
+        src: "/tmp/reth_download/reth-{{ reth_version }}-x86_64-unknown-linux-gnu/reth"
         dest: "{{ reth_binary_path }}"
         remote_src: yes
         mode: "0755"
+        owner: "{{ reth_system_user }}"
+        group: "{{ reth_system_user }}"
 
     - name: Adjust ownership of the reth directories and binary
       file:
@@ -83,13 +79,13 @@
         group: "{{ reth_system_user }}"
         recurse: yes
       loop:
-        - "{{ reth_source_directory }}"
         - "{{ reth_bin_dir }}"
         - "{{ reth_data_dir }}"
 
-    - name: Cleanup the build directory
+    # Download-Verzeichnis aufräumen.
+    - name: Cleanup the download directory
       file:
-        path: "{{ reth_source_directory }}"
+        path: "/tmp/reth_download"
         state: absent
 
     ##############################
@@ -106,20 +102,13 @@
       notify: daemon-reload
 
     # Service neu starten, damit das neue Binary läuft.
-    - name: (re)start {{ reth_system_user }} service
+    - name: Start {{ reth_system_user }} service
       systemd:
         name: "{{ reth_system_user }}"
         state: restarted
 
   handlers:
-    # Handler für daemon-reload und Service-Restart.
-    - name: reth-daemon-restart
-      systemd:
-        name: "{{ reth_system_user }}"
-        state: restarted
-        enabled: yes
-        daemon_reload: yes
-
+    # Handler für systemd-Reload.
     - name: daemon-reload
       systemd:
         daemon_reload: yes
