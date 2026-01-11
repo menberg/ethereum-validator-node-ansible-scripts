@@ -5,8 +5,8 @@ After=network-online.target
 
 [Service]
 Type=simple
-User=nimbusValidator
-Group=nimbusValidator
+User={{nimbus_validator_system_user}}
+Group={{nimbus_validator_system_user}}
 Restart=on-failure
 RestartSec=5
 KillSignal=SIGINT
