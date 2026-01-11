@@ -1,3 +1,0 @@
-external_ip: "REPLACE_WITH_YOUR_PUBLIC_IP"
-automation_admin_password_hash: "$6$REPLACE_WITH_YOUR_PASSWORD_HASH"
-fee_recipient_wallet_address: "0x....REPLACE_WITH_YOUR_FEE_RECIPIENT_ADDRESS"
