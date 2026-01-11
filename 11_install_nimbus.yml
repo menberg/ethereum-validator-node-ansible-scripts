@@ -161,7 +161,7 @@
         state: directory
         owner: "{{ system_user }}"
         group: "{{ system_user }}"
-        mode: "0755" # Optional: Set the permissions of the directory
+        mode: "0755"
 
     - name: Extract Nimbus Eth2 tar.gz to the home directory
       ansible.builtin.unarchive:
