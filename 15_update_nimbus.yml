@@ -131,7 +131,7 @@
 
     - name: Check nimbus_beacon_node version
       ansible.builtin.command:
-        cmd: "/opt/nimbus/bin/nimbus_beacon_node --version"
+        cmd: "{{ nimbus_bin_dir }}/nimbus_beacon_node --version"
       register: nimbus_version
 
     - name: Display nimbus_beacon_node version
