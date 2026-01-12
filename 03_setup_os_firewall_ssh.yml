@@ -8,7 +8,7 @@
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml 03_setup_os_firewall_ssh.yml
 ##
-## Targets: Inventory-Gruppe 'ethnode'
+## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become: true (Root nötig für Firewall und sshd)
 ## Voraussetzungen:
 ##   - Host ist über SSH Port 22 erreichbar

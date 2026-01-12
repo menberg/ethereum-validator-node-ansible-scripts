@@ -9,7 +9,7 @@
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml 34_copy_reth_config_files.yml
 ##
-## Targets: Inventory-Gruppe 'ethnode'
+## Targets: Inventory-Gruppe "ethnode"
 ## Variablen:
 ##   - reth_system_user
 ## Template:

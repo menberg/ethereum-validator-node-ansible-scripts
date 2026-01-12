@@ -11,7 +11,7 @@
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml 15_update_nimbus.yml
 ##
-## Targets: Inventory-Gruppe 'ethnode'
+## Targets: Inventory-Gruppe "ethnode"
 ## Variablen:
 ##   - nimbus_cl_system_user, nimbus_validator_system_user
 ##   - nimbus_cl_bin_dir, nimbus_validator_bin_dir

@@ -10,7 +10,7 @@
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml -u {{ system_user }} 01_setup_os_initial.yml
 ##
-## Targets: Inventory-Gruppe 'ethnode'
+## Targets: Inventory-Gruppe "ethnode"
 ## Variablen:
 ##   - server_fqdn_hostname
 ##   - config_system_locale
@@ -57,7 +57,7 @@
         locale_language: "{{ locale_status.stdout | regex_search('LANGUAGE=([^\n]+)', '\\1') | default([locale_lang], true) | first }}"
 
     # Locale/Language setzen (localectl), nur wenn abweichend.
-    - name: Configure locale to '{{ config_system_locale }}' and language to '{{ config_system_language }}'
+    - name: Configure locale to "{{ config_system_locale }}" and language to "{{ config_system_language }}"
       command: localectl set-locale LANG={{ config_system_locale }} LANGUAGE={{ config_system_language }} LC_MESSAGES={{ config_system_locale }}
       changed_when: locale_lang != config_system_locale or locale_language != config_system_language
 

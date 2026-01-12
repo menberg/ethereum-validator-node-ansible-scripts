@@ -9,7 +9,7 @@
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml -u {{ system_user }} 02_create_user_automation_admin.yml
 ##
-## Targets: Inventory-Gruppe 'ethnode'
+## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become: true (Root nötig für User/Sudoers)
 ## Variablen:
 ##   - automation_admin_uid: feste UID des Users
