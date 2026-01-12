@@ -6,7 +6,7 @@
 ## - Reboot zum Anwenden aller Änderungen
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory/hosts.yml 01_setup_os_firewall_ssh.yml
+## ansible-playbook -i inventory/hosts.yml 03_setup_os_firewall_ssh.yml
 ##
 ## Targets: Inventory-Gruppe 'ethnode' (frischer Server)
 ## Privilege: become: yes (Root nötig für Firewall und sshd)
