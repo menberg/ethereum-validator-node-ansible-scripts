@@ -79,11 +79,11 @@ reth_ws_origins: "" # empty = no origin checking (recommended for localhost-only
 nimbus_cl_system_user: "nimbusCL"
 nimbus_cl_bin_dir: /opt/nimbusCL/bin
 nimbus_cl_data_dir: /opt/nimbusCL/data
-nimbus_cl_rest_port: 5050
-nimbus_cl_metrics_port: 8080
+nimbus_cl_rest_port: 5052
+nimbus_cl_metrics_port: 8008
 nimbus_cl_node_name: JaNode
-nimbus_ext_tcp_port: 59400
-nimbus_ext_udp_port: 59400
+nimbus_ext_tcp_port: 9000
+nimbus_ext_udp_port: 9000
 nimbus_ext_ip: "{{ external_ip }}"
 nimbus_max_peers: 100
 nimbus_hard_max_peers: 136
