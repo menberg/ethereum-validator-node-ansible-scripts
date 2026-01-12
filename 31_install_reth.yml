@@ -81,7 +81,7 @@
 
     - name: Display binary_url
       ansible.builtin.debug:
-        msg: "{{ binayrys_url }}"
+        msg: "{{ binary_url }}"
 
     - name: Download the reth tar.gz
       ansible.builtin.get_url:
