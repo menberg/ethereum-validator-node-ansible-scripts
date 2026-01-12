@@ -4,7 +4,7 @@ Include /etc/ssh/sshd_config.d/*.conf
 
 Port 22
 # ListenAddress {{ ansible_host }}
-LoginGraceTime 2m
+LoginGraceTime 60s
 PermitRootLogin no
 StrictModes yes
 MaxAuthTries 6
