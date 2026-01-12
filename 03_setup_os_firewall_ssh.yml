@@ -32,7 +32,7 @@
       copy:
         remote_src: yes
         src: "/etc/ssh/sshd_config"
-        dest: "/etc/ssh/sshd_config_initaldefaults_lastbackup"
+        dest: "/etc/ssh/sshd_config_backup"
 
     - name: sshd configuration file update
       template:
