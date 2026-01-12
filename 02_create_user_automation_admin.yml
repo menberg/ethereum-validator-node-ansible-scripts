@@ -1,16 +1,16 @@
 ---
 ##
 ## Playbook: Admin-Automation-User erstellen (automation_admin)
-## Ziel: Einen dedizierten Admin-User für Automation anlegen und
-##   - Primärgruppe bereitstellen
-##   - User mit festem UID/Home/Shell/Password-Hash erstellen
-##   - Passwordless sudo (NOPASSWD) via sudoers.d aktivieren
+## Ziel: Einen dedizierten Admin-User für Automation anlegen durch:
+##   - Primärgruppe bereitstellen.
+##   - User mit festem UID/Home/Shell/Password-Hash erstellen.
+##   - Passwordless sudo (NOPASSWD) via sudoers.d aktivieren.
 ##
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml -u {{ system_user }} 02_create_user_automation_admin.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
-## Privilege: become: true (Root nötig für User/Sudoers)
+## Privilege: become true nötig für User/Sudoers-Konfiguration.
 ## Variablen:
 ##   - automation_admin_uid: feste UID des Users
 ##   - automation_admin_home: Home-Verzeichnis

@@ -1,16 +1,17 @@
 ---
 ##
 ## Playbook: Initiales OS-Setup (Hostname, Locale, Timezone, Packages)
-## Ziel: Basis-Systemkonfiguration für den Validator-Host durch
-##   - FQDN Hostname setzen
-##   - Locale/Language konfigurieren
-##   - Zeitzone setzen
-##   - Standard-Packages installieren und System aktualisieren
+## Ziel: Basis-Systemkonfiguration für den Validator-Host durch:
+##   - FQDN Hostname setzen.
+##   - Locale/Language konfigurieren.
+##   - Zeitzone setzen.
+##   - Standard-Packages installieren und System aktualisieren.
 ##
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml -u {{ system_user }} 01_setup_os_initial.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
+## Privilege: become true nötig für Systemkonfiguration.
 ## Variablen:
 ##   - server_fqdn_hostname
 ##   - config_system_locale

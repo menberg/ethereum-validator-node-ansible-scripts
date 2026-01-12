@@ -1,17 +1,18 @@
 ---
 ##
 ## Playbook: Nimbus auf letzte Release aktualisieren
-## Ziel: Beacon & Validator sicher upgraden durch
-##   - Services stoppen
-##   - letzte Linux amd64 Release von GitHub holen
-##   - Binaries mit korrekten Rechten ersetzen
-##   - systemd reload bei Bedarf
-##   - Services neu starten und Version via API prüfen
+## Ziel: Beacon & Validator sicher upgraden durch:
+##   - Services stoppen.
+##   - letzte Linux amd64 Release von GitHub holen.
+##   - Binaries mit korrekten Rechten ersetzen.
+##   - systemd reload bei Bedarf.
+##   - Services neu starten und Version via API prüfen.
 ##
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml 15_update_nimbus.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
+## Privilege: become true nötig für Systemmanagement.
 ## Variablen:
 ##   - nimbus_cl_system_user, nimbus_validator_system_user
 ##   - nimbus_cl_bin_dir, nimbus_validator_bin_dir
@@ -21,7 +22,7 @@
 ##   - templates/nimbusCL.service.j2
 ##   - templates/nimbusValidator.service.j2
 ## Hinweise:
-##   - Outbound Internet zu GitHub nötig
+##   - Outbound Internet zu GitHub nötig.
 ##
 
 - name: Update Nimbus
