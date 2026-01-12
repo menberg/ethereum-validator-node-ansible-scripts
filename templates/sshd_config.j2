@@ -1,9 +1,7 @@
-#$Id$
-#{{ ansible_managed }}
+# {{ ansible_managed }}
 Include /etc/ssh/sshd_config.d/*.conf
 
 Port 22
-# ListenAddress {{ ansible_host }}
 LoginGraceTime 60s
 PermitRootLogin no
 StrictModes yes
