@@ -77,6 +77,14 @@
         force_apt_get: yes
         autoremove: yes
 
+    # Ubuntu Spam-Meldungen entfernen.
+    - name: Remove Ubuntu Advantage Tools and Ubuntu Pro Client
+      apt:
+        name: ubuntu-advantage-tools, ubuntu-pro-client
+        state: absent
+        purge: yes
+        autoremove: yes
+
     # Standard-Packages aus Variablenliste installieren.
     - name: Install Standard Packages from OS setup config vars
       apt:
