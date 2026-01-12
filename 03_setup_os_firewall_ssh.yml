@@ -14,7 +14,7 @@
 ## - lädt vars/initial_os_setup.yml
 ## - setzt ansible_port einmalig auf 22 für das Bootstrap
 ## Voraussetzungen:
-## - Host ist initial über Port 22 erreichbar
+## - Host ist über Port 22 erreichbar
 ##
 
 - name: Setup OS - Config SSH Firewall User
