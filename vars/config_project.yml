@@ -59,8 +59,8 @@ reth_log_dir: "/var/log/reth"
 reth_log_level: info # debug, info, warn, error
 reth_ext_port: 30303
 reth_ext_discv5_port: 9200
-reth_max_peers_out: 20
-reth_max_peers_in: 20
+reth_max_peers_out: 40
+reth_max_peers_in: 24
 reth_rpc_http_port: 8545
 reth_rpc_ws_port: 8546
 reth_metrics_address: "{{ localhost_ip }}"
