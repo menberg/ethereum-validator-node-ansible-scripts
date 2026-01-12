@@ -37,19 +37,6 @@
   # https://nimbus.guide/binaries.html
 
   tasks:
-    # Validator-User sicherstellen (idempotent).
-    - name: Ensure group "{{ nimbus_validator_system_user }}" exists
-      group:
-        name: "{{ nimbus_validator_system_user }}"
-        state: present
-
-    - name: Add the {{ nimbus_validator_system_user }} user
-      user:
-        name: "{{ nimbus_validator_system_user }}"
-        group: "{{ nimbus_validator_system_user }}"
-        create_home: no
-        shell: /usr/bin/false
-
     ###################
     # Stop nimbus
 
