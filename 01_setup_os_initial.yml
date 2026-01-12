@@ -22,7 +22,7 @@
 - name: Initial Setup OS
   hosts: ethnode
   become: true
-  gather_facts: true
+  gather_facts: false
 
   vars_files:
     - vars/config_project.yml
