@@ -21,8 +21,8 @@
 
 - name: Initial Setup OS
   hosts: ethnode
-  become: yes
-  gather_facts: yes
+  become: true
+  gather_facts: true
 
   vars_files:
     - vars/config_project.yml
@@ -74,7 +74,7 @@
     # System-Pakete upgraden und bereinigen.
     - name: Run <apt-get upgrade>
       apt:
-        upgrade: "yes"
+        upgrade: yes
         force_apt_get: yes
         autoremove: yes
 
