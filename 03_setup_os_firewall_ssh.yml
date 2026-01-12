@@ -13,6 +13,10 @@
 ## Voraussetzungen:
 ##   - Host ist über SSH Port 22 erreichbar.
 ##
+## Sicherheitshinweis:
+##   - Host darf via Port 22 nur im lokalen Netzwerk / per VPN erreichbar sein.
+##   - Ansonsten fail2ban installieren und SSH Port ändern.
+##
 
 - name: Setup OS - Config SSH Firewall User
   hosts: ethnode
