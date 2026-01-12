@@ -38,10 +38,16 @@
         name: "{{ reth_system_user }}"
         state: present
 
+    - name: Ensure dedicated group for shared JWT access exists
+      group:
+        name: jwt
+        state: present
+
     - name: Add the user for reth
       user:
         name: "{{ reth_system_user }}"
         group: "{{ reth_system_user }}"
+        groups: jwt
         shell: /bin/bash
         create_home: yes
 

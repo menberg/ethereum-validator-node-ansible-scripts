@@ -49,10 +49,16 @@
         name: "{{ nimbus_validator_system_user }}"
         state: present
 
+    - name: Ensure dedicated group for shared JWT access exists
+      group:
+        name: jwt
+        state: present
+
     - name: Add the user for Nimbus CL
       user:
         name: "{{ nimbus_cl_system_user }}"
         group: "{{ nimbus_cl_system_user }}"
+        groups: jwt
         create_home: yes
         shell: /bin/bash
 
@@ -60,6 +66,7 @@
       user:
         name: "{{ nimbus_validator_system_user }}"
         group: "{{ nimbus_validator_system_user }}"
+        groups: jwt
         create_home: no
         shell: /bin/bash
 
