@@ -33,7 +33,7 @@ ExecStart="{{ nimbus_cl_bin_dir }}"/nimbus_beacon_node \
     --max-peers={{ nimbus_max_peers }} \
     --hard-max-peers={{ nimbus_hard_max_peers }} \
     --suggested-fee-recipient={{ fee_recipient_wallet_address }} \
-    --jwt-secret={{ nimbus_jwt_secret }} \
+    --jwt-secret={{ nimbus_jwt_secret_path }} \
     --subscribe-all-subnets \
     --log-level="{{ nimbus_log_level }}" \
     --log-format=json \

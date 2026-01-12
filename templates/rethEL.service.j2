@@ -21,7 +21,7 @@ ExecStart={{ reth_binary_path }} node --full \
         --discovery.v5.port {{ reth_ext_discv5_port }} \
         --authrpc.addr {{ reth_authrpc_addr }} \
         --authrpc.port {{ reth_authrpc_port }} \
-        --authrpc.jwtsecret {{ reth_jwtsecret }} \
+        --authrpc.jwtsecret {{ reth_jwtsecret_path }} \
         --ipcpath {{ reth_home_dir }}/reth.ipc \
         --http.api eth,net,web3,admin \
         --http.addr {{ localhost_ip }} \

@@ -37,6 +37,9 @@ config_system_locale: "de_CH.UTF-8"
 config_system_language: "en_US.UTF-8"
 config_system_timezone: "Europe/Zurich"
 
+# JWT
+jwtsecret_path = "/var/lib/jwtsecrets/janode.hex"
+
 ##########################################
 # ETH ETHEREUM NETWORK
 ##########################################
@@ -65,7 +68,7 @@ reth_rpc_http_port: 8545
 reth_rpc_ws_port: 8546
 reth_metrics_address: "{{ localhost_ip }}"
 reth_metrics_port: 9001
-reth_jwtsecret: "/var/lib/jwtsecret/jwt.hex"
+reth_jwtsecret_path: "{{ jwtsecret_path }}"
 reth_authrpc_addr: "{{ localhost_ip }}"
 reth_authrpc_port: 8551
 reth_http_corsdomain: "" # empty = no CORS (recommended for localhost-only), or "http://localhost, http://127.0.0.1" for browser tools
@@ -87,7 +90,7 @@ nimbus_ext_udp_port: 9000
 nimbus_ext_ip: "{{ external_ip }}"
 nimbus_max_peers: 100
 nimbus_hard_max_peers: 136
-nimbus_jwt_secret: "/var/lib/jwtsecret/jwt.hex"
+nimbus_jwt_secret_path: "{{ jwtsecret_path }}"
 el_http: "http://{{ localhost_ip }}:{{ reth_authrpc_port }}"
 
 nimbus_validator_system_user: "nimbusValidator"
