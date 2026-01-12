@@ -31,6 +31,7 @@ ExecStart="{{ nimbus_cl_bin_dir }}"/nimbus_beacon_node \
     --metrics=true \
     --metrics-port={{ nimbus_cl_metrics_port }} \
     --max-peers={{ nimbus_max_peers }} \
+    --hard-max-peers={{ nimbus_hard_max_peers }} \
     --suggested-fee-recipient={{ fee_recipient_wallet_address }} \
     --jwt-secret={{ nimbus_jwt_secret }} \
     --subscribe-all-subnets \
