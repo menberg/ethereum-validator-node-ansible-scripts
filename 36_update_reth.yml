@@ -2,17 +2,21 @@
 ##
 ## Playbook: Reth aktualisieren und neu starten (Execution Layer)
 ## Ziel: Reth auf gewünschte Version aktualisieren durch
-## - gewünschte Version von GitHub Releases herunterladen
-## - laufenden Service stoppen
-## - Binary ersetzen und Service neu starten
+##   - gewünschte Version von GitHub Releases herunterladen
+##   - laufenden Service stoppen
+##   - Binary ersetzen und Service neu starten
 ##
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml 36_update_reth.yml
 ##
+## Targets: Inventory-Gruppe 'ethnode'
 ## Variablen: vars/config_project.yml
-##   - reth_version steuert Release-Tag (z.B. v1.9.3)
-##   - reth_system_user, reth_binary_path
-##
+##   - reth_system_user
+##   - reth_bin_dir, reth_binary_path
+##   - reth_version: steuert Release-Tag (z.B. v1.9.3)
+##   - reth_data_dir
+## Template:
+##   - templates/rethEL.service.j2
 
 - name: Update reth binary and restart Service
   hosts: ethnode

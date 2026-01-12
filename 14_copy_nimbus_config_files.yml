@@ -2,25 +2,23 @@
 ##
 ## Playbook: Nimbus systemd-Configs ausrollen
 ## Ziel: Geänderte Nimbus-Unit-Templates sicher deployen durch
-## - Services stoppen
-## - Templates kopieren
-## - systemd reload und Services neu starten
+##   - Services stoppen
+##   - Templates kopieren
+##   - systemd reload und Services neu starten
 ##
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml 14_copy_nimbus_config_files.yml
 ##
-## Variablen: vars/config_project.yml
-## Templates: templates/nimbusCL.service.j2, templates/nimbusValidator.service.j2
+## Targets: Inventory-Gruppe 'ethnode'
+## Templates:
+##   - templates/nimbusCL.service.j2
+##   - templates/nimbusValidator.service.j2
 ##
 
 - name: Change Nimbus Config und Service Files
   hosts: ethnode
   become: true
   gather_facts: false
-
-  vars_files:
-    - vars/config_project.yml
-    - vars/config_untracked.yml
 
   tasks:
     # Services stoppen, bevor Units ersetzt werden.

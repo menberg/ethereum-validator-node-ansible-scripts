@@ -2,29 +2,22 @@
 ##
 ## Playbook: OS-Hardening, SSH-Setup und UFW-Basisregeln
 ## Ziel: Frischen Host für den ersten Validator-Run vorbereiten durch
-## - UFW mit Default-Deny aktivieren
-## - Reboot zum Anwenden aller Änderungen
+##   - UFW mit Default-Deny aktivieren
+##   - Reboot zum Anwenden aller Änderungen
 ##
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml 03_setup_os_firewall_ssh.yml
 ##
-## Targets: Inventory-Gruppe 'ethnode' (frischer Server)
+## Targets: Inventory-Gruppe 'ethnode'
 ## Privilege: become: yes (Root nötig für Firewall und sshd)
-## Variablen:
-## - lädt vars/initial_os_setup.yml
-## - setzt ansible_port einmalig auf 22 für das Bootstrap
 ## Voraussetzungen:
-## - Host ist über Port 22 erreichbar
+##   - Host ist über SSH Port 22 erreichbar
 ##
 
 - name: Setup OS - Config SSH Firewall User
   hosts: ethnode
   become: yes
   gather_facts: no
-
-  vars_files:
-    - vars/config_project.yml
-    - vars/config_untracked.yml
 
   tasks:
     # sshd sichern (Port/Auth), Vorlage anpassen und Handler triggern.

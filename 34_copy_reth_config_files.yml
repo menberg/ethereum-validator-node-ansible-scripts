@@ -2,15 +2,18 @@
 ##
 ## Playbook: Reth systemd-Unit deployen
 ## Ziel: Aktualisierte Unit/Templates anwenden durch
-## - Service stoppen
-## - neue Unit kopieren
-## - systemd reload und Service neu starten
+##   - Service stoppen
+##   - neue Unit kopieren
+##   - systemd reload und Service neu starten
 ##
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml 34_copy_reth_config_files.yml
 ##
-## Variablen: vars/config_project.yml (reth_system_user)
-## Template: templates/rethEL.service.j2
+## Targets: Inventory-Gruppe 'ethnode'
+## Variablen:
+##   - reth_system_user
+## Template:
+##   - templates/rethEL.service.j2
 ##
 
 - name: Copy Service Config

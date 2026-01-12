@@ -2,24 +2,29 @@
 ##
 ## Playbook: Nimbus installieren (Consensus Layer + Validator)
 ## Ziel: Validator-Host mit Nimbus CL/VC provisionieren durch
-## - Anlegen von Service-Usern und Verzeichnissen
-## - Basis-Pakete (chrony) installieren
-## - letzte Nimbus-Binaries von GitHub Releases laden
-## - Binaries sicher nach nimbus_cl_bin_dir und nimbus_validator_bin_dir legen
-## - systemd-Services für Beacon und Validator deployen/aktivieren
+##   - Anlegen von Service-Usern und Verzeichnissen
+##   - Basis-Pakete (chrony) installieren
+##   - letzte Nimbus-Binaries von GitHub Releases laden
+##   - Binaries sicher nach nimbus_cl_bin_dir und nimbus_validator_bin_dir legen
+##   - systemd-Services für Beacon und Validator deployen/aktivieren
 ##
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml 11_install_nimbus.yml
 ##
 ## Targets: Inventory-Gruppe 'ethnode'
-## Variablen: aus vars/config_project.yml, z.B.
-##   - nimbus_cl_bin_dir, nimbus_valdidator_bin_dir, nimbus_log_dir
+## Variablen:
 ##   - nimbus_cl_system_user, nimbus_validator_system_user
-##   - nimbus_cl_data_dir, nimbus_validator_data_dir, ...
+##   - nimbus_cl_bin_dir, nimbus_validator_bin_dir
+##   - nimbus_log_dir, nimbus_cl_log_file, nimbus_validator_log_file
+##   - nimbus_cl_data_dir, nimbus_validator_data_dir
+##   - nimbus_validator_validators_dir, nimbus_validator_keys_dir, nimbus_validator_secrets_dir
+##   - system_user
+## Templates:
+##   - nimbusCL.service.j2
+##   - validator.service.j2
 ## Voraussetzungen:
-## - SSH mit Privilege Escalation
-## - Templates nimbusCL.service.j2 / nimbusValidator.service.j2 vorhanden
-## - Outbound Internet zu GitHub
+##   - SSH mit Privilege Escalation
+##   - Outbound Internet zu GitHub
 ##
 
 - name: Install Nimbus

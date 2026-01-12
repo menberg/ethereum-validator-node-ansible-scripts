@@ -2,17 +2,23 @@
 ##
 ## Playbook: Reth (Execution Layer) installieren
 ## Ziel: Host für Reth EL vorbereiten durch
-## - dedizierten System-User anlegen
-## - reth Binary von GitHub Releases herunterladen und installieren
-## - systemd-Service installieren und starten
+##   - dedizierten System-User anlegen
+##   - reth Binary von GitHub Releases herunterladen und installieren
+##   - systemd-Service installieren und starten
 ##
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml 31_install_reth.yml
 ##
-## Variablen: vars/config_project.yml, z.B.
-##   - reth_system_user, reth_bin_dir, reth_binary_path
-##   - reth_data_dir, reth_log_dir, reth_version
-## Templates: templates/rethEL.service.j2
+## Targets: Inventory-Gruppe 'ethnode'
+## Variablen:
+##   - reth_system_user
+##   - reth_bin_dir, reth_binary_path
+##   - reth_log_dir
+##   - reth_data_dir
+##   - reth_version: steuert Release-Tag (z.B. v1.9.3)
+##   - system_user
+## Templates:
+##   - templates/rethEL.service.j2
 ##
 
 - name: Install reth

@@ -2,9 +2,9 @@
 ##
 ## Playbook: Admin-Automation-User erstellen (automation_admin)
 ## Ziel: Einen dedizierten Admin-User für Automation anlegen und
-## - Primärgruppe bereitstellen
-## - User mit festem UID/Home/Shell/Password-Hash erstellen
-## - Passwordless sudo (NOPASSWD) via sudoers.d aktivieren
+##   - Primärgruppe bereitstellen
+##   - User mit festem UID/Home/Shell/Password-Hash erstellen
+##   - Passwordless sudo (NOPASSWD) via sudoers.d aktivieren
 ##
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml -u {{ system_user }} 02_create_user_automation_admin.yml
@@ -12,14 +12,14 @@
 ## Targets: Inventory-Gruppe 'ethnode'
 ## Privilege: become: true (Root nötig für User/Sudoers)
 ## Variablen:
-## - automation_admin_uid: feste UID des Users
-## - automation_admin_home: Home-Verzeichnis
-## - automation_admin_password_hash: SHA-512 Passwort-Hash (mkpasswd --method=sha-512)
+##   - automation_admin_uid: feste UID des Users
+##   - automation_admin_home: Home-Verzeichnis
+##   - automation_admin_password_hash: SHA-512 Passwort-Hash (mkpasswd --method=sha-512)
 ##
 ## Sicherheitshinweis:
-## - Ersetze den Platzhalter-Hash durch einen echten Hash (kein Klartext).
-## - Passwordless sudo ist mächtig; nur in kontrollierten Umgebungen verwenden.
-## - Optional: SSH Public Keys hinterlegen (authorized_keys) und Passwort-Login deaktivieren.
+##   - Ersetze den Platzhalter-Hash durch einen echten Hash (kein Klartext).
+##   - Passwordless sudo ist mächtig; nur in kontrollierten Umgebungen verwenden.
+##   - SSH Public Keys hinterlegen (authorized_keys) und Passwort-Login deaktivieren.
 ##
 
 - name: Create automation_admin user
