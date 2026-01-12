@@ -10,7 +10,7 @@
 ## ansible-playbook -i inventory/hosts.yml 31_install_reth.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
-## Privilege: become true nötig für Benutzerverwaltung und Systemmanagement.
+## Privilege: become nötig für Benutzerverwaltung und Systemmanagement.
 ## Variablen:
 ##   - reth_system_user
 ##   - reth_bin_dir, reth_binary_path
@@ -18,8 +18,10 @@
 ##   - reth_data_dir
 ##   - reth_version: steuert Release-Tag (z.B. v1.9.3)
 ##   - system_user
-## Templates:
+## Template:
 ##   - templates/rethEL.service.j2
+## Voraussetzungen:
+##   - Outbound Internet zu GitHub.
 ##
 
 - name: Install reth

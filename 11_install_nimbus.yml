@@ -12,7 +12,7 @@
 ## ansible-playbook -i inventory/hosts.yml 11_install_nimbus.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
-## Privilege: become true nötig für Benutzerverwaltung und Systemmanagement.
+## Privilege: become nötig für Benutzerverwaltung und Systemmanagement.
 ## Variablen:
 ##   - nimbus_cl_system_user, nimbus_validator_system_user
 ##   - nimbus_cl_bin_dir, nimbus_validator_bin_dir
@@ -24,7 +24,6 @@
 ##   - nimbusCL.service.j2
 ##   - validator.service.j2
 ## Voraussetzungen:
-##   - SSH mit Privilege Escalation.
 ##   - Outbound Internet zu GitHub.
 ##
 

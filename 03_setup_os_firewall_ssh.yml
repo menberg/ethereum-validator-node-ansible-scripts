@@ -9,7 +9,7 @@
 ## ansible-playbook -i inventory/hosts.yml 03_setup_os_firewall_ssh.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
-## Privilege: become true nötig für Konfiguration von Firewall und sshd.
+## Privilege: become nötig für Konfiguration von Firewall und sshd.
 ## Voraussetzungen:
 ##   - Host ist über SSH Port 22 erreichbar.
 ##

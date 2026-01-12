@@ -10,7 +10,7 @@
 ## ansible-playbook -i inventory/hosts.yml 36_update_reth.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
-## Privilege: become true nötig für Systemmanagement.
+## Privilege: become nötig für Systemmanagement.
 ## Variablen: vars/config_project.yml
 ##   - reth_system_user
 ##   - reth_bin_dir, reth_binary_path
@@ -18,6 +18,9 @@
 ##   - reth_data_dir
 ## Template:
 ##   - templates/rethEL.service.j2
+## Voraussetzungen:
+##   - Outbound Internet zu GitHub.
+##
 
 - name: Update reth binary and restart Service
   hosts: ethnode

@@ -10,7 +10,7 @@
 ## ansible-playbook -i inventory/hosts.yml 34_copy_reth_config_files.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
-## Privilege: become true nötig für Systemmanagement.
+## Privilege: become nötig für Systemmanagement.
 ## Variablen:
 ##   - reth_system_user
 ## Template:

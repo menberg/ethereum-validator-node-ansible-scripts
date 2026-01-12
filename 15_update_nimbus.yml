@@ -12,7 +12,7 @@
 ## ansible-playbook -i inventory/hosts.yml 15_update_nimbus.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
-## Privilege: become true nötig für Systemmanagement.
+## Privilege: become nötig für Systemmanagement.
 ## Variablen:
 ##   - nimbus_cl_system_user, nimbus_validator_system_user
 ##   - nimbus_cl_bin_dir, nimbus_validator_bin_dir
@@ -21,8 +21,8 @@
 ## Templates:
 ##   - templates/nimbusCL.service.j2
 ##   - templates/nimbusValidator.service.j2
-## Hinweise:
-##   - Outbound Internet zu GitHub nötig.
+## Voraussetzungen:
+##   - Outbound Internet zu GitHub.
 ##
 
 - name: Update Nimbus
@@ -33,9 +33,6 @@
   vars_files:
     - vars/config_project.yml
     - vars/config_untracked.yml
-  #
-  # https://github.com/status-im/nimbus-eth2/releases/latest
-  # https://nimbus.guide/binaries.html
 
   tasks:
     ###################

@@ -11,7 +11,7 @@
 ## ansible-playbook -i inventory/hosts.yml -u {{ system_user }} 01_setup_os_initial.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
-## Privilege: become true nötig für Systemkonfiguration.
+## Privilege: become nötig für Systemkonfiguration.
 ## Variablen:
 ##   - server_fqdn_hostname
 ##   - config_system_locale

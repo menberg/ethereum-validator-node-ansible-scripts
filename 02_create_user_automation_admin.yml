@@ -10,7 +10,7 @@
 ## ansible-playbook -i inventory/hosts.yml -u {{ system_user }} 02_create_user_automation_admin.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
-## Privilege: become true nötig für User/Sudoers-Konfiguration.
+## Privilege: become nötig für User/Sudoers-Konfiguration.
 ## Variablen:
 ##   - automation_admin_uid: feste UID des Users
 ##   - automation_admin_home: Home-Verzeichnis

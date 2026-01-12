@@ -10,7 +10,7 @@
 ## ansible-playbook -i inventory/hosts.yml 14_copy_nimbus_config_files.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
-## Privilege: become true nötig für Systemanagement.
+## Privilege: become nötig für Systemanagement.
 ## Templates:
 ##   - templates/nimbusCL.service.j2
 ##   - templates/nimbusValidator.service.j2
