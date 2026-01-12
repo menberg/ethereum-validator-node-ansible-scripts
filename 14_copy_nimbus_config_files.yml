@@ -24,14 +24,14 @@
 
   tasks:
     # Services stoppen, bevor Units ersetzt werden.
-    - name: Stop service - nimbusCL
+    - name: Stop service - "{{ nimbus_cl_system_user }}"
       systemd:
-        name: nimbusCL
+        name: "{{ nimbus_cl_system_user }}"
         state: stopped
 
-    - name: Stop service - nimbusValidator
+    - name: Stop service - "{{ nimbus_validator_system_user }}"
       systemd:
-        name: nimbusValidator
+        name: "{{ nimbus_validator_system_user }}"
         state: stopped
 
     ##############################
@@ -46,8 +46,8 @@
         group: root
         mode: "0664"
       loop:
-        - nimbusCL
-        - nimbusValidator
+        - "{{ nimbus_cl_system_user }}"
+        - "{{ nimbus_validator_system_user }}"
 
     # systemd neu laden, damit Units erkannt werden.
     - name: daemon-reload
@@ -58,12 +58,12 @@
     # Starte nimbus
 
     # Services neu starten, damit die neue Config aktiv ist.
-    - name: Start nimbusCL service
+    - name: Start "{{ nimbus_cl_system_user }}" service
       systemd:
-        name: nimbusCL
+        name: "{{ nimbus_cl_system_user }}"
         state: started
 
-    - name: Start nimbusValidator service
+    - name: Start "{{ nimbus_validator_system_user }}" service
       systemd:
-        name: nimbusValidator
+        name: "{{ nimbus_validator_system_user }}"
         state: started

@@ -30,15 +30,15 @@
 
   tasks:
     # Validator-User sicherstellen (idempotent).
-    - name: Ensure group 'nimbusValidator' exists
+    - name: Ensure group "{{ nimbus_validator_system_user }}" exists
       group:
-        name: nimbusValidator
+        name: "{{ nimbus_validator_system_user }}"
         state: present
 
-    - name: Add the user 'nimbusValidator'
+    - name: Add the {{ nimbus_validator_system_user }} user
       user:
-        name: nimbusValidator
-        group: "nimbusValidator"
+        name: "{{ nimbus_validator_system_user }}"
+        group: "{{ nimbus_validator_system_user }}"
         create_home: no
         shell: /usr/bin/false
 
@@ -46,14 +46,14 @@
     # Stop nimbus
 
     # Services stoppen, bevor Binaries getauscht werden.
-    - name: Stop service - nimbusCL
+    - name: Stop service - "{{ nimbus_cl_system_user }}"
       systemd:
-        name: nimbusCL
+        name: "{{ nimbus_cl_system_user }}"
         state: stopped
 
-    - name: Stop service - nimbusValidator
+    - name: Stop service - "{{ nimbus_validator_system_user }}"
       systemd:
-        name: nimbusValidator
+        name: "{{ nimbus_validator_system_user }}"
         state: stopped
 
     ###########
@@ -106,25 +106,25 @@
         path: "/tmp/nimbus.tar.gz"
         state: absent
 
-    # nimbusCL binary an den Zielpfad verschieben.
-    - name: Move nimbusCL binary to "{{ nimbus_cl_bin_dir }}"
+    # Nimbus CL binary an den Zielpfad verschieben.
+    - name: Move Nimbus CL binary to "{{ nimbus_cl_bin_dir }}"
       ansible.builtin.command:
         cmd: "mv /home/{{ system_user }}/nimbus/build/nimbus_beacon_node {{ nimbus_cl_bin_dir }}/nimbus_beacon_node"
 
-    # nimbusValidator binary an den Zielpfad verschieben.
-    - name: Move nimbusValidator binary to "{{ nimbus_validator_bin_dir }}"
+    # Nimbus Validator binary an den Zielpfad verschieben.
+    - name: Move Nimbus Validator binary to "{{ nimbus_validator_bin_dir }}"
       ansible.builtin.command:
         cmd: "mv /home/{{ system_user }}/nimbus/build/nimbus_validator_client {{ nimbus_validator_bin_dir }}/nimbus_validator_client"
 
     # Restriktive Rechte pro Service-Binary setzen.
-    - name: Set secure permissions on nimbusCL binary
+    - name: Set secure permissions on Nimbus CL binary
       ansible.builtin.file:
         path: "{{ nimbus_cl_bin_dir }}/nimbus_beacon_node"
         owner: "{{ nimbus_cl_system_user }}"
         group: "{{ nimbus_cl_system_user }}"
         mode: "0700"
 
-    - name: Set secure permissions on nimbusValidator binary
+    - name: Set secure permissions on Nimbus Validator binary
       ansible.builtin.file:
         path: "{{ nimbus_validator_bin_dir }}/nimbus_validator_client"
         owner: "{{ nimbus_validator_system_user }}"
@@ -157,8 +157,8 @@
         group: root
         mode: "0664"
       loop:
-        - nimbusCL
-        - nimbusValidator
+        - "{{ nimbus_cl_system_user }}"
+        - "{{ nimbus_validator_system_user }}"
 
     - name: daemon-reload
       systemd:
@@ -168,14 +168,14 @@
     # Starte nimbus
 
     # Services nach dem Upgrade neu starten.
-    - name: Start nimbusCL service
+    - name: Start "{{ nimbus_cl_system_user }}" service
       systemd:
-        name: nimbusCL
+        name: "{{ nimbus_cl_system_user }}"
         state: started
 
-    - name: Start nimbusValidator service
+    - name: Start {{ nimbus_validator_system_user }} service
       systemd:
-        name: nimbusValidator
+        name: { { nimbus_validator_system_user } }
         state: started
 
     # Beacon booten lassen, dann die Version via REST API abfragen.
