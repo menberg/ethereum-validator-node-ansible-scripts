@@ -178,10 +178,7 @@
         name: nimbusValidator
         state: started
 
-    ###################
-    # Warte 30 Sekunden dann frage die Version über die API ab
-
-    # Beacon kurz booten lassen, dann Version via REST API prüfen.
+    # Beacon booten lassen, dann die Version via REST API abfragen.
     - name: Pause for 30 seconds for Nimbus to start
       pause:
         seconds: 30
@@ -194,4 +191,4 @@
 
     - name: Display node version
       ansible.builtin.debug:
-        msg: "Node version is: {{ node_version.stdout }}"
+        msg: "Nimbus node version is: {{ node_version.stdout }}"
