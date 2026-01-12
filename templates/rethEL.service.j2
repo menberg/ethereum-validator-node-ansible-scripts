@@ -17,6 +17,8 @@ ExecStart={{ reth_binary_path }} node --full \
         --chain {{ network }} \
         --datadir {{ reth_data_dir }} \
         --port {{ reth_ext_port }} \
+        --enable-discv5-discovery \
+        --discovery.v5.port {{ reth_ext_discv5_port }} \
         --authrpc.addr {{ reth_authrpc_addr }} \
         --authrpc.port {{ reth_authrpc_port }} \
         --authrpc.jwtsecret {{ reth_jwtsecret }} \
