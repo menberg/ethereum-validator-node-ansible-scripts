@@ -7,9 +7,9 @@ PermitRootLogin no
 StrictModes yes
 MaxAuthTries 6
 PubkeyAuthentication yes
-AuthorizedKeysFile %h/.ssh/authorized_keys %h/.ssh/authorized_keys2
+AuthorizedKeysFile %h/.ssh/authorized_keys
 PasswordAuthentication no
 PermitEmptyPasswords no
-ChallengeResponseAuthentication no
+KbdInteractiveAuthentication no
 UsePAM no
 Subsystem sftp internal-sftp
