@@ -34,7 +34,6 @@ ExecStart="{{ nimbus_cl_bin_dir }}"/nimbus_beacon_node \
     --suggested-fee-recipient={{ fee_recipient_wallet_address }} \
     --jwt-secret={{ nimbus_jwt_secret }} \
     --subscribe-all-subnets \
-    --payload-builder=true \
     --log-level="{{ nimbus_log_level }}" \
     --log-format=json \
     --suggested-gas-limit=60000000 \
