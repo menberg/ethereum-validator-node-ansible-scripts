@@ -111,7 +111,7 @@
         dest: /etc/systemd/system/{{ reth_system_user }}.service
         owner: root
         group: root
-        mode: "0664"
+        mode: "0644"
       notify: daemon-reload
 
     # Service neu starten, damit das neue Binary läuft.

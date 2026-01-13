@@ -147,7 +147,7 @@
         dest: "/etc/systemd/system/{{ item }}.service"
         owner: root
         group: root
-        mode: "0664"
+        mode: "0644"
       loop:
         - "{{ nimbus_cl_system_user }}"
         - "{{ nimbus_validator_system_user }}"
