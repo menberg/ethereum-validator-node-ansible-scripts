@@ -23,15 +23,13 @@
 
   tasks:
     # Services stoppen, bevor Units ersetzt werden.
-    - name: Stop service - "{{ nimbus_cl_system_user }}"
+    - name: Stop Nimbus services
       systemd:
-        name: "{{ nimbus_cl_system_user }}"
+        name: "{{ item }}"
         state: stopped
-
-    - name: Stop service - "{{ nimbus_validator_system_user }}"
-      systemd:
-        name: "{{ nimbus_validator_system_user }}"
-        state: stopped
+      loop:
+        - "{{ nimbus_cl_system_user }}"
+        - "{{ nimbus_validator_system_user }}"
 
     ##############################
     # Copy Service Template Files
@@ -47,22 +45,22 @@
       loop:
         - "{{ nimbus_cl_system_user }}"
         - "{{ nimbus_validator_system_user }}"
+      notify: daemon-reload
 
-    # systemd neu laden, damit Units erkannt werden.
-    - name: daemon-reload
-      systemd:
-        daemon_reload: yes
-
-        ###################
+    ###################
     # Starte nimbus
 
     # Services neu starten, damit die neue Config aktiv ist.
-    - name: Start "{{ nimbus_cl_system_user }}" service
+    - name: Start Nimbus services
       systemd:
-        name: "{{ nimbus_cl_system_user }}"
+        name: "{{ item }}"
         state: started
+      loop:
+        - "{{ nimbus_cl_system_user }}"
+        - "{{ nimbus_validator_system_user }}"
 
-    - name: Start "{{ nimbus_validator_system_user }}" service
+  handlers:
+    # systemd neu laden, wenn Templates geändert wurden.
+    - name: daemon-reload
       systemd:
-        name: "{{ nimbus_validator_system_user }}"
-        state: started
+        daemon_reload: yes

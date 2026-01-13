@@ -52,7 +52,7 @@ fee_recipient_wallet_address: "" # overridden by vars/config_untracked.yml
 ##########################################
 # Latest release at "https://github.com/paradigmxyz/reth/releases/latest"
 
-reth_version: "v1.9.3"
+reth_version: "" # leave empty for latest version, or set wanted version, e.g. "v1.9.3"
 reth_system_user: rethEL
 reth_bin_dir: "/opt/reth/bin"
 reth_binary_path: "{{ reth_bin_dir }}/reth" # Full path to the binary

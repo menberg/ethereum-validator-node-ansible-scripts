@@ -19,6 +19,8 @@
 ##   - nimbus_log_dir, nimbus_cl_log_file, nimbus_validator_log_file
 ##   - nimbus_cl_data_dir, nimbus_validator_data_dir
 ##   - nimbus_validator_validators_dir, nimbus_validator_keys_dir, nimbus_validator_secrets_dir
+##   - nimbus_version: steuert Release-Tag (z.B. v25.12.0)
+##   - nimbus_cl_rest_port
 ##   - system_user
 ## Templates:
 ##   - nimbusCL.service.j2
@@ -72,10 +74,10 @@
 
     ##################
     # Sicherstellen, dass chrony für Zeit-Sync installiert ist.
-    - name: Make sure chrony package is installed
-      package:
+    - name: Ensure chrony is installed, otherwise fail
+      ansible.builtin.service:
         name: chrony
-        state: present
+        state: running
 
     ################
     # Verzeichnisse für Binaries, Daten und Logs mit korrekten Rechten anlegen.
@@ -149,12 +151,12 @@
         method: GET
         return_content: yes
         body_format: json
-      register: release_data
-      # requires installing jq on the remote host
+      register: release_data # requires installing jq on the remote host
 
     - name: Set binaries_url from the release data
       set_fact:
         binaries_urls: "{{ release_data.json.assets | map(attribute='browser_download_url') | select('match', '^https://github.com/status-im/nimbus-eth2/releases/download/v[0-9]+\\.[0-9]+\\.[0-9]+/nimbus-eth2_Linux_amd64_.*\\.tar\\.gz$') | list }}"
+
     - name: Set first match
       set_fact:
         binaries_url: "{{ binaries_urls | first | default('') }}"
@@ -184,7 +186,7 @@
         owner: "{{ system_user }}"
         group: "{{ system_user }}"
         remote_src: yes
-        extra_opts: [--strip-components=1] # Assuming the tar structure allows this, adjust if needed
+        extra_opts: [--strip-components=1]
 
     - name: Cleanup downloaded tar.gz
       ansible.builtin.file:
@@ -226,6 +228,7 @@
       ansible.builtin.command:
         cmd: "{{ nimbus_cl_bin_dir }}/nimbus_beacon_node --version"
       register: nimbus_version
+      changed_when: false
 
     - name: Display nimbus_beacon_node version
       ansible.builtin.debug:
@@ -247,21 +250,34 @@
         - "{{ nimbus_validator_system_user }}"
       notify: daemon-reload
 
-    - name: Start Nimbus services
-      systemd:
-        name: "{{ item }}"
-        state: restarted
-      loop:
-        - "{{ nimbus_cl_system_user }}"
-        - "{{ nimbus_validator_system_user }}"
+    ###################
+    # Starte nimbus
 
-    - name: Enable Nimbus services to start on boot
+    # Services nach der Installation starten.
+    - name: Start Nimbus services and enable them on reboots
       systemd:
         name: "{{ item }}"
+        state: started
         enabled: yes
       loop:
         - "{{ nimbus_cl_system_user }}"
         - "{{ nimbus_validator_system_user }}"
+
+    # Beacon booten lassen, dann die Version via REST API abfragen.
+    - name: Pause for 30 seconds for Nimbus to start
+      pause:
+        seconds: 30
+
+    - name: Fetch and display the node version from local ETH node
+      ansible.builtin.shell: |
+        curl -s http://localhost:{{ nimbus_cl_rest_port }}/eth/v1/node/version | jq -r '.data.version'
+      register: node_version
+      failed_when: node_version.rc != 0
+      changed_when: false
+
+    - name: Display node version
+      ansible.builtin.debug:
+        msg: "Running Nimbus node version is: {{ node_version.stdout }}"
 
   handlers:
     # systemd neu laden, wenn Templates geändert wurden.

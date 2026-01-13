@@ -14,8 +14,8 @@
 ## Variablen: vars/config_project.yml
 ##   - reth_system_user
 ##   - reth_bin_dir, reth_binary_path
-##   - reth_version: steuert Release-Tag (z.B. v1.9.3)
 ##   - reth_data_dir
+##   - reth_version: steuert Release-Tag (z.B. v1.9.3)
 ## Template:
 ##   - templates/rethEL.service.j2
 ## Voraussetzungen:
@@ -35,70 +35,74 @@
     ################
     # Update reth
 
-    # Download-Verzeichnis sicherstellen.
-    - name: Ensure download directory exists
-      file:
-        path: "/tmp/reth_download"
-        state: directory
-        mode: "0755"
-        owner: "{{ reth_system_user }}"
-        group: "{{ reth_system_user }}"
-
-    # Reth Binary von GitHub Releases herunterladen.
-    - name: Download reth binary from GitHub releases
+    # Gesetzte Reth Binary Version von GitHub Releases herunterladen.
+    - name: Download reth binary "{{ reth_version }}" from GitHub releases
       ansible.builtin.get_url:
         url: "https://github.com/paradigmxyz/reth/releases/download/{{ reth_version }}/reth-{{ reth_version }}-x86_64-unknown-linux-gnu.tar.gz"
-        dest: "/tmp/reth_download/reth-{{ reth_version }}-x86_64-unknown-linux-gnu.tar.gz"
-        mode: "0644"
-        owner: "{{ reth_system_user }}"
-        group: "{{ reth_system_user }}"
+        dest: "/tmp/reth.tar.gz"
 
-    # Tarball extrahieren.
-    - name: Extract reth binary tarball
-      unarchive:
-        src: "/tmp/reth_download/reth-{{ reth_version }}-x86_64-unknown-linux-gnu.tar.gz"
-        dest: "/tmp/reth_download"
+    # Temporär entpacken.
+    - name: Ensure the destination directory exists
+      ansible.builtin.file:
+        path: "/home/{{ system_user }}/reth"
+        state: directory
+        owner: "{{ system_user }}"
+        group: "{{ system_user }}"
+        mode: "0755"
+
+    - name: Extract reth tar.gz to the home directory
+      ansible.builtin.unarchive:
+        src: "/tmp/reth.tar.gz"
+        dest: "/home/{{ system_user }}/reth"
+        owner: "{{ system_user }}"
+        group: "{{ system_user }}"
         remote_src: yes
-        owner: "{{ reth_system_user }}"
-        group: "{{ reth_system_user }}"
+        extra_opts: [--strip-components=1]
+
+    # Download-Verzeichnis aufräumen.
+    - name: Cleanup downloaded reth.tar.gz
+      ansible.builtin.file:
+        path: "/tmp/reth.tar.gz"
+        state: absent
 
     ###########
-    # Stop Reth and replace binary
+    # Stop Reth and copy binary
 
     # Service stoppen, um Binary sicher zu ersetzen.
-    - name: Stop {{ reth_system_user }} service
+    - name: Stop "{{ reth_system_user }}" service
       systemd:
         name: "{{ reth_system_user }}"
         state: stopped
 
-    # Neues Binary an Zielpfad kopieren.
-    - name: Copy the binary to the target directory
+    # Binary in den Zielordner verschieben und restriktive Rechte setzen.
+    - name: Copy the binary to {{ reth_binary_path }}
       copy:
-        src: "/tmp/reth_download/reth-{{ reth_version }}-x86_64-unknown-linux-gnu/reth"
+        src: "/home/{{ system_user }}/reth/reth"
         dest: "{{ reth_binary_path }}"
         remote_src: yes
-        mode: "0755"
         owner: "{{ reth_system_user }}"
         group: "{{ reth_system_user }}"
+        mode: "0700"
 
-    - name: Adjust ownership of the reth directories and binary
-      file:
-        path: "{{ item }}"
-        owner: "{{ reth_system_user }}"
-        group: "{{ reth_system_user }}"
-        recurse: yes
-      loop:
-        - "{{ reth_bin_dir }}"
-        - "{{ reth_data_dir }}"
-
-    # Download-Verzeichnis aufräumen.
-    - name: Cleanup the download directory
-      file:
-        path: "/tmp/reth_download"
+    # Temorären reth-Ordner im Home-Verzeichnis entfernen.
+    - name: Cleanup reth folder
+      ansible.builtin.file:
+        path: "/home/{{ system_user }}/reth"
         state: absent
 
+    # Installierte Version anzeigen.
+    - name: Check reth version
+      ansible.builtin.command:
+        cmd: "{{ reth_binary_path }} --version"
+      register: reth_version
+      changed_when: false
+
+    - name: Display reth version
+      ansible.builtin.debug:
+        msg: "{{ reth_version.stdout }}"
+
     ##############################
-    # Copy Serivice Template Files
+    # Copy Service Template Files
 
     # systemd-Unit aus Template aktualisieren.
     - name: Copy service script
@@ -111,13 +115,13 @@
       notify: daemon-reload
 
     # Service neu starten, damit das neue Binary läuft.
-    - name: Start {{ reth_system_user }} service
+    - name: Start "{{ reth_system_user }}" service
       systemd:
         name: "{{ reth_system_user }}"
         state: restarted
 
   handlers:
-    # Handler für systemd-Reload.
+    # systemd neu laden, wenn Templates geändert wurden.
     - name: daemon-reload
       systemd:
         daemon_reload: yes

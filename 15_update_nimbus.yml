@@ -16,6 +16,7 @@
 ## Variablen:
 ##   - nimbus_cl_system_user, nimbus_validator_system_user
 ##   - nimbus_cl_bin_dir, nimbus_validator_bin_dir
+##   - nimbus_version: steuert Release-Tag (z.B. v25.12.0)
 ##   - nimbus_cl_rest_port
 ##   - system_user
 ## Templates:
@@ -39,15 +40,13 @@
     # Stop nimbus
 
     # Services stoppen, bevor Binaries getauscht werden.
-    - name: Stop service - "{{ nimbus_cl_system_user }}"
+    - name: Stop Nimbus services
       systemd:
-        name: "{{ nimbus_cl_system_user }}"
+        name: "{{ item }}"
         state: stopped
-
-    - name: Stop service - "{{ nimbus_validator_system_user }}"
-      systemd:
-        name: "{{ nimbus_validator_system_user }}"
-        state: stopped
+      loop:
+        - "{{ nimbus_cl_system_user }}"
+        - "{{ nimbus_validator_system_user }}"
 
     ###########
     # Neueste Linux amd64 Release-Asset von GitHub ermitteln und laden.
@@ -57,12 +56,12 @@
         method: GET
         return_content: yes
         body_format: json
-      register: release_data
-      # requires installing jq on the remote host
+      register: release_data # requires installing jq on the remote host
 
     - name: Set binaries_url from the release data
       set_fact:
         binaries_urls: "{{ release_data.json.assets | map(attribute='browser_download_url') | select('match', '^https://github.com/status-im/nimbus-eth2/releases/download/v[0-9]+\\.[0-9]+\\.[0-9]+/nimbus-eth2_Linux_amd64_.*\\.tar\\.gz$') | list }}"
+
     - name: Set first match
       set_fact:
         binaries_url: "{{ binaries_urls | first | default('') }}"
@@ -139,7 +138,7 @@
         state: absent
 
     ##############################
-    # Copy Serivice Template Files
+    # Copy Service Template Files
 
     # systemd-Units aktualisieren (no-op falls identisch).
     - name: Copy service scripts
@@ -152,24 +151,19 @@
       loop:
         - "{{ nimbus_cl_system_user }}"
         - "{{ nimbus_validator_system_user }}"
-
-    - name: daemon-reload
-      systemd:
-        daemon_reload: yes
+      notify: daemon-reload
 
     ###################
     # Starte nimbus
 
-    # Services nach dem Upgrade neu starten.
-    - name: Start "{{ nimbus_cl_system_user }}" service
+    # Services nach dem Upgrade starten.
+    - name: Start Nimbus services
       systemd:
-        name: "{{ nimbus_cl_system_user }}"
+        name: "{{ item }}"
         state: started
-
-    - name: Start {{ nimbus_validator_system_user }} service
-      systemd:
-        name: { { nimbus_validator_system_user } }
-        state: started
+      loop:
+        - "{{ nimbus_cl_system_user }}"
+        - "{{ nimbus_validator_system_user }}"
 
     # Beacon booten lassen, dann die Version via REST API abfragen.
     - name: Pause for 30 seconds for Nimbus to start
@@ -181,7 +175,14 @@
         curl -s http://localhost:{{ nimbus_cl_rest_port }}/eth/v1/node/version | jq '.data.version' | awk '{ printf "%s\n", $1 }'
       register: node_version
       failed_when: node_version.rc != 0
+      changed_when: false
 
     - name: Display node version
       ansible.builtin.debug:
-        msg: "Nimbus node version is: {{ node_version.stdout }}"
+        msg: "Running Nimbus node version is: {{ node_version.stdout }}"
+
+  handlers:
+    # systemd neu laden, wenn Templates geändert wurden.
+    - name: daemon-reload
+      systemd:
+        daemon_reload: yes

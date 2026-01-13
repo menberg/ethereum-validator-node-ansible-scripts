@@ -76,33 +76,43 @@
       file:
         path: "{{ reth_log_dir }}"
         state: directory
-        owner: root
-        group: root
+        owner: "{{ reth_system_user }}"
+        group: "{{ reth_system_user }}"
         mode: "0755"
 
+    ################
+    # Install reth
     ###############
-    # Neueste Release-Asset von GitHub ermitteln und laden.
-    - name: Get the latest reth release URL for Linux amd64
-      ansible.builtin.uri:
-        url: "https://api.github.com/repos/paradigmxyz/reth/releases/latest"
-        method: GET
-        return_content: yes
-        body_format: json
-      register: release_data
-      # requires installing jq on the remote host
 
-    - name: Set binary_url from the release data
-      set_fact:
-        binary_urls: "{{ release_data.json.assets | map(attribute='browser_download_url') | select('match', '^https://github.com/paradigmxyz/reth/releases/download/v[0-9]+\\.[0-9]+\\.[0-9]+/reth-v[0-9]+\\.[0-9]+\\.[0-9]+-aarch64-unknown-linux-gnu\\.tar\\.gz$') | list }}"
-    - name: Set first match
-      set_fact:
-        binary_url: "{{ binary_urls | first | default('') }}"
+    # Finde die neuste Version, falls {{ reth_version }} nicht gesetzt ist.
+    - name: Set {{ reth_version }} to latest version if unset
+      block:
+        # Release-Data von GitHub ermitteln.
+        - name: Fetch the latest release data
+          ansible.builtin.uri:
+            url: "https://api.github.com/repos/paradigmxyz/reth/releases/latest"
+            method: GET
+            return_content: yes
+            body_format: json
+          register: release_data
 
-    - name: Display binary_url
+        # Versionsnummer aus Release-Data extrahieren.
+        - name: Set version from the release data
+          set_fact:
+            reth_version: "{{ release_data.json.assets | map(attribute='name') | select('match', '^reth-v[0-9]+\\.[0-9]+\\.[0-9]+-x86_64-unknown-linux-gnu\\.tar\\.gz$') | first }}"
+      when: reth_version is not defined or reth_version | trim | length == 0
+      changed_when: false
+
+    - name: Construct reth download url from {{ reth_version }} variable
+      set_fact:
+        binary_url: "https://github.com/paradigmxyz/reth/releases/download/{{ reth_version }}/reth-{{ reth_version }}-x86_64-unknown-linux-gnu.tar.gz"
+
+    - name: Display constructed binary_url
       ansible.builtin.debug:
         msg: "{{ binary_url }}"
 
-    - name: Download the reth tar.gz
+    # Reth Binary von GitHub Releases herunterladen.
+    - name: Download the reth binary from GitHub releases
       ansible.builtin.get_url:
         url: "{{ binary_url }}"
         dest: "/tmp/reth.tar.gz"
@@ -123,45 +133,48 @@
         owner: "{{ system_user }}"
         group: "{{ system_user }}"
         remote_src: yes
-        extra_opts: [--strip-components=1] # Assuming the tar structure allows this, adjust if needed
+        extra_opts: [--strip-components=1]
 
-    - name: Cleanup downloaded tar.gz
+    # Download-Verzeichnis aufräumen.
+    - name: Cleanup downloaded reth.tar.gz
       ansible.builtin.file:
         path: "/tmp/reth.tar.gz"
         state: absent
 
-    # Reth Binary in den Zielordner verschieben.
-    - name: Move reth binary to "{{ reth_binary_path }}"
-      ansible.builtin.command:
-        cmd: "mv /home/{{ system_user }}/reth/reth {{ reth_binary_path }}"
+    ###########
+    # Copy binary
 
-    # Temorären reth-Ornder entfernen.
+    # Binary in den Zielordner verschieben und restriktive Rechte setzen.
+    - name: Copy the binary to {{ reth_binary_path }}
+      copy:
+        src: "/home/{{ system_user }}/reth/reth"
+        dest: "{{ reth_binary_path }}"
+        remote_src: yes
+        owner: "{{ reth_system_user }}"
+        group: "{{ reth_system_user }}"
+        mode: "0700"
+
+    # Temorären reth-Ordner im Home-Verzeichnis entfernen.
     - name: Cleanup reth folder
       ansible.builtin.file:
         path: "/home/{{ system_user }}/reth"
         state: absent
 
-    # Reth Binary mit restriktiven Rechten betreiben.
-    - name: Set secure permissions on reth binary
-      ansible.builtin.file:
-        path: "{{ reth_binary_path }}"
-        owner: "{{ reth_system_user }}"
-        group: "{{ reth_system_user }}"
-        mode: "0700"
-
+    # Installierte Version anzeigen.
     - name: Check reth version
       ansible.builtin.command:
         cmd: "{{ reth_binary_path }} --version"
       register: reth_version
+      changed_when: false
 
     - name: Display reth version
       ansible.builtin.debug:
         msg: "{{ reth_version.stdout }}"
 
     ##############################
-    # Copy Serivice Template Files
+    # Copy Service Template Files
 
-    # systemd-Unit aus Template installieren und aktivieren.
+    # systemd-Units aus Templates installieren und aktivieren.
     - name: Copy service script
       template:
         src: templates/{{ reth_system_user }}.service.j2
@@ -171,18 +184,18 @@
         mode: "0664"
       notify: daemon-reload
 
-    - name: Start {{ reth_system_user }} service
+    ###################
+    # Starte reth
+
+    # Service nach der installation starten.
+    - name: Restart "{{ reth_system_user }}" service and enable it on reboots
       systemd:
         name: "{{ reth_system_user }}"
         state: restarted
-
-    - name: Enable {{ reth_system_user }} service to start on boot
-      systemd:
-        name: "{{ reth_system_user }}"
         enabled: yes
 
   handlers:
-    # Handler für systemd-Reload.
+    # systemd neu laden, wenn Templates geändert wurden.
     - name: daemon-reload
       systemd:
         daemon_reload: yes
