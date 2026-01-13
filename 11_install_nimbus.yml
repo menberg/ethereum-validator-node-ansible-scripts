@@ -103,7 +103,7 @@
         group: root
         mode: "0755"
 
-    - name: Make sure needed directories for Nimbus Validator exist
+    - name: Make sure needed subdirectories for Nimbus Validator exist
       file:
         path: "{{ item }}"
         state: directory
@@ -191,15 +191,21 @@
         path: "/tmp/nimbus.tar.gz"
         state: absent
 
-    # Nimbus CL binary an den Zielpfad verschieben.
-    - name: Move Nimbus CL binary to "{{ nimbus_cl_bin_dir }}"
+    # Nimbus CL binary in den Zielordner verschieben.
+    - name: Move Nimbus CL binary into folder "{{ nimbus_cl_bin_dir }}"
       ansible.builtin.command:
         cmd: "mv /home/{{ system_user }}/nimbus/build/nimbus_beacon_node {{ nimbus_cl_bin_dir }}/nimbus_beacon_node"
 
-    # Nimbus Validator binary an den Zielpfad verschieben.
-    - name: Move Nimbus Validator binary to "{{ nimbus_validator_bin_dir }}"
+    # Nimbus Validator binary in den Zielordner verschieben.
+    - name: Move Nimbus Validator binary into folder "{{ nimbus_validator_bin_dir }}"
       ansible.builtin.command:
         cmd: "mv /home/{{ system_user }}/nimbus/build/nimbus_validator_client {{ nimbus_validator_bin_dir }}/nimbus_validator_client"
+
+    # Temorären nimbus-Ornder entfernen.
+    - name: Cleanup nimbus folder
+      ansible.builtin.file:
+        path: "/home/{{ system_user }}/nimbus"
+        state: absent
 
     # Je Dienst eigene Binary mit restriktiven Rechten betreiben.
     - name: Set secure permissions on Nimbus CL binary
@@ -224,11 +230,6 @@
     - name: Display nimbus_beacon_node version
       ansible.builtin.debug:
         msg: "{{ nimbus_version.stdout }}"
-
-    - name: Cleanup nimbus folder
-      ansible.builtin.file:
-        path: "/home/{{ system_user }}/nimbus"
-        state: absent
 
     ##############################
     # Copy Service Template Files

@@ -51,33 +51,37 @@
         name: "{{ reth_system_user }}"
         group: "{{ reth_system_user }}"
         groups: jwt
-        shell: /bin/bash
         create_home: yes
+        shell: /bin/bash
 
     ################
     # Verzeichnisse für Binary, Daten und Logs mit korrekten Rechten anlegen.
-    - name: Ensure needed directories exist
+    - name: Create the reth bin directory
       file:
-        path: "{{ item }}"
+        path: "{{ reth_bin_dir }}"
         state: directory
+        owner: root
+        group: root
         mode: "0755"
+
+    - name: Make sure the reth data directory exists
+      file:
+        path: "{{ reth_data_dir }}"
+        state: directory
         owner: "{{ reth_system_user }}"
         group: "{{ reth_system_user }}"
-      loop:
-        - "{{ reth_bin_dir }}"
-        - "{{ reth_data_dir }}"
+        mode: "0700"
 
     - name: Ensure the log file directory exists
       file:
         path: "{{ reth_log_dir }}"
         state: directory
-        mode: "0755"
         owner: root
         group: root
+        mode: "0755"
 
     ###############
     # Neueste Release-Asset von GitHub ermitteln und laden.
-    # Reth Binary von GitHub Releases herunterladen.
     - name: Get the latest reth release URL for Linux amd64
       ansible.builtin.uri:
         url: "https://api.github.com/repos/paradigmxyz/reth/releases/latest"
@@ -103,7 +107,7 @@
         url: "{{ binary_url }}"
         dest: "/tmp/reth.tar.gz"
 
-    # Temporär entpacken, später Binary nach {{ reth_bin_dir }} verschieben.
+    # Temporär entpacken.
     - name: Ensure the destination directory exists
       ansible.builtin.file:
         path: "/home/{{ system_user }}/reth"
@@ -126,12 +130,18 @@
         path: "/tmp/reth.tar.gz"
         state: absent
 
-    # Binary in das Zielverzeichnis verschieben.
+    # Reth Binary in den Zielordner verschieben.
     - name: Move reth binary to "{{ reth_binary_path }}"
       ansible.builtin.command:
-        cmd: "mv /home/{{ system_user }}/reth/reth {{ reth_binary_path  }}"
+        cmd: "mv /home/{{ system_user }}/reth/reth {{ reth_binary_path }}"
 
-    # Binary mit restriktiven Rechten betreiben.
+    # Temorären reth-Ornder entfernen.
+    - name: Cleanup reth folder
+      ansible.builtin.file:
+        path: "/home/{{ system_user }}/reth"
+        state: absent
+
+    # Reth Binary mit restriktiven Rechten betreiben.
     - name: Set secure permissions on reth binary
       ansible.builtin.file:
         path: "{{ reth_binary_path }}"
@@ -147,11 +157,6 @@
     - name: Display reth version
       ansible.builtin.debug:
         msg: "{{ reth_version.stdout }}"
-
-    - name: Cleanup reth folder
-      ansible.builtin.file:
-        path: "/home/{{ system_user }}/reth"
-        state: absent
 
     ##############################
     # Copy Serivice Template Files
