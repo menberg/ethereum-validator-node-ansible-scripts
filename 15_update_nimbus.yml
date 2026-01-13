@@ -25,7 +25,7 @@
 ##   - Outbound Internet zu GitHub.
 ##
 
-- name: Update Nimbus
+- name: Update Nimbus and restart Service
   hosts: ethnode
   become: true
   gather_facts: false
