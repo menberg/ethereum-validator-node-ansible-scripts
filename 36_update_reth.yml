@@ -46,7 +46,7 @@
 
     # Reth Binary von GitHub Releases herunterladen.
     - name: Download reth binary from GitHub releases
-      get_url:
+      ansible.builtin.get_url:
         url: "https://github.com/paradigmxyz/reth/releases/download/{{ reth_version }}/reth-{{ reth_version }}-x86_64-unknown-linux-gnu.tar.gz"
         dest: "/tmp/reth_download/reth-{{ reth_version }}-x86_64-unknown-linux-gnu.tar.gz"
         mode: "0644"
