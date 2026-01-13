@@ -25,7 +25,7 @@ sys_packages:
 ##########################################
 
 ## User
-system_user: "janos"
+system_user: "" # overridden by vars/config_untracked.yml
 
 # Network
 server_fqdn_hostname: "ethnode.local"
