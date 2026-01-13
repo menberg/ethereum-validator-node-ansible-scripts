@@ -62,7 +62,8 @@
         owner: "{{ reth_system_user }}"
         group: "{{ reth_system_user }}"
 
-    ########## Stop Reth and replace ############
+    ###########
+    # Stop Reth and replace binary
 
     # Service stoppen, um Binary sicher zu ersetzen.
     - name: Stop {{ reth_system_user }} service
