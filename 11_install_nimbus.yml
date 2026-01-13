@@ -71,15 +71,11 @@
         shell: /bin/bash
 
     ##################
-    # Paket-Cache aktualisieren und chrony für Zeit-Sync installieren.
-    - name: Run <apt-get update>
-      apt:
-        update_cache: yes
-
-    - name: Install system packages
-      apt:
+    # Sicherstellen, dass chrony für Zeit-Sync installiert ist.
+    - name: Make sure chrony package is installed
+      package:
         name: chrony
-        state: latest
+        state: present
 
     ################
     # Verzeichnisse für Binaries, Daten und Logs mit korrekten Rechten anlegen.
