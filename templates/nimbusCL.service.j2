@@ -13,7 +13,7 @@ KillSignal=SIGINT
 TimeoutStopSec=900
 StandardOutput=append:{{ nimbus_log_dir }}/{{ nimbus_cl_log_file }}
 StandardError=journal
-ExecStart="{{ nimbus_cl_bin_dir }}"/nimbus_beacon_node \
+ExecStart={{ nimbus_cl_bin_dir }}/nimbus_beacon_node \
     --network="{{ network }}" \
     --data-dir="{{ nimbus_cl_data_dir }}" \
     --tcp-port={{ nimbus_ext_tcp_port }} \
@@ -32,12 +32,14 @@ ExecStart="{{ nimbus_cl_bin_dir }}"/nimbus_beacon_node \
     --metrics-port={{ nimbus_cl_metrics_port }} \
     --max-peers={{ nimbus_max_peers }} \
     --hard-max-peers={{ nimbus_hard_max_peers }} \
+{% if fee_recipient_wallet_address | length > 0 %}
     --suggested-fee-recipient={{ fee_recipient_wallet_address }} \
+{% endif %}
     --jwt-secret={{ nimbus_jwt_secret_path }} \
     --subscribe-all-subnets \
     --log-level="{{ nimbus_log_level }}" \
     --log-format=json \
-    --suggested-gas-limit=60000000 \
+    --suggested-gas-limit=60000000
 
 [Install]
 WantedBy=multi-user.target
