@@ -89,10 +89,12 @@ Execute playbooks in order:
 
 ```bash
 # 1. Initial OS setup
-ansible-playbook -i inventory/hosts.yml -u YOUR_INITIAL_USER 01_setup_os_initial.yml
+# (temporarily set "ansible_user" in hosts.yml to "{{ system_user }}")
+ansible-playbook -i inventory/hosts.yml --ask-pass --ask-become-pass 01_setup_os_initial.yml
 
 # 2. Create automation admin user
-ansible-playbook -i inventory/hosts.yml -u YOUR_INITIAL_USER 02_create_user_automation_admin.yml
+# (temporarily set "ansible_user" in hosts.yml to "{{ system_user }}")
+ansible-playbook -i inventory/hosts.yml --ask-pass --ask-become-pass 02_create_user_automation_admin.yml
 
 # 3. Setup firewall and SSH
 ansible-playbook -i inventory/hosts.yml 03_setup_os_firewall_ssh.yml
