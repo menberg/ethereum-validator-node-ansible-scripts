@@ -21,6 +21,10 @@
   become: true
   gather_facts: false
 
+  vars_files:
+    - vars/config_project.yml
+    - vars/config_untracked.yml
+
   tasks:
     # Services stoppen, bevor Units ersetzt werden.
     - name: Stop Nimbus services
