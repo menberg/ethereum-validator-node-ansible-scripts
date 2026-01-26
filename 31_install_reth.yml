@@ -96,14 +96,18 @@
             body_format: json
           register: release_data
 
-        # Versionsnummer aus Release-Data extrahieren.
-        - name: Set version from the release data
+        # Dateiname aus Release-Data extrahieren.
+        - name: Find file name from release data
           set_fact:
-            reth_version: "{{ release_data.json.assets | map(attribute='name') | select('match', '^reth-v[0-9]+\\.[0-9]+\\.[0-9]+-x86_64-unknown-linux-gnu\\.tar\\.gz$') | first }}"
-      when: reth_version is not defined or reth_version | trim | length == 0
-      changed_when: false
+            reth_filename: "{{ release_data.json.assets | map(attribute='name') | select('match', '^reth-v[0-9]+\\.[0-9]+\\.[0-9]+-x86_64-unknown-linux-gnu\\.tar\\.gz$') | first }}"
 
-    - name: Construct reth download url from {{ reth_version }} variable
+        # Versionsnummer aus Dateinamen extrahieren.
+        - name: Extract version from file name
+          set_fact:
+            reth_version: "{{ reth_filename | regex_search('v[0-9]+\\.[0-9]+\\.[0-9]+') }}"
+      when: reth_version is not defined or reth_version | trim | length == 0
+
+    - name: Construct reth download url
       set_fact:
         binary_url: "https://github.com/paradigmxyz/reth/releases/download/{{ reth_version }}/reth-{{ reth_version }}-x86_64-unknown-linux-gnu.tar.gz"
 
