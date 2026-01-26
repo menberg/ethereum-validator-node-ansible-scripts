@@ -51,12 +51,19 @@
         comment: SSH access
 
     # Ethereum Node Ports erlauben.
-    - name: UFW - Allow nimbusCL listening ports
+    - name: UFW - Allow nimbusCL TCP listening port
       ufw:
         rule: allow
         port: 9000
-        proto: tcp, udp
-        comment: nimbusCL TCP/UDP listening ports
+        proto: tcp
+        comment: nimbusCL TCP listening port
+
+    - name: UFW - Allow nimbusCL UDP listening port
+      ufw:
+        rule: allow
+        port: 9000
+        proto: udp
+        comment: nimbusCL UDP listening port
 
     - name: UFW - Allow rethEL discv5 discovery port
       ufw:
@@ -65,12 +72,19 @@
         proto: udp
         comment: rethEL UDP discv5 discovery port
 
-    - name: UFW - Allow rethEL listening ports
+    - name: UFW - Allow rethEL TCP listening port
       ufw:
         rule: allow
         port: 30303
-        proto: tcp, udp
-        comment: rethEL TCP/UDP listening ports
+        proto: tcp
+        comment: rethEL TCP listening port
+
+    - name: UFW - Allow rethEL UDP listening port
+      ufw:
+        rule: allow
+        port: 30303
+        proto: udp
+        comment: rethEL UDP listening port
 
     # UFW Default-Deny aktivieren.
     - name: UFW - Deny all other incoming traffic by default
