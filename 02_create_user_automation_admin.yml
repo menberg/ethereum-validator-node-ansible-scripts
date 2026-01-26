@@ -7,6 +7,7 @@
 ##   - Passwordless sudo (NOPASSWD) via sudoers.d aktivieren.
 ##
 ## Ausführen (Beispiel):
+## create a local key with "ssh-keygen -t ed25519 -C 'automation_admin@$192.168.101.99' -f ~/.ssh/id_ed25519_ethnode
 ## ansible-playbook -i inventory/hosts.yml --ask-pass --ask-become-pass 02_create_user_automation_admin.yml
 ## (temporarily set "ansible_user" in hosts.yml to "{{ system_user }}")
 ##
@@ -51,6 +52,13 @@
         create_home: yes
         password: "{{ automation_admin_password_hash }}"
         state: present
+
+    # Install the controller's public SSH key into automation_admin's authorized_keys
+    - name: Install public key for automation_admin
+      ansible.builtin.authorized_key:
+        user: automation_admin
+        state: present
+        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_ed25519_ethnode.pub') }}"
 
     # Passwordless sudo (NOPASSWD) via /etc/sudoers.d aktivieren.
     # Hinweis: Visudo-Syntax wird durch Dateirechte und Pfad abgesichert.
