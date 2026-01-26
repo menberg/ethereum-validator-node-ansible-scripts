@@ -74,10 +74,16 @@
 
     ##################
     # Sicherstellen, dass chrony für Zeit-Sync installiert ist.
-    - name: Ensure chrony is installed, otherwise fail
+    - name: Ensure chrony package is installed
+      ansible.builtin.package:
+        name: chrony
+        state: present
+
+    - name: Ensure chrony service is started and enabled
       ansible.builtin.service:
         name: chrony
-        state: running
+        state: started
+        enabled: yes
 
     ################
     # Verzeichnisse für Binaries, Daten und Logs mit korrekten Rechten anlegen.
