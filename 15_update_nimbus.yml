@@ -170,16 +170,18 @@
       pause:
         seconds: 30
 
-    - name: Fetch and display the node version from local ETH node
+    - name: Fetch and display the Nimbus node version
       ansible.builtin.shell: |
-        curl -s http://localhost:{{ nimbus_cl_rest_port }}/eth/v1/node/version | jq '.data.version' | awk '{ printf "%s\n", $1 }'
+        curl -s http://localhost:{{ nimbus_cl_rest_port }}/eth/v1/node/version | jq -r '.data.version'
       register: node_version
       failed_when: node_version.rc != 0
       changed_when: false
 
-    - name: Display node version
-      ansible.builtin.debug:
-        msg: "Running Nimbus node version is: {{ node_version.stdout }}"
+    - name: Make sure Nimbus is running
+      ansible.builtin.assert:
+        that: node_version.stdout is defined and node_version.stdout != ""
+        fail_msg: "'Nimbus is not running"
+        success_msg: "Running Nimbus version is: {{ node_version.stdout }}"
 
   handlers:
     # systemd neu laden, wenn Templates geändert wurden.
