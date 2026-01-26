@@ -152,8 +152,8 @@ Default paths (can be modified in `vars/config_project.yml`):
 
 ```yaml
 # Reth data directory
-reth_home_dir: "/mnt/nvme1/rethEL"
-reth_data_dir: "/mnt/nvme1/rethEL/data"
+reth_home_dir: "/mnt/nvme/rethEL"
+reth_data_dir: "/mnt/nvme/rethEL/data"
 
 # Nimbus data directories
 nimbus_cl_data_dir: "/opt/nimbusCL/data"

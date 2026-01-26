@@ -56,8 +56,8 @@ reth_version: "" # leave empty for latest version, or set wanted version, e.g. "
 reth_system_user: rethEL
 reth_bin_dir: "/opt/reth/bin"
 reth_binary_path: "{{ reth_bin_dir }}/reth" # Full path to the binary
-reth_home_dir: "/mnt/nvme1/rethEL"
-reth_data_dir: "/mnt/nvme1/rethEL/data"
+reth_home_dir: "/mnt/nvme/rethEL"
+reth_data_dir: "/mnt/nvme/rethEL/data"
 reth_log_dir: "/var/log/reth"
 reth_log_level: info # debug, info, warn, error
 reth_ext_port: 30303
