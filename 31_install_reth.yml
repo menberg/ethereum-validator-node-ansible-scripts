@@ -85,7 +85,7 @@
     ###############
 
     # Finde die neuste Version, falls {{ reth_version }} nicht gesetzt ist.
-    - name: Set {{ reth_version }} to latest version if unset
+    - name: Set {% raw %}{{ reth_version }}{% endraw %} to latest version if unset
       block:
         # Release-Data von GitHub ermitteln.
         - name: Fetch the latest release data
