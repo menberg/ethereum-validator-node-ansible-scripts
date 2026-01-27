@@ -35,10 +35,41 @@
     ################
     # Update reth
 
-    # Gesetzte Reth Binary Version von GitHub Releases herunterladen.
-    - name: Download reth binary "{{ reth_version }}" from GitHub releases
+    # Finde die neuste Version, falls {{ reth_version }} nicht gesetzt ist.
+    - name: Set {% raw %}{{ reth_version }}{% endraw %} to latest version if unset
+      block:
+        # Release-Data von GitHub ermitteln.
+        - name: Fetch the latest release data
+          ansible.builtin.uri:
+            url: "https://api.github.com/repos/paradigmxyz/reth/releases/latest"
+            method: GET
+            return_content: yes
+            body_format: json
+          register: release_data
+
+        # Dateiname aus Release-Data extrahieren.
+        - name: Find file name from release data
+          set_fact:
+            reth_filename: "{{ release_data.json.assets | map(attribute='name') | select('match', '^reth-v[0-9]+\\.[0-9]+\\.[0-9]+-x86_64-unknown-linux-gnu\\.tar\\.gz$') | first }}"
+
+        # Versionsnummer aus Dateinamen extrahieren.
+        - name: Extract version from file name
+          set_fact:
+            reth_version: "{{ reth_filename | regex_search('v[0-9]+\\.[0-9]+\\.[0-9]+') }}"
+      when: reth_version is not defined or reth_version | trim | length == 0
+
+    - name: Construct reth download url
+      set_fact:
+        binary_url: "https://github.com/paradigmxyz/reth/releases/download/{{ reth_version }}/reth-{{ reth_version }}-x86_64-unknown-linux-gnu.tar.gz"
+
+    - name: Display constructed binary_url
+      ansible.builtin.debug:
+        msg: "{{ binary_url }}"
+
+    # Reth Binary von GitHub Releases herunterladen.
+    - name: Download the reth binary from GitHub releases
       ansible.builtin.get_url:
-        url: "https://github.com/paradigmxyz/reth/releases/download/{{ reth_version }}/reth-{{ reth_version }}-x86_64-unknown-linux-gnu.tar.gz"
+        url: "{{ binary_url }}"
         dest: "/tmp/reth.tar.gz"
 
     - name: Verify tarball is gzip
