@@ -41,6 +41,17 @@
         url: "https://github.com/paradigmxyz/reth/releases/download/{{ reth_version }}/reth-{{ reth_version }}-x86_64-unknown-linux-gnu.tar.gz"
         dest: "/tmp/reth.tar.gz"
 
+    - name: Verify tarball is gzip
+      ansible.builtin.command:
+        cmd: "file /tmp/reth.tar.gz"
+      register: tar_type
+      changed_when: false
+
+    - name: Fail if tarball is not gzip
+      ansible.builtin.fail:
+        msg: "Downloaded file is not a gzip archive"
+      when: "'gzip compressed' not in tar_type.stdout"
+
     # Temporär entpacken.
     - name: Ensure the destination directory exists
       ansible.builtin.file:
