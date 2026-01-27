@@ -62,13 +62,10 @@
         mode: "0755"
 
     - name: Extract reth tar.gz to the home directory
-      ansible.builtin.unarchive:
-        src: "/tmp/reth.tar.gz"
-        dest: "/home/{{ system_user }}/reth"
-        owner: "{{ system_user }}"
-        group: "{{ system_user }}"
-        remote_src: yes
-        extra_opts: [--strip-components=1]
+      ansible.builtin.command:
+        cmd: "tar -xzf /tmp/reth.tar.gz -C /home/{{ system_user }}/reth"
+      args:
+        creates: "/home/{{ system_user }}/reth/reth"
 
     # Download-Verzeichnis aufräumen.
     - name: Cleanup downloaded reth.tar.gz
