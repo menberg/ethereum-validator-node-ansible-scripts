@@ -18,7 +18,9 @@ ExecStart="{{ nimbus_validator_bin_dir }}"/nimbus_validator_client \
     --validators-dir="{{ nimbus_validator_validators_dir }}" \
     --secrets-dir="{{ nimbus_validator_secrets_dir }}" \
     --beacon-node=http://{{ localhost_ip }}:{{ nimbus_cl_rest_port }} \
+{% if fee_recipient_wallet_address | length > 0 %}
     --suggested-fee-recipient={{ fee_recipient_wallet_address }} \
+{% endif %}
     --graffiti="{{ nimbus_validator_graffiti }}" \
     --doppelganger-detection=off \
     --log-level="{{ nimbus_log_level }}" \
