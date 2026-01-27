@@ -172,17 +172,6 @@
         path: "/home/{{ system_user }}/reth"
         state: absent
 
-    # Installierte Version anzeigen.
-    - name: Check reth version
-      ansible.builtin.command:
-        cmd: "{{ reth_binary_path }} --version"
-      register: reth_version
-      changed_when: false
-
-    - name: Display reth version
-      ansible.builtin.debug:
-        msg: "{{ reth_version.stdout }}"
-
     ##############################
     # Copy Service Template Files
 
@@ -205,6 +194,27 @@
         name: "{{ reth_system_user }}"
         state: restarted
         enabled: yes
+
+    # Installierte Version überprüfen und anzeigen.
+    - name: Wait for reth service to become active
+      ansible.builtin.command:
+        cmd: "systemctl is-active {{ reth_system_user }}"
+      register: reth_is_active
+      retries: 6
+      delay: 2
+      until: reth_is_active.stdout == 'active'
+      changed_when: false
+
+    - name: Check running reth service version as service user
+      ansible.builtin.command:
+        cmd: "sudo -u {{ reth_system_user }} {{ reth_binary_path }} --version"
+      register: reth_running_version
+      changed_when: false
+      failed_when: reth_running_version.rc != 0
+
+    - name: Display running reth version
+      ansible.builtin.debug:
+        msg: "{{ reth_running_version.stdout }}"
 
   handlers:
     # systemd neu laden, wenn Templates geändert wurden.
