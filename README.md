@@ -2,7 +2,9 @@
 
 This Ansible automation suite provides a complete, production-ready setup for Ethereum validator nodes using Reth (Execution Layer) and Nimbus (Consensus Layer) clients.
 
-Playbooks forked from MaNode. Intellectual property of mm. Thanks for the inspiration!
+## Credits
+
+Thanks to Marge (chrochetnode.com) for advice and review on validator architecture and operations.
 
 ## Features
 
