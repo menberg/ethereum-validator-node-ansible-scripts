@@ -183,7 +183,6 @@
         owner: root
         group: root
         mode: "0644"
-      notify: daemon-reload
 
     ###################
     # Starte reth
@@ -194,6 +193,7 @@
         name: "{{ reth_system_user }}"
         state: restarted
         enabled: yes
+        daemon_reload: yes
 
     # Installierte Version überprüfen und anzeigen.
     - name: Wait for reth service to become active
@@ -215,9 +215,3 @@
     - name: Display running reth version
       ansible.builtin.debug:
         msg: "{{ reth_running_version.stdout }}"
-
-  handlers:
-    # systemd neu laden, wenn Templates geändert wurden.
-    - name: daemon-reload
-      systemd:
-        daemon_reload: yes

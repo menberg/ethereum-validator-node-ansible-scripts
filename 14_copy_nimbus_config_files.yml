@@ -49,7 +49,6 @@
       loop:
         - "{{ nimbus_cl_system_user }}"
         - "{{ nimbus_validator_system_user }}"
-      notify: daemon-reload
 
     ###################
     # Starte nimbus
@@ -59,12 +58,7 @@
       systemd:
         name: "{{ item }}"
         state: restarted
+        daemon_reload: yes
       loop:
         - "{{ nimbus_cl_system_user }}"
         - "{{ nimbus_validator_system_user }}"
-
-  handlers:
-    # systemd neu laden, wenn Templates geändert wurden.
-    - name: daemon-reload
-      systemd:
-        daemon_reload: yes

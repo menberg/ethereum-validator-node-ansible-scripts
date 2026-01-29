@@ -162,7 +162,6 @@
       loop:
         - "{{ nimbus_cl_system_user }}"
         - "{{ nimbus_validator_system_user }}"
-      notify: daemon-reload
 
     ###################
     # Starte nimbus
@@ -172,6 +171,7 @@
       systemd:
         name: "{{ item }}"
         state: restarted
+        daemon_reload: yes
       loop:
         - "{{ nimbus_cl_system_user }}"
         - "{{ nimbus_validator_system_user }}"
@@ -193,9 +193,3 @@
         that: node_version.stdout is defined and node_version.stdout != ""
         fail_msg: "'Nimbus is not running"
         success_msg: "Running Nimbus version is: {{ node_version.stdout }}"
-
-  handlers:
-    # systemd neu laden, wenn Templates geändert wurden.
-    - name: daemon-reload
-      systemd:
-        daemon_reload: yes

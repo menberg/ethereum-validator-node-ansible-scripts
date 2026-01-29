@@ -41,16 +41,10 @@
         owner: root
         group: root
         mode: "0644"
-      notify: daemon-reload
 
     # Service neu starten, damit neue Unit aktiv ist.
     - name: Restart "{{ reth_system_user }}" service
       systemd:
         name: "{{ reth_system_user }}"
         state: restarted
-
-  handlers:
-    # systemd neu laden, wenn Templates geändert wurden.
-    - name: daemon-reload
-      systemd:
         daemon_reload: yes
