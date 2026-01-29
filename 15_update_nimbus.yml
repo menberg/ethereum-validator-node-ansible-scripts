@@ -168,10 +168,10 @@
     # Starte nimbus
 
     # Services nach dem Upgrade starten.
-    - name: Start Nimbus services
+    - name: Restart Nimbus services
       systemd:
         name: "{{ item }}"
-        state: started
+        state: restarted
       loop:
         - "{{ nimbus_cl_system_user }}"
         - "{{ nimbus_validator_system_user }}"

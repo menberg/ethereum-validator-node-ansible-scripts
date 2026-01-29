@@ -55,10 +55,10 @@
     # Starte nimbus
 
     # Services neu starten, damit die neue Config aktiv ist.
-    - name: Start Nimbus services
+    - name: Restart Nimbus services
       systemd:
         name: "{{ item }}"
-        state: started
+        state: restarted
       loop:
         - "{{ nimbus_cl_system_user }}"
         - "{{ nimbus_validator_system_user }}"

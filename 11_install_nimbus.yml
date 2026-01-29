@@ -271,10 +271,10 @@
     # Starte nimbus
 
     # Services nach der Installation starten.
-    - name: Start Nimbus services and enable them on reboots
+    - name: Restart Nimbus services and enable them on reboots
       systemd:
         name: "{{ item }}"
-        state: started
+        state: restarted
         enabled: yes
       loop:
         - "{{ nimbus_cl_system_user }}"
