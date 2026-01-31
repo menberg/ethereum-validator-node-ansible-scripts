@@ -206,7 +206,8 @@ ansible-playbook -i inventory/hosts.yml 36_update_reth.yml
 - Firewall configured with minimal required ports
 - Dedicated system users for each service
 - JWT authentication between EL and CL clients
-- No remote RPC access by default (localhost only)
+- RPC and metrics are open locally for Docker compatibilty
+- External RPC and metrics access is blocked by UFW
 
 ## Ports Used
 

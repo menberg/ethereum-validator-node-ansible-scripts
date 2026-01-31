@@ -29,7 +29,7 @@ system_user: "" # overridden by vars/config_untracked.yml
 
 # Network
 server_fqdn_hostname: "ethnode.local"
-localhost_ip: "127.0.0.1"
+server_ip: "{{ ansible_host }}"
 external_ip: "" # overridden by vars/config_untracked.yml
 
 # Language and Timezone
@@ -66,10 +66,10 @@ reth_max_peers_out: 40
 reth_max_peers_in: 24
 reth_rpc_http_port: 8545
 reth_rpc_ws_port: 8546
-reth_metrics_address: "{{ localhost_ip }}"
-reth_metrics_port: 9001
+reth_metrics_address: "{{ server_ip }}"
+reth_metrics_port: 9105
 reth_jwtsecret_path: "{{ jwtsecret_path }}"
-reth_authrpc_addr: "{{ localhost_ip }}"
+reth_authrpc_addr: "{{ server_ip }}"
 reth_authrpc_port: 8551
 reth_http_corsdomain: "" # empty = no CORS (recommended for localhost-only), or "http://localhost, http://127.0.0.1" for browser tools
 reth_ws_origins: "" # empty = no origin checking (recommended for localhost-only), or "http://localhost, http://127.0.0.1" for browser tools
@@ -83,7 +83,8 @@ nimbus_cl_system_user: "nimbusCL"
 nimbus_cl_bin_dir: /opt/nimbusCL/bin
 nimbus_cl_data_dir: /opt/nimbusCL/data
 nimbus_cl_rest_port: 5052
-nimbus_cl_metrics_port: 8008
+nimbus_cl_metrics_address: "{{ server_ip }}"
+nimbus_cl_metrics_port: 9100
 nimbus_cl_node_name: JaNode
 nimbus_ext_tcp_port: 9000
 nimbus_ext_udp_port: 9000
@@ -91,7 +92,7 @@ nimbus_ext_ip: "{{ external_ip }}"
 nimbus_max_peers: 100
 nimbus_hard_max_peers: 136
 nimbus_jwt_secret_path: "{{ jwtsecret_path }}"
-el_http: "http://{{ localhost_ip }}:{{ reth_authrpc_port }}"
+el_http: "http://{{ server_ip }}:{{ reth_authrpc_port }}"
 
 nimbus_validator_system_user: "nimbusValidator"
 nimbus_validator_bin_dir: /opt/nimbusValidator/bin

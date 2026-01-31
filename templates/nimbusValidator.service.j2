@@ -17,7 +17,7 @@ ExecStart={{ nimbus_validator_bin_dir }}/nimbus_validator_client \
     --data-dir="{{ nimbus_validator_data_dir }}" \
     --validators-dir="{{ nimbus_validator_validators_dir }}" \
     --secrets-dir="{{ nimbus_validator_secrets_dir }}" \
-    --beacon-node=http://{{ localhost_ip }}:{{ nimbus_cl_rest_port }} \
+    --beacon-node=http://{{ server_ip }}:{{ nimbus_cl_rest_port }} \
 {% if fee_recipient_wallet_address | length > 0 %}
     --suggested-fee-recipient={{ fee_recipient_wallet_address }} \
 {% endif %}
