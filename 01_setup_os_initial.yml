@@ -87,6 +87,18 @@
         purge: yes
         autoremove: yes
 
+    # Ubuntu ESM-Meldungen verhindern.
+    - name: Inhibit Ubuntu ESM messages at login
+      file:
+        path: /var/lib/update-notifier/hide-esm-in-motd
+        state: touch
+
+    # Sicherstellen, dass bestehende ESM-Meldungen bereinigt werden.
+    - name: Make sure update notifier file is clean
+      file:
+        path: /var/lib/update-notifier/updates-available
+        state: absent
+
     # Standard-Packages aus Variablenliste installieren.
     - name: Install Standard Packages from OS setup config vars
       apt:
