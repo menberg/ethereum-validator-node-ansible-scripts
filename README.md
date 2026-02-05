@@ -64,7 +64,7 @@ all:
         ethnode:
           project_name: ethnode
           ansible_host: YOUR_SERVER_IP
-          ansible_user: initial_user
+          ansible_user: automation_admin
           ansible_ssh_private_key_file: "~/.ssh/your_key"
           ansible_port: 22
 ```
@@ -81,7 +81,6 @@ cp vars/config_untracked.template.yml vars/config_untracked.yml
 **Required configurations in `vars/config_untracked.yml`:**
 
 - `system_user`: Your initial system user (must have sudo capability)
-- `automation_admin_password_hash`: Password hash for automation user
 - `external_ip`: Public IP of your server
 - `fee_recipient_wallet_address`: Your validator fee recipient address
 

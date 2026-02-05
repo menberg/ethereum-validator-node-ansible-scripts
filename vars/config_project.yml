@@ -5,7 +5,6 @@
 
 automation_admin_uid: 11011
 automation_admin_home: /home/automation_admin
-automation_admin_password_hash: "" # overridden by vars/config_untracked.yml
 
 sys_packages:
   - chrony

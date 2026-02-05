@@ -3,25 +3,23 @@
 ## Playbook: Admin-Automation-User erstellen (automation_admin)
 ## Ziel: Einen dedizierten Admin-User für Automation anlegen durch:
 ##   - Primärgruppe bereitstellen.
-##   - User mit festem UID/Home/Shell/Password-Hash erstellen.
+##   - User mit festem UID/Home/Shell erstellen und Login mit Passwort deaktivieren.
+##   - SSH Public Key vom Controller auf Zielhost kopieren.
 ##   - Passwordless sudo (NOPASSWD) via sudoers.d aktivieren.
 ##
 ## Ausführen (Beispiel):
-## create a local key with "ssh-keygen -t ed25519 -C 'automation_admin@$192.168.101.99' -f ~/.ssh/id_ed25519_ethnode
-## ansible-playbook -i inventory/hosts.yml --ask-pass --ask-become-pass 02_create_user_automation_admin.yml
-## (temporarily set "ansible_user" in hosts.yml to "{{ system_user }}")
+##   - SSH Key erstellen: "ssh-keygen -t ed25519 -C 'automation_admin@{{ ansible_host }}' -f ~/.ssh/id_ed25519_ethnode"
+##   - Temporär "ansible_user" in hosts.yml von "automation_admin" auf "{{ system_user }}" setzen.
+##   - ansible-playbook -i inventory/hosts.yml --ask-pass --ask-become-pass 02_create_user_automation_admin.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become nötig für User/Sudoers-Konfiguration.
 ## Variablen:
 ##   - automation_admin_uid: feste UID des Users
 ##   - automation_admin_home: Home-Verzeichnis
-##   - automation_admin_password_hash: SHA-512 Passwort-Hash (mkpasswd --method=sha-512)
 ##
 ## Sicherheitshinweis:
-##   - Ersetze den Platzhalter-Hash durch einen echten Hash (kein Klartext).
 ##   - Passwordless sudo ist mächtig; nur in kontrollierten Umgebungen verwenden.
-##   - SSH Public Keys hinterlegen (authorized_keys) und Passwort-Login deaktivieren.
 ##
 
 - name: Create automation_admin user
@@ -50,10 +48,19 @@
         home: "{{ automation_admin_home }}"
         comment: "Automation admin with full system privileges"
         create_home: yes
-        password: "{{ automation_admin_password_hash }}"
+        password_lock: yes
         state: present
 
-    # Install the controller's public SSH key into automation_admin's authorized_keys
+    # Sicherstellen, dass .ssh Verzeichnis mit korrekten Rechten existiert.
+    - name: Ensure automation_admin .ssh directory exists with strict permissions
+      file:
+        path: "{{ automation_admin_home }}/.ssh"
+        state: directory
+        owner: automation_admin
+        group: automation_admin
+        mode: "0700"
+
+    # SSH Public Key vom Controller auf Zielhost kopieren.
     - name: Install public key for automation_admin
       authorized_key:
         user: automation_admin
