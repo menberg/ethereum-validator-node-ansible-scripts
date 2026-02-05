@@ -105,6 +105,12 @@
         name: "{{ sys_packages }}"
         state: latest
 
+    # Beim Booten nicht auf DHCP von unbenutzten Ethernet-Interfaces warten.
+    - name: Avoid systemd-networkd-wait-online.service to speedup reboots
+      systemd:
+        name: systemd-networkd-wait-online.service
+        masked: true
+
     # Reboot zur Anwendung der Änderungen.
     - name: Reboot host
       reboot:
