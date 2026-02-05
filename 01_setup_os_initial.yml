@@ -33,7 +33,7 @@
   tasks:
     # FQDN Hostname setzen.
     - name: Set the full hostname (FQDN)
-      ansible.builtin.hostname:
+      hostname:
         name: "{{ server_fqdn_hostname }}"
 
     # Locale-Datei generieren (z.B. en_US.UTF-8).

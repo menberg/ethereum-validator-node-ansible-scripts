@@ -36,13 +36,13 @@
   tasks:
     # Primärgruppe für den User sicherstellen.
     - name: Ensure primary group exists
-      ansible.builtin.group:
+      group:
         name: automation_admin
         state: present
 
     # Admin-User mit festen Parametern anlegen (UID, Home, Shell, Passwort-Hash).
     - name: Create automation_admin user
-      ansible.builtin.user:
+      user:
         name: automation_admin
         uid: "{{ automation_admin_uid }}"
         group: automation_admin
@@ -55,7 +55,7 @@
 
     # Install the controller's public SSH key into automation_admin's authorized_keys
     - name: Install public key for automation_admin
-      ansible.builtin.authorized_key:
+      authorized_key:
         user: automation_admin
         state: present
         key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_ed25519_ethnode.pub') }}"
@@ -63,7 +63,7 @@
     # Passwordless sudo (NOPASSWD) via /etc/sudoers.d aktivieren.
     # Hinweis: Visudo-Syntax wird durch Dateirechte und Pfad abgesichert.
     - name: Allow passwordless sudo for automation_admin
-      ansible.builtin.copy:
+      copy:
         dest: /etc/sudoers.d/automation_admin
         content: "automation_admin ALL=(ALL) NOPASSWD: ALL\n"
         owner: root

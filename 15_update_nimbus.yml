@@ -51,7 +51,7 @@
     ###########
     # Neueste Linux amd64 Release-Asset von GitHub ermitteln und laden.
     - name: Get the latest Nimbus Eth2 release URL for Linux amd64
-      ansible.builtin.uri:
+      uri:
         url: "https://api.github.com/repos/status-im/nimbus-eth2/releases/latest"
         method: GET
         return_content: yes
@@ -67,28 +67,28 @@
         binaries_url: "{{ binaries_urls | first | default('') }}"
 
     - name: Display binaries_url
-      ansible.builtin.debug:
+      debug:
         msg: "{{ binaries_url }}"
 
     - name: Download the Nimbus Eth2 tar.gz
-      ansible.builtin.get_url:
+      get_url:
         url: "{{ binaries_url }}"
         dest: "/tmp/nimbus.tar.gz"
 
     - name: Verify tarball is gzip
-      ansible.builtin.command:
+      command:
         cmd: "file /tmp/nimbus.tar.gz"
       register: tar_type
       changed_when: false
 
     - name: Fail if tarball is not gzip
-      ansible.builtin.fail:
+      fail:
         msg: "Downloaded file is not a gzip archive"
       when: "'gzip compressed' not in tar_type.stdout"
 
     # Temporär entpacken.
     - name: Ensure the destination directory exists
-      ansible.builtin.file:
+      file:
         path: "/home/{{ system_user }}/nimbus"
         state: directory
         owner: "{{ system_user }}"
@@ -96,7 +96,7 @@
         mode: "0755"
 
     - name: Extract Nimbus Eth2 tar.gz to the home directory
-      ansible.builtin.unarchive:
+      unarchive:
         src: "/tmp/nimbus.tar.gz"
         dest: "/home/{{ system_user }}/nimbus"
         owner: "{{ nimbus_cl_system_user }}"
@@ -105,46 +105,46 @@
         extra_opts: [--strip-components=1] # Assuming the tar structure allows this, adjust if needed
 
     - name: Cleanup downloaded tar.gz
-      ansible.builtin.file:
+      file:
         path: "/tmp/nimbus.tar.gz"
         state: absent
 
     # Nimbus CL binary an den Zielpfad verschieben.
     - name: Move Nimbus CL binary to "{{ nimbus_cl_bin_dir }}"
-      ansible.builtin.command:
+      command:
         cmd: "mv /home/{{ system_user }}/nimbus/build/nimbus_beacon_node {{ nimbus_cl_bin_dir }}/nimbus_beacon_node"
 
     # Nimbus Validator binary an den Zielpfad verschieben.
     - name: Move Nimbus Validator binary to "{{ nimbus_validator_bin_dir }}"
-      ansible.builtin.command:
+      command:
         cmd: "mv /home/{{ system_user }}/nimbus/build/nimbus_validator_client {{ nimbus_validator_bin_dir }}/nimbus_validator_client"
 
     # Restriktive Rechte pro Service-Binary setzen.
     - name: Set secure permissions on Nimbus CL binary
-      ansible.builtin.file:
+      file:
         path: "{{ nimbus_cl_bin_dir }}/nimbus_beacon_node"
         owner: "{{ nimbus_cl_system_user }}"
         group: "{{ nimbus_cl_system_user }}"
         mode: "0700"
 
     - name: Set secure permissions on Nimbus Validator binary
-      ansible.builtin.file:
+      file:
         path: "{{ nimbus_validator_bin_dir }}/nimbus_validator_client"
         owner: "{{ nimbus_validator_system_user }}"
         group: "{{ nimbus_validator_system_user }}"
         mode: "0700"
 
     - name: Check nimbus_beacon_node version
-      ansible.builtin.command:
+      command:
         cmd: "{{ nimbus_cl_bin_dir }}/nimbus_beacon_node --version"
       register: nimbus_version
 
     - name: Display nimbus_beacon_node version
-      ansible.builtin.debug:
+      debug:
         msg: "{{ nimbus_version.stdout }}"
 
     - name: Cleanup nimbus folder
-      ansible.builtin.file:
+      file:
         path: "/home/{{ system_user }}/nimbus"
         state: absent
 
@@ -182,14 +182,14 @@
         seconds: 30
 
     - name: Fetch and display the Nimbus node version
-      ansible.builtin.shell: |
+      shell: |
         curl -s http://{{ server_ip }}:{{ nimbus_cl_rest_port }}/eth/v1/node/version | jq -r '.data.version'
       register: node_version
       failed_when: node_version.rc != 0
       changed_when: false
 
     - name: Make sure Nimbus is running
-      ansible.builtin.assert:
+      assert:
         that: node_version.stdout is defined and node_version.stdout != ""
         fail_msg: "'Nimbus is not running"
         success_msg: "Running Nimbus version is: {{ node_version.stdout }}"

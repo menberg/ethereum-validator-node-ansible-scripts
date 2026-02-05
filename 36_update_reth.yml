@@ -40,7 +40,7 @@
       block:
         # Release-Data von GitHub ermitteln.
         - name: Fetch the latest release data
-          ansible.builtin.uri:
+          uri:
             url: "https://api.github.com/repos/paradigmxyz/reth/releases/latest"
             method: GET
             return_content: yes
@@ -63,29 +63,29 @@
         binary_url: "https://github.com/paradigmxyz/reth/releases/download/{{ reth_version }}/reth-{{ reth_version }}-x86_64-unknown-linux-gnu.tar.gz"
 
     - name: Display constructed binary_url
-      ansible.builtin.debug:
+      debug:
         msg: "{{ binary_url }}"
 
     # Reth Binary von GitHub Releases herunterladen.
     - name: Download the reth binary from GitHub releases
-      ansible.builtin.get_url:
+      get_url:
         url: "{{ binary_url }}"
         dest: "/tmp/reth.tar.gz"
 
     - name: Verify tarball is gzip
-      ansible.builtin.command:
+      command:
         cmd: "file /tmp/reth.tar.gz"
       register: tar_type
       changed_when: false
 
     - name: Fail if tarball is not gzip
-      ansible.builtin.fail:
+      fail:
         msg: "Downloaded file is not a gzip archive"
       when: "'gzip compressed' not in tar_type.stdout"
 
     # Temporär entpacken.
     - name: Ensure the destination directory exists
-      ansible.builtin.file:
+      file:
         path: "/home/{{ system_user }}/reth"
         state: directory
         owner: "{{ system_user }}"
@@ -93,14 +93,14 @@
         mode: "0755"
 
     - name: Extract reth tar.gz to the home directory
-      ansible.builtin.command:
+      command:
         cmd: "tar -xzf /tmp/reth.tar.gz -C /home/{{ system_user }}/reth"
       args:
         creates: "/home/{{ system_user }}/reth/reth"
 
     # Download-Verzeichnis aufräumen.
     - name: Cleanup downloaded reth.tar.gz
-      ansible.builtin.file:
+      file:
         path: "/tmp/reth.tar.gz"
         state: absent
 
@@ -125,7 +125,7 @@
 
     # Temorären reth-Ordner im Home-Verzeichnis entfernen.
     - name: Cleanup reth folder
-      ansible.builtin.file:
+      file:
         path: "/home/{{ system_user }}/reth"
         state: absent
 
@@ -151,7 +151,7 @@
 
     # Installierte Version überprüfen und anzeigen.
     - name: Wait for reth service to become active
-      ansible.builtin.command:
+      command:
         cmd: "systemctl is-active {{ reth_system_user }}"
       register: reth_is_active
       retries: 6
@@ -160,12 +160,12 @@
       changed_when: false
 
     - name: Check running reth service version as service user
-      ansible.builtin.command:
+      command:
         cmd: "sudo -u {{ reth_system_user }} {{ reth_binary_path }} --version"
       register: reth_running_version
       changed_when: false
       failed_when: reth_running_version.rc != 0
 
     - name: Display running reth version
-      ansible.builtin.debug:
+      debug:
         msg: "{{ reth_running_version.stdout }}"

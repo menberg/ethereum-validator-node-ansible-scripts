@@ -25,9 +25,9 @@
 
     # Zeigen, ob ein Reboot erforderlich ist (z.B. nach Kernel-Updates).
     - name: Display reboot status
-      ansible.builtin.debug:
+      debug:
         msg: >-
-          {% set reboot_content = lookup('ansible.builtin.file', '/var/run/reboot-required', errors='ignore') | default('') %}
+          {% set reboot_content = lookup('file', '/var/run/reboot-required', errors='ignore') | default('') %}
           {% if reboot_content %}
             Reboot is required! Reason: {{ reboot_content | trim }}
           {% else %}
