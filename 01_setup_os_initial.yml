@@ -77,7 +77,6 @@
     - name: Run <apt-get upgrade>
       apt:
         upgrade: yes
-        force_apt_get: yes
         autoremove: yes
 
     # Ubuntu Spam-Meldungen entfernen.
