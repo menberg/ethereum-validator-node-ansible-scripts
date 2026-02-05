@@ -79,7 +79,7 @@
         upgrade: yes
         autoremove: yes
 
-    # Ubuntu Spam-Meldungen entfernen.
+    # Ubuntu Spam-Meldungen verhindern.
     - name: Remove Ubuntu Advantage Tools and Ubuntu Pro Client
       apt:
         name: ubuntu-advantage-tools, ubuntu-pro-client
