@@ -68,15 +68,11 @@
       timezone:
         name: "{{ config_system_timezone }}"
 
-    # Paket-Index aktualisieren.
-    - name: Run <apt-get update>
+    # Paket-Index aktualisieren, System-Pakete upgraden und bereinigen.
+    - name: Run <apt update && apt dist-upgrade>
       apt:
         update_cache: yes
-
-    # System-Pakete upgraden und bereinigen.
-    - name: Run <apt-get upgrade>
-      apt:
-        upgrade: yes
+        upgrade: dist
         autoremove: yes
 
     # Ubuntu Spam-Meldungen verhindern.
