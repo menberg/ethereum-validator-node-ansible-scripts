@@ -1,0 +1,28 @@
+---
+##
+## Playbook: Reboot system
+## Ziel: System neu starten.
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory/hosts.yml 06_reboot_os.yml
+##
+## Targets: Inventory-Gruppe "ethnode"
+## Privilege: become nötig für Systemkonfiguration.
+##
+
+- name: Reboot system
+  hosts: ethnode
+  become: true
+  gather_facts: false
+
+  tasks:
+    # Reboot zur Anwendung der Änderungen.
+    - name: Reboot host
+      reboot:
+        reboot_timeout: 300
+
+    # Warten bis der Host wieder erreichbar ist.
+    - name: Wait for host to come back online
+      wait_for_connection:
+        timeout: 360
+        delay: 10

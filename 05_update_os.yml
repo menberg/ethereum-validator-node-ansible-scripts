@@ -1,0 +1,35 @@
+---
+##
+## Playbook: OS Update
+## Ziel: System aktualisieren.
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory/hosts.yml 05_update_os.yml
+##
+## Targets: Inventory-Gruppe "ethnode"
+## Privilege: become nötig für Systemkonfiguration.
+##
+
+- name: Update OS
+  hosts: ethnode
+  become: true
+  gather_facts: false
+
+  tasks:
+    # Paket-Index aktualisieren und System-Pakete upgraden und bereinigen.
+    - name: Run <apt update && apt dist-upgrade>
+      apt:
+        update_cache: yes
+        upgrade: dist
+        autoremove: yes
+
+    # Zeigen, ob ein Reboot erforderlich ist (z.B. nach Kernel-Updates).
+    - name: Display reboot status
+      ansible.builtin.debug:
+        msg: >-
+          {% set reboot_content = lookup('ansible.builtin.file', '/var/run/reboot-required', errors='ignore') | default('') %}
+          {% if reboot_content %}
+            Reboot is required! Reason: {{ reboot_content | trim }}
+          {% else %}
+            No reboot required.
+          {% endif %}
