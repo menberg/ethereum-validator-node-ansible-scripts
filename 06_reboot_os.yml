@@ -7,7 +7,7 @@
 ## ansible-playbook -i inventory/hosts.yml 06_reboot_os.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
-## Privilege: become nötig für Systemkonfiguration.
+## Privilege: become nötig für Systemneustart.
 ##
 
 - name: Reboot system

@@ -9,8 +9,7 @@
 ##
 ## Ausführen (Beispiel):
 ##   - SSH Key erstellen: "ssh-keygen -t ed25519 -C 'automation_admin@{{ ansible_host }}' -f ~/.ssh/id_ed25519_ethnode"
-##   - Temporär "ansible_user" in hosts.yml von "automation_admin" auf "{{ system_user }}" setzen.
-##   - ansible-playbook -i inventory/hosts.yml --ask-pass --ask-become-pass 02_create_user_automation_admin.yml
+##   - ansible-playbook -i inventory/hosts.yml --user {{ system_user }} --ask-pass --ask-become-pass 02_create_user_automation_admin.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become nötig für User/Sudoers-Konfiguration.

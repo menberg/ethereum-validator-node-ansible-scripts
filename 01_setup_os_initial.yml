@@ -8,8 +8,7 @@
 ##   - Standard-Packages installieren und System aktualisieren.
 ##
 ## Ausführen (Beispiel):
-##   - Temporär "ansible_user" in hosts.yml von "automation_admin" auf "{{ system_user }}" setzen.
-##   - ansible-playbook -i inventory/hosts.yml --ask-pass --ask-become-pass 01_setup_os_initial.yml
+## ansible-playbook -i inventory/hosts.yml --user {{ system_user }} --ask-pass --ask-become-pass 01_setup_os_initial.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become nötig für Systemkonfiguration.
