@@ -3,9 +3,6 @@
 # SYSTEM
 ##########################################
 
-automation_admin_uid: 11011
-automation_admin_home: /home/automation_admin
-
 sys_packages:
   - chrony
   - git
@@ -25,6 +22,8 @@ sys_packages:
 
 ## User
 system_user: "rp"
+automation_admin_uid: 11011
+automation_admin_home: /home/automation_admin
 
 # Network
 server_fqdn_hostname: "ethnode.local"
