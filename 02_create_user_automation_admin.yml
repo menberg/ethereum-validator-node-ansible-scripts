@@ -8,8 +8,8 @@
 ##   - Passwordless sudo (NOPASSWD) via sudoers.d aktivieren.
 ##
 ## Ausführen (Beispiel):
-##   - SSH Key erstellen: "ssh-keygen -t ed25519 -C 'automation_admin@{{ ansible_host }}' -f ~/.ssh/id_ed25519_ethnode"
-##   - ansible-playbook -i inventory/hosts.yml --user {{ system_user }} --ask-pass --ask-become-pass 02_create_user_automation_admin.yml
+##   - SSH Key auf Yubikey erstellen: "ssh-keygen -t ed25519-sk -O resident -O verify-required -C 'automation_admin@ethnode_YubiKey5C-nano_2026-02-10_01' -f ~/.ssh/id_ed25519-sk_ansible_ethnode_YubiKey5C-nano_2026-02-10_01"
+##   - ansible-playbook -i inventory/hosts.yml --extra-vars="ansible_user={{ system_user }}" --extra-vars="ansible_ssh_private_key_file=" --ask-pass --ask-become-pass 02_create_user_automation_admin.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become nötig für User/Sudoers-Konfiguration.
@@ -59,12 +59,12 @@
         group: automation_admin
         mode: "0700"
 
-    # SSH Public Key vom Controller auf Zielhost kopieren.
+    # Lokaler Public Key auf Zielhost installieren.
     - name: Install public key for automation_admin
       authorized_key:
         user: automation_admin
         state: present
-        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_ed25519_ethnode.pub') }}"
+        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_ed25519-sk_ansible_ethnode_YubiKey5C-nano_2026-02-10_01.pub') }}"
 
     # Passwordless sudo (NOPASSWD) via /etc/sudoers.d aktivieren.
     # Hinweis: Visudo-Syntax wird durch Dateirechte und Pfad abgesichert.

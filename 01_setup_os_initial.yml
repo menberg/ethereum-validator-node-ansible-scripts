@@ -8,7 +8,7 @@
 ##   - Standard-Packages installieren und System aktualisieren.
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory/hosts.yml --user {{ system_user }} --ask-pass --ask-become-pass 01_setup_os_initial.yml
+## ansible-playbook -i inventory/hosts.yml --extra-vars="ansible_user={{ system_user }}" --extra-vars="ansible_ssh_private_key_file=" --ask-pass --ask-become-pass 01_setup_os_initial.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become nötig für Systemkonfiguration.
