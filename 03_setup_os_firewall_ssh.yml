@@ -6,7 +6,7 @@
 ##   - Reboot zum Anwenden aller Änderungen.
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory/hosts.yml 03_setup_os_firewall_ssh.yml
+## ansible-playbook -i inventory/hosts.yml --extra-vars="ansible_port=22" 03_setup_os_firewall_ssh.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become nötig für Konfiguration von Firewall und sshd.
@@ -14,8 +14,8 @@
 ##   - Host ist über SSH Port 22 erreichbar.
 ##
 ## Sicherheitshinweis:
-##   - Host darf via Port 22 nur im lokalen Netzwerk / per VPN erreichbar sein.
-##   - Empfehlung: fail2ban installieren und SSH Port ändern.
+##   - Host soll via SSH Port 19497 nur im lokalen Netzwerk / per VPN erreichbar sein.
+##   - Empfehlung: fail2ban installieren.
 ##
 
 - name: Setup OS - Config SSH Firewall User
@@ -46,7 +46,7 @@
     - name: UFW - Allow SSH
       ufw:
         rule: allow
-        port: 22
+        port: 19497
         proto: tcp
         comment: SSH access
 

@@ -66,7 +66,7 @@ all:
           ansible_host: YOUR_SERVER_IP
           ansible_user: automation_admin
           ansible_ssh_private_key_file: "~/.ssh/your_key"
-          ansible_port: 22
+          ansible_port: 19497
 ```
 
 ### 3. Configure Variables
@@ -221,7 +221,7 @@ ansible-playbook -i inventory/hosts.yml 36_update_reth.yml
 | Nimbus P2P      | 9000  | TCP/UDP  | Consensus P2P         |
 | Nimbus REST     | 5052  | TCP      | REST API              |
 | Nimbus Metrics  | 8008  | TCP      | Prometheus metrics    |
-| SSH             | 22    | TCP      | Administrative access |
+| SSH             | 19497 | TCP      | Administrative access |
 
 ## Troubleshooting
 
