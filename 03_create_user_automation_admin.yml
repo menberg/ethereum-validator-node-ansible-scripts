@@ -10,7 +10,7 @@
 ## Ausführen (Beispiel):
 ##   - SSH Key auf Yubikey erstellen: "ssh-keygen -t ed25519-sk -O resident -O verify-required -O application=ssh:ansible_ethnode_26021001 -C 'automation_admin@ethnode_YubiKey5C-nano_2026-02-10_01' -f ~/.ssh/id_ed25519-sk_ansible_ethnode_YubiKey5C-nano_2026-02-10_01"
 ##   - SSH Key auf Backup-Yubikey erstellen: "ssh-keygen -t ed25519-sk -O resident -O verify-required -O application=ssh:ansible_ethnode_26021001 -C 'automation_admin@ethnode_YubiKey5C-nfc_2026-02-10_01' -f ~/.ssh/id_ed25519-sk_ansible_ethnode_YubiKey5C-nfc_2026-02-10_01"
-##   - ansible-playbook -i inventory/hosts.yml --extra-vars="ansible_port=22" --extra-vars="ansible_user=rp" --extra-vars="ansible_ssh_private_key_file=" --ask-pass --ask-become-pass 02_create_user_automation_admin.yml
+##   - ansible-playbook -i inventory/hosts.yml --extra-vars="ansible_port=22" --extra-vars="ansible_user=rp" --extra-vars="ansible_ssh_private_key_file=" --ask-pass --ask-become-pass 03_create_user_automation_admin.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become nötig für User/Sudoers-Konfiguration.

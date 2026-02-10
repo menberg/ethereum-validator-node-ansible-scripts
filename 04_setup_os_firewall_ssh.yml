@@ -6,7 +6,7 @@
 ##   - Reboot zum Anwenden aller Änderungen.
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory/hosts.yml --extra-vars="ansible_port=22" 03_setup_os_firewall_ssh.yml
+## ansible-playbook -i inventory/hosts.yml --extra-vars="ansible_port=22" 04_setup_os_firewall_ssh.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become nötig für Konfiguration von Firewall und sshd.
