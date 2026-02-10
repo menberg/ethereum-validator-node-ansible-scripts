@@ -51,7 +51,7 @@
         password_lock: yes
         state: present
 
-    # Sicherstellen, dass .ssh Verzeichnis mit korrekten Rechten existiert.
+    # Sicherstellen, dass .ssh-Verzeichnis mit korrekten Rechten existiert.
     - name: Ensure automation_admin .ssh directory exists with strict permissions
       file:
         path: "{{ automation_admin_home }}/.ssh"
