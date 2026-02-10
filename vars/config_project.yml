@@ -37,7 +37,7 @@ config_system_language: "en_US.UTF-8"
 config_system_timezone: "Europe/Zurich"
 
 # JWT
-jwtsecret_path: "/var/lib/jwtsecrets/janode.hex"
+jwtsecret_path: "/var/lib/jwtsecrets/jwt.hex"
 
 ##########################################
 # ETH ETHEREUM NETWORK
