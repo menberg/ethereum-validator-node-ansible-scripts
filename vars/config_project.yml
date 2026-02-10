@@ -24,7 +24,7 @@ sys_packages:
 ##########################################
 
 ## User
-system_user: "" # overridden by vars/config_untracked.yml
+system_user: "rp"
 
 # Network
 server_fqdn_hostname: "ethnode.local"
