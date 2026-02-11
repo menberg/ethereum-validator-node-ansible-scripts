@@ -28,7 +28,7 @@
     # Sicherstellen, dass .ssh-Verzeichnis mit korrekten Rechten existiert.
     - name: Ensure .ssh directory exists with strict permissions
       file:
-        path: "{{ system_user }}/.ssh"
+        path: "/home/{{ system_user }}/.ssh"
         state: directory
         owner: "{{ system_user }}"
         group: "{{ system_user }}"
