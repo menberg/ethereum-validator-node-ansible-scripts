@@ -117,6 +117,7 @@
     # Reboot zur Anwendung der Änderungen.
     - name: Reboot host
       reboot:
+        connect_timeout: 6
         reboot_timeout: 300
 
     # Warten bis der Host wieder erreichbar ist.
