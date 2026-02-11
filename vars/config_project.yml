@@ -28,7 +28,6 @@ automation_admin_home: /home/automation_admin
 # Network
 server_fqdn_hostname: "ethnode.local"
 server_ip: "{{ ansible_host }}"
-external_ip: "" # overridden by vars/config_untracked.yml
 
 # Language and Timezone
 config_system_locale: "de_CH.UTF-8"
@@ -86,7 +85,7 @@ nimbus_cl_metrics_port: 9100
 nimbus_cl_node_name: JaNode
 nimbus_ext_tcp_port: 9000
 nimbus_ext_udp_port: 9000
-nimbus_ext_ip: "{{ external_ip }}"
+nimbus_ext_ip: "" # leave empty to auto-detect, or set to specific IP
 nimbus_max_peers: 100
 nimbus_hard_max_peers: 136
 nimbus_jwt_secret_path: "{{ jwtsecret_path }}"

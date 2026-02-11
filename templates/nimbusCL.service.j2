@@ -18,7 +18,9 @@ ExecStart={{ nimbus_cl_bin_dir }}/nimbus_beacon_node \
     --data-dir="{{ nimbus_cl_data_dir }}" \
     --tcp-port={{ nimbus_ext_tcp_port }} \
     --udp-port={{ nimbus_ext_udp_port }} \
+{% if nimbus_ext_ip | length > 0 %}
     --nat=extip:{{ nimbus_ext_ip }} \
+{% endif %}
     --el={{ el_http }} \
     --doppelganger-detection=off \
     --non-interactive=true \

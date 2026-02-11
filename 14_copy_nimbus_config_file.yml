@@ -11,11 +11,14 @@
 ##
 ## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become nötig für Systemanagement.
+## Variablen:
+##   - nimbus_cl_system_user
+##   - nimbus_ext_ip (wird automatisch ermittelt, wenn leer)
 ## Templates:
 ##   - templates/nimbusCL.service.j2
 ##
 
-- name: Change Nimbus Config und Service File
+- name: Update Nimbus Config und Service File
   hosts: ethnode
   become: true
   gather_facts: false
@@ -25,6 +28,11 @@
     - vars/config_untracked.yml
 
   tasks:
+    # IP-Adresse ermitteln, falls nicht angegeben.
+    - name: Get IP address to bind to if not provided
+      include_tasks: "network.yml"
+      when: not nimbus_ext_ip
+
     # Service stoppen, bevor Units ersetzt werden.
     - name: Stop Nimbus service
       systemd:
@@ -34,7 +42,7 @@
     ##############################
     # Copy Service Template File
 
-    # Neues Template nach /etc/systemd/system/ kopieren.
+    # Neues Template nach /etc/systemd/system kopieren.
     - name: Copy service script
       template:
         src: "templates/{{ nimbus_cl_system_user }}.service.j2"
