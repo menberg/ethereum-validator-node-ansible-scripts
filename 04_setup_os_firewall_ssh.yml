@@ -21,7 +21,7 @@
 - name: Setup OS - Config SSH Firewall User
   hosts: ethnode
   become: true
-  gather_facts: false
+  gather_facts: true
 
   tasks:
     # sshd sichern (Port/Auth), Vorlage anpassen und Handler triggern.
