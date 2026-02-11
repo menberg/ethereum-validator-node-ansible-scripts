@@ -5,8 +5,8 @@ After=network-online.target
 
 [Service]
 Type=simple
-User={{nimbus_cl_system_user}}
-Group={{nimbus_cl_system_user}}
+User={{ nimbus_cl_system_user }}
+Group={{ nimbus_cl_system_user }}
 Restart=on-failure
 RestartSec=10
 KillSignal=SIGINT
