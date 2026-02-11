@@ -86,7 +86,7 @@
       copy:
         remote_src: yes
         src: "/etc/ssh/sshd_config"
-        dest: "/etc/ssh/sshd_config_backup_{{ ansible_date_time.iso8601 }}"
+        dest: "/etc/ssh/sshd_config_backup_{{ ansible_facts['date_time']['iso8601'] }}"
 
     - name: sshd configuration file update
       template:
