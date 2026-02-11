@@ -79,8 +79,6 @@ cp vars/config_untracked.template.yml vars/config_untracked.yml
 
 **Required configurations in `vars/config_untracked.yml`:**
 
-- `system_user`: Your initial system user (must have sudo capability)
-- `external_ip`: Public IP of your server
 - `fee_recipient_wallet_address`: Your validator fee recipient address
 
 ### 4. Run Setup Playbooks
