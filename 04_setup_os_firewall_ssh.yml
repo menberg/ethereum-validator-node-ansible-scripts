@@ -34,7 +34,7 @@
         src: "/etc/ssh/sshd_config"
         dest: "/etc/ssh/sshd_config_backup_{{ ansible_facts['date_time']['iso8601'] }}"
 
-    - name: sshd configuration file update
+    - name: ssh configuration file update
       template:
         src: templates/sshd_config.j2
         dest: /etc/ssh/sshd_config
@@ -43,7 +43,7 @@
         group: root
         mode: "0644"
         validate: /usr/sbin/sshd -T -f %s
-      notify: restart-sshd
+      notify: restart-ssh
 
     ###################
     # Firewall: UFW installieren und konfigurieren
@@ -56,7 +56,7 @@
         proto: tcp
         comment: SSH access
 
-    # Ethereum Node Ports erlauben.
+    # Ethereum Ports erlauben.
     - name: UFW - Allow nimbusCL TCP listening port
       ufw:
         rule: allow
@@ -100,8 +100,8 @@
         direction: incoming
 
   handlers:
-    # sshd neu starten, damit neue Config übernommen wird.
-    - name: restart-sshd
+    # ssh neu starten, damit neue Config übernommen wird.
+    - name: restart-ssh
       service:
-        name: sshd
+        name: ssh
         state: restarted
