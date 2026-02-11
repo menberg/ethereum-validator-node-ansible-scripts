@@ -6,7 +6,6 @@
 ##   - Basis-Pakete (chrony) installieren.
 ##   - neuste Nimbus-Binaries von GitHub Releases laden.
 ##   - Beacon Binary sicher nach nimbus_cl_bin_dir legen.
-##   - systemd-Services für Beacon deployen/aktivieren.
 ##
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml 11_install_nimbus.yml
@@ -193,44 +192,3 @@
     - name: Display nimbus_beacon_node version
       debug:
         msg: "{{ nimbus_version.stdout }}"
-
-    ##############################
-    # Copy Service Template Files
-
-    # systemd-Units aus Templates installieren und aktivieren.
-    - name: Copy service script
-      template:
-        src: "templates/{{ nimbus_cl_system_user }}.service.j2"
-        dest: "/etc/systemd/system/{{ nimbus_cl_system_user }}.service"
-        owner: root
-        group: root
-        mode: "0644"
-
-    ###################
-    # Starte nimbus
-
-    # Service nach der Installation starten.
-    - name: Restart Nimbus service and enable it on reboots
-      systemd:
-        name: "{{ nimbus_cl_system_user }}"
-        state: restarted
-        enabled: yes
-        daemon_reload: yes
-
-    # Beacon booten lassen, dann die Version via REST API abfragen.
-    - name: Pause for 30 seconds for Nimbus to start
-      pause:
-        seconds: 30
-
-    - name: Fetch and display the Nimbus node version
-      shell: |
-        curl -s http://{{ server_ip }}:{{ nimbus_cl_rest_port }}/eth/v1/node/version | jq -r '.data.version'
-      register: node_version
-      failed_when: node_version.rc != 0
-      changed_when: false
-
-    - name: Make sure Nimbus is running
-      assert:
-        that: node_version.stdout is defined and node_version.stdout != ""
-        fail_msg: "'Nimbus is not running"
-        success_msg: "Running Nimbus version is: {{ node_version.stdout }}"

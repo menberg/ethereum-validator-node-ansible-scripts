@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -e
+
+USER='{{ nimbus_cl_system_user | mandatory }}'
+PATH='{{ nimbus_cl_bin_dir | mandatory }}'
+DATA_DIR='{{ nimbus_cl_data_dir | mandatory }}'
+NETWORK='{{ network | mandatory }}'
+TRUSTED_NODE_URL='{{ nimbus_checkpoint_sync_url | mandatory }}'
+
+sudo -u "${USER}" "${PATH}/nimbus_beacon_node" \
+    trustedNodeSync \
+    --network="${NETWORK}" \
+    --data-dir="${DATA_DIR}" \
+    --trusted-node-url="${TRUSTED_NODE_URL}"

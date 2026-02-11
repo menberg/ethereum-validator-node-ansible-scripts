@@ -1,24 +1,24 @@
 ---
 ##
-## Playbook: Nimbus systemd-Configs aktualisieren
-## Ziel: Geänderte Nimbus-Unit-Templates sicher deployen durch:
+## Playbook: Nimbus als Service konfigurieren und starten
+## Ziel: Nimbus-Unit-Template sicher deployen durch:
 ##   - Service stoppen.
 ##   - Template kopieren.
 ##   - systemd reload und Service neu starten.
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory/hosts.yml 14_copy_nimbus_config_file.yml
+## ansible-playbook -i inventory/hosts.yml 13_configure_nimbus.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become nötig für Systemanagement.
 ## Variablen:
 ##   - nimbus_cl_system_user
-##   - nimbus_ext_ip (wird automatisch ermittelt, wenn leer)
+##   - nimbus_ext_ip (wird automatisch ermittelt falls leer)
 ## Templates:
 ##   - templates/nimbusCL.service.j2
 ##
 
-- name: Update Nimbus Config und Service File
+- name: Configure Nimbus and copy service file
   hosts: ethnode
   become: true
   gather_facts: false
@@ -42,7 +42,7 @@
     ##############################
     # Copy Service Template File
 
-    # Neues Template nach /etc/systemd/system kopieren.
+    # Template nach /etc/systemd/system kopieren.
     - name: Copy service script
       template:
         src: "templates/{{ nimbus_cl_system_user }}.service.j2"
@@ -54,9 +54,28 @@
     ###################
     # Starte nimbus
 
-    # Service neu starten, damit die neue Config aktiv ist.
-    - name: Restart Nimbus service
+    # Service nach erfolgreicher Installation starten.
+    - name: Start Nimbus service and make sure it is enabled on reboots
       systemd:
         name: "{{ nimbus_cl_system_user }}"
         state: restarted
+        enabled: yes
         daemon_reload: yes
+
+    # Beacon booten lassen, dann die Version via REST API abfragen.
+    - name: Pause for 30 seconds for Nimbus to start
+      pause:
+        seconds: 30
+
+    - name: Fetch and display the Nimbus node version
+      shell: |
+        curl -s http://{{ server_ip }}:{{ nimbus_cl_rest_port }}/eth/v1/node/version | jq -r '.data.version'
+      register: node_version
+      failed_when: node_version.rc != 0
+      changed_when: false
+
+    - name: Make sure Nimbus is running
+      assert:
+        that: node_version.stdout is defined and node_version.stdout != ""
+        fail_msg: "'Nimbus is not running"
+        success_msg: "Running Nimbus version is: {{ node_version.stdout }}"

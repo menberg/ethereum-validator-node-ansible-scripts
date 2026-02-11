@@ -1,0 +1,40 @@
+---
+##
+## Playbook: Nimbus Checkpoint-Sync
+## Ziel: Nimbus Checkpoint-Sync durchführen durch:
+##   - einmaliges Ausführen eines Sync-Scripts, das den Sync startet und überwacht.
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory/hosts.yml 12_sync_nimbus.yml
+##
+## Targets: Inventory-Gruppe "ethnode"
+## Privilege: become nötig für Rechteverwaltung.
+## Variablen:
+##   - nimbus_cl_system_user
+##   - nimbus_cl_base_dir
+## Templates:
+##   - nimbus-sync.sh.j2
+##
+
+- name: Sync Nimbus
+  hosts: ethnode
+  become: true
+  gather_facts: false
+
+  vars_files:
+    - vars/config_project.yml
+    - vars/config_untracked.yml
+
+  tasks:
+    # Template kopieren.
+    - name: Create nimbus-sync.sh
+      template:
+        src: "nimbus-sync.sh.j2"
+        dest: "{{ nimbus_cl_base_dir }}/nimbus-sync.sh"
+        owner: "{{ nimbus_cl_system_user }}"
+        group: "{{ nimbus_cl_system_user }}"
+        mode: "0755"
+
+    # Checkpoint-Sync ausführen.
+    - name: Run nimbus-sync.sh
+      shell: "{{ nimbus_cl_base_dir }}/nimbus-sync.sh"

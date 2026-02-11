@@ -9,7 +9,7 @@
 ##   - Service neu starten und Version via API prüfen.
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory/hosts.yml 15_update_nimbus.yml
+## ansible-playbook -i inventory/hosts.yml 14_update_nimbus.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become nötig für Systemmanagement.
