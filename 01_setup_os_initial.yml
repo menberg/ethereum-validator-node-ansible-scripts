@@ -1,7 +1,7 @@
 ---
 ##
 ## Playbook: Initiales OS-Setup (Hostname, Locale, Timezone, Packages)
-## Ziel: Basis-Systemkonfiguration für den Validator-Host durch:
+## Ziel: Basis-Systemkonfiguration für den Host durch:
 ##   - FQDN Hostname setzen.
 ##   - Locale/Language konfigurieren.
 ##   - Zeitzone setzen.

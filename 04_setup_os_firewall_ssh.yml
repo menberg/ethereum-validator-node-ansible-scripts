@@ -1,7 +1,7 @@
 ---
 ##
 ## Playbook: OS-Hardening, SSH-Setup und UFW-Basisregeln
-## Ziel: Frischen Host für den ersten Validator-Run vorbereiten durch:
+## Ziel: Frischen Host vorbereiten durch:
 ##   - UFW mit Default-Deny aktivieren.
 ##   - Reboot zum Anwenden aller Änderungen.
 ##

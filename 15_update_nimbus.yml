@@ -1,12 +1,12 @@
 ---
 ##
-## Playbook: Nimbus auf letzte Release aktualisieren
-## Ziel: Beacon & Validator sicher upgraden durch:
-##   - Services stoppen.
+## Playbook: Nimbus auf neuste Version aktualisieren
+## Ziel: Beacon sicher upgraden durch:
+##   - Service stoppen.
 ##   - letzte Linux amd64 Release von GitHub holen.
-##   - Binaries mit korrekten Rechten ersetzen.
+##   - Binary mit korrekten Rechten ersetzen.
 ##   - systemd reload bei Bedarf.
-##   - Services neu starten und Version via API prüfen.
+##   - Service neu starten und Version via API prüfen.
 ##
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml 15_update_nimbus.yml
@@ -14,14 +14,13 @@
 ## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become nötig für Systemmanagement.
 ## Variablen:
-##   - nimbus_cl_system_user, nimbus_validator_system_user
-##   - nimbus_cl_bin_dir, nimbus_validator_bin_dir
+##   - nimbus_cl_system_user
+##   - nimbus_cl_bin_dir
 ##   - nimbus_version: steuert Release-Tag (z.B. v25.12.0)
 ##   - nimbus_cl_rest_port
 ##   - system_user
 ## Templates:
 ##   - templates/nimbusCL.service.j2
-##   - templates/nimbusValidator.service.j2
 ## Voraussetzungen:
 ##   - Outbound Internet zu GitHub.
 ##
@@ -39,14 +38,11 @@
     ###################
     # Stop nimbus
 
-    # Services stoppen, bevor Binaries getauscht werden.
-    - name: Stop Nimbus services
+    # Service stoppen, bevor Binary getauscht wird.
+    - name: Stop Nimbus service
       systemd:
-        name: "{{ item }}"
+        name: "{{ nimbus_cl_system_user }}"
         state: stopped
-      loop:
-        - "{{ nimbus_cl_system_user }}"
-        - "{{ nimbus_validator_system_user }}"
 
     ###########
     # Neueste Linux amd64 Release-Asset von GitHub ermitteln und laden.
@@ -114,24 +110,12 @@
       command:
         cmd: "mv /home/{{ system_user }}/nimbus/build/nimbus_beacon_node {{ nimbus_cl_bin_dir }}/nimbus_beacon_node"
 
-    # Nimbus Validator binary an den Zielpfad verschieben.
-    - name: Move Nimbus Validator binary to "{{ nimbus_validator_bin_dir }}"
-      command:
-        cmd: "mv /home/{{ system_user }}/nimbus/build/nimbus_validator_client {{ nimbus_validator_bin_dir }}/nimbus_validator_client"
-
     # Restriktive Rechte pro Service-Binary setzen.
     - name: Set secure permissions on Nimbus CL binary
       file:
         path: "{{ nimbus_cl_bin_dir }}/nimbus_beacon_node"
         owner: "{{ nimbus_cl_system_user }}"
         group: "{{ nimbus_cl_system_user }}"
-        mode: "0700"
-
-    - name: Set secure permissions on Nimbus Validator binary
-      file:
-        path: "{{ nimbus_validator_bin_dir }}/nimbus_validator_client"
-        owner: "{{ nimbus_validator_system_user }}"
-        group: "{{ nimbus_validator_system_user }}"
         mode: "0700"
 
     - name: Check nimbus_beacon_node version
@@ -149,32 +133,26 @@
         state: absent
 
     ##############################
-    # Copy Service Template Files
+    # Copy Service Template File
 
     # systemd-Units aktualisieren (no-op falls identisch).
-    - name: Copy service scripts
+    - name: Copy service script
       template:
-        src: "templates/{{ item }}.service.j2"
-        dest: "/etc/systemd/system/{{ item }}.service"
+        src: "templates/{{ nimbus_cl_system_user }}.service.j2"
+        dest: "/etc/systemd/system/{{ nimbus_cl_system_user }}.service"
         owner: root
         group: root
         mode: "0644"
-      loop:
-        - "{{ nimbus_cl_system_user }}"
-        - "{{ nimbus_validator_system_user }}"
 
     ###################
     # Starte nimbus
 
-    # Services nach dem Upgrade starten.
-    - name: Restart Nimbus services
+    # Service nach dem Upgrade starten.
+    - name: Restart Nimbus service
       systemd:
-        name: "{{ item }}"
+        name: "{{ nimbus_cl_system_user }}"
         state: restarted
         daemon_reload: yes
-      loop:
-        - "{{ nimbus_cl_system_user }}"
-        - "{{ nimbus_validator_system_user }}"
 
     # Beacon booten lassen, dann die Version via REST API abfragen.
     - name: Pause for 30 seconds for Nimbus to start

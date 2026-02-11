@@ -1,12 +1,12 @@
 ---
 ##
-## Playbook: Nimbus installieren (Consensus Layer + Validator)
-## Ziel: Validator-Host mit Nimbus CL/VC provisionieren durch:
+## Playbook: Nimbus installieren (Consensus Layer)
+## Ziel: Host mit Nimbus CL provisionieren durch:
 ##   - Anlegen von Service-Usern und Verzeichnissen.
 ##   - Basis-Pakete (chrony) installieren.
-##   - letzte Nimbus-Binaries von GitHub Releases laden.
-##   - Binaries sicher nach nimbus_cl_bin_dir und nimbus_validator_bin_dir legen.
-##   - systemd-Services für Beacon und Validator deployen/aktivieren.
+##   - neuste Nimbus-Binaries von GitHub Releases laden.
+##   - Beacon Binary sicher nach nimbus_cl_bin_dir legen.
+##   - systemd-Services für Beacon deployen/aktivieren.
 ##
 ## Ausführen (Beispiel):
 ## ansible-playbook -i inventory/hosts.yml 11_install_nimbus.yml
@@ -14,17 +14,15 @@
 ## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become nötig für Benutzerverwaltung und Systemmanagement.
 ## Variablen:
-##   - nimbus_cl_system_user, nimbus_validator_system_user
-##   - nimbus_cl_bin_dir, nimbus_validator_bin_dir
-##   - nimbus_log_dir, nimbus_cl_log_file, nimbus_validator_log_file
-##   - nimbus_cl_data_dir, nimbus_validator_data_dir
-##   - nimbus_validator_validators_dir, nimbus_validator_keys_dir, nimbus_validator_secrets_dir
+##   - nimbus_cl_system_user
+##   - nimbus_cl_bin_dir
+##   - nimbus_log_dir, nimbus_cl_log_file
+##   - nimbus_cl_data_dir
 ##   - nimbus_version: steuert Release-Tag (z.B. v25.12.0)
 ##   - nimbus_cl_rest_port
 ##   - system_user
 ## Templates:
 ##   - nimbusCL.service.j2
-##   - validator.service.j2
 ## Voraussetzungen:
 ##   - Outbound Internet zu GitHub.
 ##
@@ -46,11 +44,6 @@
         name: "{{ nimbus_cl_system_user }}"
         state: present
 
-    - name: Ensure group for Nimbus Validator exists
-      group:
-        name: "{{ nimbus_validator_system_user }}"
-        state: present
-
     - name: Ensure dedicated group for shared JWT access exists
       group:
         name: jwt
@@ -62,14 +55,6 @@
         group: "{{ nimbus_cl_system_user }}"
         groups: jwt
         create_home: yes
-        shell: /bin/bash
-
-    - name: Add the user for Nimbus Validator
-      user:
-        name: "{{ nimbus_validator_system_user }}"
-        group: "{{ nimbus_validator_system_user }}"
-        groups: jwt
-        create_home: no
         shell: /bin/bash
 
     ##################
@@ -86,7 +71,7 @@
         enabled: yes
 
     ################
-    # Verzeichnisse für Binaries, Daten und Logs mit korrekten Rechten anlegen.
+    # Verzeichnisse für Binary, Daten und Logs mit korrekten Rechten anlegen.
     - name: Create the Nimbus CL bin directory
       file:
         path: "{{ nimbus_cl_bin_dir }}"
@@ -103,27 +88,6 @@
         group: "{{ nimbus_cl_system_user }}"
         mode: "0700"
 
-    - name: Create the Nimbus Validator bin directory
-      file:
-        path: "{{ nimbus_validator_bin_dir }}"
-        state: directory
-        owner: root
-        group: root
-        mode: "0755"
-
-    - name: Make sure needed subdirectories for Nimbus Validator exist
-      file:
-        path: "{{ item }}"
-        state: directory
-        owner: "{{ nimbus_validator_system_user }}"
-        group: "{{ nimbus_validator_system_user }}"
-        mode: "0700"
-      loop:
-        - "{{ nimbus_validator_data_dir }}"
-        - "{{ nimbus_validator_validators_dir }}"
-        - "{{ nimbus_validator_keys_dir }}"
-        - "{{ nimbus_validator_secrets_dir }}"
-
     - name: Ensure the log file directory exists
       file:
         path: "{{ nimbus_log_dir }}"
@@ -134,20 +98,11 @@
 
     - name: Ensure log files exist with correct ownership
       file:
-        path: "{{ nimbus_log_dir }}/{{ item.file }}"
+        path: "{{ nimbus_log_dir }}/{{ nimbus_cl_log_file }}"
         state: touch
-        owner: "{{ item.owner }}"
-        group: "{{ item.owner }}"
+        owner: "{{ nimbus_cl_system_user }}"
+        group: "{{ nimbus_cl_system_user }}"
         mode: "0644"
-      loop:
-        - {
-            file: "{{ nimbus_cl_log_file }}",
-            owner: "{{ nimbus_cl_system_user }}",
-          }
-        - {
-            file: "{{ nimbus_validator_log_file }}",
-            owner: "{{ nimbus_validator_system_user }}",
-          }
 
     ###############
     # Neueste Release-Asset von GitHub ermitteln und laden.
@@ -215,30 +170,18 @@
       command:
         cmd: "mv /home/{{ system_user }}/nimbus/build/nimbus_beacon_node {{ nimbus_cl_bin_dir }}/nimbus_beacon_node"
 
-    # Nimbus Validator binary in den Zielordner verschieben.
-    - name: Move Nimbus Validator binary into folder "{{ nimbus_validator_bin_dir }}"
-      command:
-        cmd: "mv /home/{{ system_user }}/nimbus/build/nimbus_validator_client {{ nimbus_validator_bin_dir }}/nimbus_validator_client"
-
     # Temorären nimbus-Ornder entfernen.
     - name: Cleanup nimbus folder
       file:
         path: "/home/{{ system_user }}/nimbus"
         state: absent
 
-    # Je Dienst eigene Binary mit restriktiven Rechten betreiben.
+    # Binary mit restriktiven Rechten betreiben.
     - name: Set secure permissions on Nimbus CL binary
       file:
         path: "{{ nimbus_cl_bin_dir }}/nimbus_beacon_node"
         owner: "{{ nimbus_cl_system_user }}"
         group: "{{ nimbus_cl_system_user }}"
-        mode: "0700"
-
-    - name: Set secure permissions on Nimbus Validator binary
-      file:
-        path: "{{ nimbus_validator_bin_dir }}/nimbus_validator_client"
-        owner: "{{ nimbus_validator_system_user }}"
-        group: "{{ nimbus_validator_system_user }}"
         mode: "0700"
 
     - name: Check nimbus_beacon_node version
@@ -257,28 +200,22 @@
     # systemd-Units aus Templates installieren und aktivieren.
     - name: Copy service script
       template:
-        src: "templates/{{ item }}.service.j2"
-        dest: "/etc/systemd/system/{{ item }}.service"
+        src: "templates/{{ nimbus_cl_system_user }}.service.j2"
+        dest: "/etc/systemd/system/{{ nimbus_cl_system_user }}.service"
         owner: root
         group: root
         mode: "0644"
-      loop:
-        - "{{ nimbus_cl_system_user }}"
-        - "{{ nimbus_validator_system_user }}"
 
     ###################
     # Starte nimbus
 
-    # Services nach der Installation starten.
-    - name: Restart Nimbus services and enable them on reboots
+    # Service nach der Installation starten.
+    - name: Restart Nimbus service and enable it on reboots
       systemd:
-        name: "{{ item }}"
+        name: "{{ nimbus_cl_system_user }}"
         state: restarted
         enabled: yes
         daemon_reload: yes
-      loop:
-        - "{{ nimbus_cl_system_user }}"
-        - "{{ nimbus_validator_system_user }}"
 
     # Beacon booten lassen, dann die Version via REST API abfragen.
     - name: Pause for 30 seconds for Nimbus to start

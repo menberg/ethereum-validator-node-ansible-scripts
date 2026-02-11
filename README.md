@@ -25,7 +25,6 @@ Thanks to Marge (chrochetnode.com) for advice and review on validator architectu
 ### Consensus Layer (CL)
 
 - **Nimbus**: Efficient Ethereum consensus client
-- Validator client for staking operations
 - REST API and metrics endpoints
 
 ### System Infrastructure
@@ -160,7 +159,6 @@ reth_data_dir: "/mnt/nvme/rethEL/data"
 
 # Nimbus data directories
 nimbus_cl_data_dir: "/opt/nimbusCL/data"
-nimbus_validator_data_dir: "/opt/nimbusValidator/data"
 ```
 
 ## Monitoring and Maintenance
@@ -171,12 +169,10 @@ nimbus_validator_data_dir: "/opt/nimbusValidator/data"
 # Check service status
 sudo systemctl status rethEL
 sudo systemctl status nimbusCL
-sudo systemctl status nimbusValidator
 
 # View logs
 sudo journalctl -u rethEL -f
 sudo journalctl -u nimbusCL -f
-sudo journalctl -u nimbusValidator -f
 ```
 
 ### System Monitoring
@@ -236,7 +232,6 @@ ansible-playbook -i inventory/hosts.yml 36_update_reth.yml
 
 - Reth: `/var/log/reth/`
 - Nimbus CL: `/var/log/nimbus/nimbusCL.jsonl`
-- Nimbus Validator: `/var/log/nimbus/nimbusValidator.jsonl`
 - System: `/var/log/syslog`
 
 ## Contributing

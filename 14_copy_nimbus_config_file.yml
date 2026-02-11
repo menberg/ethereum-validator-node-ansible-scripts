@@ -1,0 +1,54 @@
+---
+##
+## Playbook: Nimbus systemd-Configs aktualisieren
+## Ziel: Geänderte Nimbus-Unit-Templates sicher deployen durch:
+##   - Service stoppen.
+##   - Template kopieren.
+##   - systemd reload und Service neu starten.
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory/hosts.yml 14_copy_nimbus_config_file.yml
+##
+## Targets: Inventory-Gruppe "ethnode"
+## Privilege: become nötig für Systemanagement.
+## Templates:
+##   - templates/nimbusCL.service.j2
+##
+
+- name: Change Nimbus Config und Service File
+  hosts: ethnode
+  become: true
+  gather_facts: false
+
+  vars_files:
+    - vars/config_project.yml
+    - vars/config_untracked.yml
+
+  tasks:
+    # Service stoppen, bevor Units ersetzt werden.
+    - name: Stop Nimbus service
+      systemd:
+        name: "{{ nimbus_cl_system_user }}"
+        state: stopped
+
+    ##############################
+    # Copy Service Template File
+
+    # Neues Template nach /etc/systemd/system/ kopieren.
+    - name: Copy service script
+      template:
+        src: "templates/{{ nimbus_cl_system_user }}.service.j2"
+        dest: "/etc/systemd/system/{{ nimbus_cl_system_user }}.service"
+        owner: root
+        group: root
+        mode: "0644"
+
+    ###################
+    # Starte nimbus
+
+    # Service neu starten, damit die neue Config aktiv ist.
+    - name: Restart Nimbus service
+      systemd:
+        name: "{{ nimbus_cl_system_user }}"
+        state: restarted
+        daemon_reload: yes

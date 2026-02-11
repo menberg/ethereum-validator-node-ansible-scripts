@@ -92,16 +92,7 @@ nimbus_hard_max_peers: 136
 nimbus_jwt_secret_path: "{{ jwtsecret_path }}"
 el_http: "http://{{ server_ip }}:{{ reth_authrpc_port }}"
 
-nimbus_validator_system_user: "nimbusValidator"
-nimbus_validator_bin_dir: /opt/nimbusValidator/bin
-nimbus_validator_data_dir: /opt/nimbusValidator/data
-nimbus_validator_secrets_dir: /opt/nimbusValidator/secrets
-nimbus_validator_validators_dir: /opt/nimbusValidator/validators
-nimbus_validator_keys_dir: /opt/nimbusValidator/validator_keys
-nimbus_validator_graffiti: "janode"
-
 # Nimbus Logging
 nimbus_log_level: "NOTICE" # DEBUG, INFO, NOTICE, WARN, ERROR
 nimbus_log_dir: "/var/log/nimbus"
 nimbus_cl_log_file: "nimbusCL.jsonl"
-nimbus_validator_log_file: "nimbusValidator.jsonl"
