@@ -74,6 +74,14 @@
         upgrade: dist
         autoremove: yes
 
+    # Ubuntu MOTD News deaktivieren.
+    - name: Disable Ubuntu motd-news
+      lineinfile:
+        path: /etc/default/motd-news
+        regexp: "^ENABLED="
+        line: ENABLED=0
+        state: present
+
     # Ubuntu Spam-Meldungen verhindern.
     - name: Remove Ubuntu Advantage Tools and Ubuntu Pro Client
       apt:
