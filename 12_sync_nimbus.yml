@@ -37,4 +37,10 @@
 
     # Checkpoint-Sync ausführen.
     - name: Run nimbus-sync.sh
-      shell: "{{ nimbus_cl_base_dir }}/nimbus-sync.sh"
+      shell: "sudo -u {{ nimbus_cl_system_user }} {{ nimbus_cl_base_dir }}/nimbus-sync.sh"
+      register: nimbus_sync_result
+
+    # Ausgabe des Sync-Scripts anzeigen.
+    - name: Show nimbus-sync.sh output
+      debug:
+        var: nimbus_sync_result.stdout

@@ -7,7 +7,7 @@ DATA_DIR='{{ nimbus_cl_data_dir | mandatory }}'
 NETWORK='{{ network | mandatory }}'
 TRUSTED_NODE_URL='{{ nimbus_checkpoint_sync_url | mandatory }}'
 
-sudo -u "${USER}" "${PATH}/nimbus_beacon_node" \
+"${PATH}/nimbus_beacon_node" \
     trustedNodeSync \
     --network="${NETWORK}" \
     --data-dir="${DATA_DIR}" \
