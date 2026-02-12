@@ -41,7 +41,7 @@ jwtsecret_path: "/var/lib/jwtsecrets/jwt.hex"
 # ETH ETHEREUM NETWORK
 ##########################################
 
-network: "hoodi" # set up an environment, e.g "hoodi" or "mainnet"
+network: "mainnet" # set up an environment, e.g "hoodi" or "mainnet"
 fee_recipient_wallet_address: "" # overridden by vars/config_untracked.yml
 
 ##########################################
