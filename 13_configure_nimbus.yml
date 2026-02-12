@@ -30,7 +30,7 @@
   tasks:
     # IP-Adresse ermitteln, falls nicht angegeben.
     - name: Get IP address to bind to if not provided
-      include_tasks: "network.yml"
+      include_tasks: "tasks/network.yml"
       when: not nimbus_ext_ip
 
     # Service stoppen, bevor Units ersetzt werden.
