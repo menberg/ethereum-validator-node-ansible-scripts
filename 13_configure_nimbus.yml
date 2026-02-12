@@ -33,6 +33,11 @@
       include_tasks: "tasks/network.yml"
       when: not nimbus_ext_ip
 
+    # IP-Adresse anzeigen.
+    - name: Show nimbus_ext_ip
+      debug:
+        var: nimbus_ext_ip
+
     # Service stoppen, bevor Units ersetzt werden.
     - name: Stop Nimbus service
       systemd:
