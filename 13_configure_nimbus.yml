@@ -43,6 +43,7 @@
       systemd:
         name: "{{ nimbus_cl_system_user }}"
         state: stopped
+      failed_when: false # Fehler ignorieren, falls Service noch nicht existiert.
 
     ##############################
     # Copy Service Template File
