@@ -86,7 +86,7 @@
         seconds: 30
 
     - name: Fetch and display the Nimbus node version
-      shell: |
+      shell: >
         curl -s http://{{ localhost_ip }}:{{ nimbus_cl_rest_port }}/eth/v1/node/version | jq -r '.data.version'
       register: node_version
       failed_when: node_version.rc != 0
