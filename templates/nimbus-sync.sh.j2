@@ -2,12 +2,12 @@
 set -e
 
 USER='{{ nimbus_cl_system_user | mandatory }}'
-PATH='{{ nimbus_cl_bin_dir | mandatory }}'
+PATH='{{ nimbus_cl_binary_path | mandatory }}'
 DATA_DIR='{{ nimbus_cl_data_dir | mandatory }}'
 NETWORK='{{ network | mandatory }}'
 TRUSTED_NODE_URL='{{ nimbus_checkpoint_sync_url | mandatory }}'
 
-"${PATH}/nimbus_beacon_node" \
+"${PATH}" \
     trustedNodeSync \
     --network="${NETWORK}" \
     --data-dir="${DATA_DIR}" \

@@ -79,6 +79,7 @@ reth_ws_origins: "" # empty = no origin checking (recommended for localhost-only
 nimbus_cl_system_user: "nimbusCL"
 nimbus_cl_base_dir: "/opt/nimbusCL"
 nimbus_cl_bin_dir: "{{ nimbus_cl_base_dir }}/bin"
+nimbus_cl_binary_path: "{{ nimbus_cl_bin_dir }}/nimbus_beacon_node" # Full path to the binary
 nimbus_cl_data_dir: "{{ nimbus_cl_base_dir }}/data"
 nimbus_cl_rest_address: "{{ localhost_ip }}"
 nimbus_cl_rest_port: 5052

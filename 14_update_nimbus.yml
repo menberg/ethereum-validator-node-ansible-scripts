@@ -35,17 +35,8 @@
     - vars/config_untracked.yml
 
   tasks:
-    ###################
-    # Stop nimbus
-
-    # Service stoppen, bevor Binary getauscht wird.
-    - name: Stop Nimbus service
-      systemd:
-        name: "{{ nimbus_cl_system_user }}"
-        state: stopped
-
     ###########
-    # Neueste Linux amd64 Release-Asset von GitHub ermitteln und laden.
+    # Neueste Binary von GitHub ermitteln und laden
     - name: Get the latest Nimbus Eth2 release URL for Linux amd64
       uri:
         url: "https://api.github.com/repos/status-im/nimbus-eth2/releases/latest"
@@ -98,39 +89,50 @@
         owner: "{{ nimbus_cl_system_user }}"
         group: "{{ nimbus_cl_system_user }}"
         remote_src: yes
-        extra_opts: [--strip-components=1] # Assuming the tar structure allows this, adjust if needed
+        extra_opts: [--strip-components=1]
 
+    # Entfernen der heruntergeladenen Datei.
     - name: Cleanup downloaded tar.gz
       file:
         path: "/tmp/nimbus.tar.gz"
         state: absent
 
-    # Nimbus CL binary an den Zielpfad verschieben.
-    - name: Move Nimbus CL binary to "{{ nimbus_cl_bin_dir }}"
-      command:
-        cmd: "mv /home/{{ system_user }}/nimbus/build/nimbus_beacon_node {{ nimbus_cl_bin_dir }}/nimbus_beacon_node"
+    ###################
+    # Stop Nimbus, danach Binary ersetzen
 
-    # Restriktive Rechte pro Service-Binary setzen.
-    - name: Set secure permissions on Nimbus CL binary
-      file:
-        path: "{{ nimbus_cl_bin_dir }}/nimbus_beacon_node"
+    # Nimbus Service stoppen.
+    - name: Stop Nimbus service
+      systemd:
+        name: "{{ nimbus_cl_system_user }}"
+        state: stopped
+
+    # Nimbus Binary in den Zielordner verschieben und restriktive Rechte setzen.
+    - name: Copy the binary to {{ nimbus_cl_binary_path }}
+      copy:
+        src: "/home/{{ system_user }}/nimbus/build/nimbus_beacon_node"
+        dest: "{{ nimbus_cl_binary_path }}"
+        remote_src: yes
         owner: "{{ nimbus_cl_system_user }}"
         group: "{{ nimbus_cl_system_user }}"
         mode: "0700"
 
+    # Temporären nimbus-Ordner im Home-Verzeichnis entfernen.
+    - name: Cleanup nimbus folder
+      file:
+        path: "/home/{{ system_user }}/nimbus"
+        state: absent
+
+    ###################
+    # Installierte Version anzeigen
+
     - name: Check nimbus_beacon_node version
       command:
-        cmd: "{{ nimbus_cl_bin_dir }}/nimbus_beacon_node --version"
+        cmd: "{{ nimbus_cl_binary_path }} --version"
       register: nimbus_version
 
     - name: Display nimbus_beacon_node version
       debug:
         msg: "{{ nimbus_version.stdout }}"
-
-    - name: Cleanup nimbus folder
-      file:
-        path: "/home/{{ system_user }}/nimbus"
-        state: absent
 
     ##############################
     # Copy Service Template File
@@ -145,7 +147,7 @@
         mode: "0644"
 
     ###################
-    # Starte nimbus
+    # Starte Nimbus
 
     # Service nach dem Upgrade starten.
     - name: Restart Nimbus service
@@ -155,9 +157,9 @@
         daemon_reload: yes
 
     # Beacon booten lassen, dann die Version via REST API abfragen.
-    - name: Pause for 30 seconds for Nimbus to start
+    - name: Pause for 20 seconds for Nimbus to start
       pause:
-        seconds: 30
+        seconds: 20
 
     - name: Fetch and display the Nimbus node version
       shell: >

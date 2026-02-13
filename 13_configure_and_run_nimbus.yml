@@ -50,6 +50,9 @@
       debug:
         var: nimbus_ext_ip
 
+    ##############################
+    # Stop Nimbus
+
     # Service stoppen, bevor Units ersetzt werden.
     - name: Stop Nimbus service
       systemd:
@@ -70,7 +73,7 @@
         mode: "0644"
 
     ###################
-    # Starte nimbus
+    # Starte Nimbus
 
     # Service nach erfolgreicher Installation starten.
     - name: Start Nimbus service and make sure it is enabled on reboots
@@ -81,9 +84,9 @@
         daemon_reload: yes
 
     # Beacon booten lassen, dann die Version via REST API abfragen.
-    - name: Pause for 30 seconds for Nimbus to start
+    - name: Pause for 20 seconds for Nimbus to start
       pause:
-        seconds: 30
+        seconds: 20
 
     - name: Fetch and display the Nimbus node version
       shell: >

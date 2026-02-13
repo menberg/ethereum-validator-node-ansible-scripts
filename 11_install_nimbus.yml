@@ -37,7 +37,8 @@
 
   tasks:
     #################
-    # Service-Gruppen und Service-User für Nimbus anlegen.
+    # Service-Gruppen und Service-User für Nimbus anlegen
+
     - name: Ensure group for Nimbus CL exists
       group:
         name: "{{ nimbus_cl_system_user }}"
@@ -57,7 +58,8 @@
         shell: /bin/bash
 
     ##################
-    # Sicherstellen, dass chrony für Zeit-Sync installiert ist.
+    # Sicherstellen, dass chrony für Zeit-Sync installiert ist
+
     - name: Ensure chrony package is installed
       package:
         name: chrony
@@ -70,7 +72,8 @@
         enabled: yes
 
     ################
-    # Verzeichnisse für Binary, Daten und Logs mit korrekten Rechten anlegen.
+    # Verzeichnisse für Binary, Daten und Logs mit korrekten Rechten anlegen
+
     - name: Create the Nimbus CL bin directory
       file:
         path: "{{ nimbus_cl_bin_dir }}"
@@ -104,14 +107,15 @@
         mode: "0644"
 
     ###############
-    # Neueste Release-Asset von GitHub ermitteln und laden.
+    # Neueste Release-Asset von GitHub ermitteln und laden
+
     - name: Get the latest Nimbus Eth2 release URL for Linux amd64
       uri:
         url: "https://api.github.com/repos/status-im/nimbus-eth2/releases/latest"
         method: GET
         return_content: yes
         body_format: json
-      register: release_data # requires installing jq on the remote host
+      register: release_data
 
     - name: Set binaries_url from the release data
       set_fact:
@@ -159,33 +163,37 @@
         remote_src: yes
         extra_opts: [--strip-components=1]
 
+    # Entfernen der heruntergeladenen Datei.
     - name: Cleanup downloaded tar.gz
       file:
         path: "/tmp/nimbus.tar.gz"
         state: absent
 
-    # Nimbus CL binary in den Zielordner verschieben.
-    - name: Move Nimbus CL binary into folder "{{ nimbus_cl_bin_dir }}"
-      command:
-        cmd: "mv /home/{{ system_user }}/nimbus/build/nimbus_beacon_node {{ nimbus_cl_bin_dir }}/nimbus_beacon_node"
+    ###################
+    # Nimbus Binary ersetzen
 
-    # Temorären nimbus-Ornder entfernen.
+    # Nimbus Binary in den Zielordner verschieben und restriktive Rechte setzen.
+    - name: Copy the binary to {{ nimbus_cl_binary_path }}
+      copy:
+        src: "/home/{{ system_user }}/nimbus/build/nimbus_beacon_node"
+        dest: "{{ nimbus_cl_binary_path }}"
+        remote_src: yes
+        owner: "{{ nimbus_cl_system_user }}"
+        group: "{{ nimbus_cl_system_user }}"
+        mode: "0700"
+
+    # Temorären nimbus-Ornder im Home-Verzeichnis entfernen.
     - name: Cleanup nimbus folder
       file:
         path: "/home/{{ system_user }}/nimbus"
         state: absent
 
-    # Binary mit restriktiven Rechten betreiben.
-    - name: Set secure permissions on Nimbus CL binary
-      file:
-        path: "{{ nimbus_cl_bin_dir }}/nimbus_beacon_node"
-        owner: "{{ nimbus_cl_system_user }}"
-        group: "{{ nimbus_cl_system_user }}"
-        mode: "0700"
+    ###################
+    # Installierte Version anzeigen
 
     - name: Check nimbus_beacon_node version
       command:
-        cmd: "{{ nimbus_cl_bin_dir }}/nimbus_beacon_node --version"
+        cmd: "{{ nimbus_cl_binary_path }} --version"
       register: nimbus_version
       changed_when: false
 
