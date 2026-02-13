@@ -35,7 +35,8 @@
 
   tasks:
     #################
-    # Service-Gruppen und Service-User für reth anlegen.
+    # Service-Gruppen und Service-User für Reth anlegen
+
     - name: Ensure group for reth exists
       group:
         name: "{{ reth_system_user }}"
@@ -55,7 +56,8 @@
         shell: /bin/bash
 
     ################
-    # Verzeichnisse für Binary, Daten und Logs mit korrekten Rechten anlegen.
+    # Verzeichnisse für Binary, Daten und Logs mit korrekten Rechten anlegen
+
     - name: Create the reth bin directory
       file:
         path: "{{ reth_bin_dir }}"
@@ -81,8 +83,7 @@
         mode: "0755"
 
     ################
-    # Install reth
-    ###############
+    # Reth Binary von GitHub Releases laden und installieren
 
     # Finde die neuste Version, falls {{ reth_version }} nicht gesetzt ist.
     - name: Set {% raw %}{{ reth_version }}{% endraw %} to latest version if unset
@@ -115,7 +116,7 @@
       debug:
         msg: "{{ binary_url }}"
 
-    # Reth Binary von GitHub Releases herunterladen.
+    # Reth Binary herunterladen.
     - name: Download the reth binary from GitHub releases
       get_url:
         url: "{{ binary_url }}"
@@ -153,10 +154,7 @@
         path: "/tmp/reth.tar.gz"
         state: absent
 
-    ###########
-    # Copy binary
-
-    # Binary in den Zielordner verschieben und restriktive Rechte setzen.
+    # Reth Binary in den Zielordner verschieben und restriktive Rechte setzen.
     - name: Copy the binary to {{ reth_binary_path }}
       copy:
         src: "/home/{{ system_user }}/reth/reth"
@@ -171,47 +169,3 @@
       file:
         path: "/home/{{ system_user }}/reth"
         state: absent
-
-    ##############################
-    # Copy Service Template Files
-
-    # systemd-Units aus Templates installieren und aktivieren.
-    - name: Copy service script
-      template:
-        src: templates/{{ reth_system_user }}.service.j2
-        dest: /etc/systemd/system/{{ reth_system_user }}.service
-        owner: root
-        group: root
-        mode: "0644"
-
-    ###################
-    # Starte reth
-
-    # Service nach der installation starten.
-    - name: Restart "{{ reth_system_user }}" service and enable it on reboots
-      systemd:
-        name: "{{ reth_system_user }}"
-        state: restarted
-        enabled: yes
-        daemon_reload: yes
-
-    # Installierte Version überprüfen und anzeigen.
-    - name: Wait for reth service to become active
-      command:
-        cmd: "systemctl is-active {{ reth_system_user }}"
-      register: reth_is_active
-      retries: 6
-      delay: 2
-      until: reth_is_active.stdout == 'active'
-      changed_when: false
-
-    - name: Check running reth service version as service user
-      command:
-        cmd: "sudo -u {{ reth_system_user }} {{ reth_binary_path }} --version"
-      register: reth_running_version
-      changed_when: false
-      failed_when: reth_running_version.rc != 0
-
-    - name: Display running reth version
-      debug:
-        msg: "{{ reth_running_version.stdout }}"

@@ -98,22 +98,22 @@
       args:
         creates: "/home/{{ system_user }}/reth/reth"
 
-    # Download-Verzeichnis aufräumen.
+    # Entfernen der heruntergeladenen Datei.
     - name: Cleanup downloaded reth.tar.gz
       file:
         path: "/tmp/reth.tar.gz"
         state: absent
 
     ###########
-    # Stop Reth and copy binary
+    # Stop Reth, danach Binary ersetzen
 
-    # Service stoppen, um Binary sicher zu ersetzen.
-    - name: Stop "{{ reth_system_user }}" service
+    # Reth Service stoppen.
+    - name: Stop Reth service
       systemd:
         name: "{{ reth_system_user }}"
         state: stopped
 
-    # Binary in den Zielordner verschieben und restriktive Rechte setzen.
+    # Reth Binary in den Zielordner verschieben und restriktive Rechte setzen.
     - name: Copy the binary to {{ reth_binary_path }}
       copy:
         src: "/home/{{ system_user }}/reth/reth"
@@ -142,7 +142,7 @@
         mode: "0644"
 
     # Service neu starten, damit das neue Binary läuft.
-    - name: Restart "{{ reth_system_user }}" service and make sure it is enabled on reboots
+    - name: Restart Reth service and make sure it is enabled on reboots
       systemd:
         name: "{{ reth_system_user }}"
         state: restarted

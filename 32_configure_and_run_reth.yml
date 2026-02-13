@@ -1,0 +1,84 @@
+---
+##
+## Playbook: Reth als Service konfigurieren und starten
+## Ziel: Reth-Unit-Template sicher deployen durch:
+##   - Service stoppen.
+##   - Template kopieren.
+##   - systemd reload und Service neu starten.
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory/hosts.yml 32_configure_and_run_reth.yml
+##
+## Targets: Inventory-Gruppe "ethnode"
+## Privilege: become nötig für Systemanagement.
+## Variablen:
+##   - reth_system_user
+##   - reth_binary_path
+## Templates:
+##   - templates/rethEL.service.j2
+##
+
+- name: Configure Reth and copy service file
+  hosts: ethnode
+  become: true
+  gather_facts: false
+
+  vars_files:
+    - vars/config_project.yml
+    - vars/config_untracked.yml
+
+  tasks:
+    ##############################
+    # Service stoppen, bevor Units ersetzt werden.
+
+    - name: Stop Reth service
+      systemd:
+        name: "{{ reth_system_user }}"
+        state: stopped
+      failed_when: false # Fehler ignorieren, falls Service noch nicht existiert.
+
+    ##############################
+    # Copy Service Template Files
+
+    # systemd-Units aus Templates installieren und aktivieren.
+    - name: Copy service script
+      template:
+        src: templates/{{ reth_system_user }}.service.j2
+        dest: /etc/systemd/system/{{ reth_system_user }}.service
+        owner: root
+        group: root
+        mode: "0644"
+
+    ###################
+    # Starte Reth
+
+    # Service nach erfolgreicher Installation starten.
+    - name: Start Reth service and make sure it is enabled on reboots
+      systemd:
+        name: "{{ reth_system_user }}"
+        state: restarted
+        enabled: yes
+        daemon_reload: yes
+
+    ###################
+    # Prüfen, ob Reth erfolgreich gestartet wurde und Version anzeigen
+
+    - name: Wait for Reth service to become active
+      command:
+        cmd: "systemctl is-active {{ reth_system_user }}"
+      register: reth_is_active
+      retries: 6
+      delay: 2
+      until: reth_is_active.stdout == 'active'
+      changed_when: false
+
+    - name: Check running reth service version as service user
+      command:
+        cmd: "sudo -u {{ reth_system_user }} {{ reth_binary_path }} --version"
+      register: reth_running_version
+      changed_when: false
+      failed_when: reth_running_version.rc != 0
+
+    - name: Display running reth version
+      debug:
+        msg: "{{ reth_running_version.stdout }}"
