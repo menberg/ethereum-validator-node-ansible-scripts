@@ -19,7 +19,7 @@ Thanks to Marge (chrochetnode.com) for advice and review on validator architectu
 ### Execution Layer (EL)
 
 - **Reth**: High-performance Ethereum execution client
-- Full archive node with RPC endpoints
+- Full node with RPC endpoints
 - JWT authentication for secure CL-EL communication
 
 ### Consensus Layer (CL)
@@ -40,7 +40,7 @@ Thanks to Marge (chrochetnode.com) for advice and review on validator architectu
 - Target server with Ubuntu 20.04+ or Debian 11+
 - Hardcoded for x86_64 host architecture
 - SSH access to target server
-- At least 2TB SSD storage recommended for full archive node
+- At least 2TB SSD storage recommended for full node
 
 ## Quick Start
 
