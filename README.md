@@ -77,10 +77,6 @@ cp vars/config_untracked.template.yml vars/config_untracked.yml
 # Edit vars/config_untracked.yml with your specific values
 ```
 
-**Required configurations in `vars/config_untracked.yml`:**
-
-- `fee_recipient_wallet_address`: Your validator fee recipient address
-
 ### 4. Run Setup Playbooks
 
 Execute playbooks in order:

@@ -136,6 +136,29 @@
         msg: "{{ nimbus_version.stdout }}"
 
     ##############################
+    # Fee Recipient Adresse für Rocket Pool Validatoren ermitteln, falls vorhanden.
+
+    - name: Check if Rocket Pool fee recipient file exists
+      stat:
+        path: "/home/{{ system_user }}/.rocketpool/data/validators/rp-fee-recipient.txt"
+      register: rp_fee_file
+
+    - name: Read Rocket Pool fee recipient address
+      slurp:
+        src: "/home/{{ system_user }}/.rocketpool/data/validators/rp-fee-recipient.txt"
+      register: rp_fee_recipient_raw
+      when: rp_fee_file.stat.exists
+
+    - name: Set fee recipient fact
+      set_fact:
+        fee_recipient_wallet_address: "{{ rp_fee_recipient_raw.content | b64decode | trim }}"
+      when: rp_fee_file.stat.exists
+
+    - name: Display fee recipient address
+      debug:
+        msg: "Fee Recipient Address: {{ fee_recipient_wallet_address }}"
+
+    ##############################
     # Copy Service Template File
 
     # systemd-Units aktualisieren (no-op falls identisch).

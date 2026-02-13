@@ -42,7 +42,7 @@ jwtsecret_path: "/var/lib/jwtsecrets/jwt.hex"
 ##########################################
 
 network: "mainnet" # set up an environment, e.g "hoodi" or "mainnet"
-fee_recipient_wallet_address: "" # overridden by vars/config_untracked.yml
+fee_recipient_wallet_address: "" # Leave empty to use the Rocket Pool fee recipient (rp-fee-recipient.txt)
 
 ##########################################
 # RETH EXECUTION LAYER
