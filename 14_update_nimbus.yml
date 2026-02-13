@@ -98,6 +98,30 @@
         path: "/tmp/nimbus.tar.gz"
         state: absent
 
+    ##############################
+    # Externe IP-Adresse ermitteln, falls nicht angegeben.
+
+    - block:
+        - name: Fetch public IP
+          uri:
+            url: https://api.ipify.org
+            method: GET
+            return_content: yes
+            status_code: 200
+          register: public_ip_output
+          ignore_errors: yes
+
+        - name: Set the public ip
+          set_fact:
+            nimbus_ext_ip: "{{ public_ip_output.content }}"
+          when: public_ip_output.status == 200
+      when: not nimbus_ext_ip
+
+    # IP-Adresse anzeigen.
+    - name: Show nimbus_ext_ip
+      debug:
+        var: nimbus_ext_ip
+
     ###################
     # Stop Nimbus, danach Binary ersetzen
 
