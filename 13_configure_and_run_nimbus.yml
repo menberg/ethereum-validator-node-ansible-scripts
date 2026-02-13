@@ -7,7 +7,7 @@
 ##   - systemd reload und Service neu starten.
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory/hosts.yml 13_configure_nimbus.yml
+## ansible-playbook -i inventory/hosts.yml 13_configure_and_run_nimbus.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become nötig für Systemanagement.
