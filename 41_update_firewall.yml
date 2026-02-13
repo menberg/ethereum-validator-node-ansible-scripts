@@ -20,14 +20,17 @@
 
     - name: Get Rocket Pool docker network subnet
       shell: >
-        docker network inspect rocketpool_net
-        --format '{{'{{'}}range .IPAM.Config{{'}}'}}{{'{{'}}.Subnet{{'}}'}}{{'{{'}}end{{'}}'}}'
+        docker inspect rocketpool_net | grep -Po "(?<=\"Subnet\": \")[0-9./]+"
       register: rp_net_result
       changed_when: false
 
-    - name: Set Rocket Pool network fact
+    - name: Set Rocket Pool docker network subnet fact
       set_fact:
         rp_net: "{{ rp_net_result.stdout }}"
+
+    - name: Display Rocket Pool docker network subnet
+      debug:
+        msg: "{{ rp_net }}"
 
     - name: Allow Rocket Pool access to Reth RPC via HTTP (8545)
       ufw:
