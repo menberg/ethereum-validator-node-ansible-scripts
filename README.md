@@ -228,7 +228,7 @@ ansible-playbook -i inventory/hosts.yml 36_update_reth.yml
 
 ### Log Locations
 
-- Reth: `/var/log/reth/`
+- Reth: `/var/log/reth/mainnet/reth.log`
 - Nimbus CL: `/var/log/nimbus/nimbusCL.jsonl`
 - System: `/var/log/syslog`
 
