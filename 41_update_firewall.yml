@@ -1,0 +1,58 @@
+---
+##
+## Playbook: UFW-Regeln für Rocket Pool Smartnode konfigurieren
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory/hosts.yml 41_update_firewall.yml
+##
+## Targets: Inventory-Gruppe "ethnode"
+## Privilege: become nötig für Konfiguration von Firewall.
+##
+
+- name: Update UFW Firewall Rules for Rocket Pool Smartnode
+  hosts: ethnode
+  become: true
+  gather_facts: false
+
+  tasks:
+    ###################
+    # Firewall: UFW für Rocket Pool Smartnode konfigurieren
+
+    - name: Get Rocket Pool docker network subnet
+      shell: >
+        docker network inspect rocketpool_net
+        --format '{{'{{'}}range .IPAM.Config{{'}}'}}{{'{{'}}.Subnet{{'}}'}}{{'{{'}}end{{'}}'}}'
+      register: rp_net_result
+      changed_when: false
+
+    - name: Set Rocket Pool network fact
+      set_fact:
+        rp_net: "{{ rp_net_result.stdout }}"
+
+    - name: Allow Rocket Pool access to Reth RPC via HTTP (8545)
+      ufw:
+        rule: allow
+        src: "{{ rp_net }}"
+        port: "8545"
+        proto: tcp
+        comment: "Allow Rocketpool Docker to access Reth RPC via HTTP"
+
+    - name: Allow Rocket Pool access to Reth RPC via WS (8546)
+      ufw:
+        rule: allow
+        src: "{{ rp_net }}"
+        port: "8546"
+        proto: tcp
+        comment: "Allow Rocketpool Docker to access Reth RPC via WS"
+
+    - name: Allow Rocket Pool access to Nimbus REST via HTTP (5052)
+      ufw:
+        rule: allow
+        src: "{{ rp_net }}"
+        port: "5052"
+        proto: tcp
+        comment: "Allow Rocketpool Docker to access Nimbus REST via HTTP"
+
+    - name: Ensure UFW is enabled
+      ufw:
+        state: enabled
