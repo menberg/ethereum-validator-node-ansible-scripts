@@ -1,0 +1,32 @@
+---
+##
+## Playbook: Reth Sync-Status überprüfen
+## Ziel: Sync-Fortschritt von Reth anzeigen.
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory/hosts.yml 34_check_reth_sync.yml
+##
+## Targets: Inventory-Gruppe "ethnode"
+## Voraussetzungen:
+##   - Outbound Internet
+##
+
+- name: Display Reth sync status
+  hosts: ethnode
+  become: false
+  gather_facts: false
+
+  vars_files:
+    - vars/config_project.yml
+    - vars/config_untracked.yml
+
+  tasks:
+    - name: Get reth sync progress
+      shell: >
+        tail -n 40 /var/log/reth/mainnet/reth.log | jq -r 'select(.fields.stage_progress) | "\(.timestamp) | Progress: \(.fields.stage_progress)"'
+      register: reth_sync_result
+      changed_when: false
+
+    - name: Display reth sync progress
+      debug:
+        msg: "{{ reth_sync_result.stdout_lines }}"
