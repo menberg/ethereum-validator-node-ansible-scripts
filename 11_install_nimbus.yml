@@ -15,10 +15,10 @@
 ## Variablen:
 ##   - nimbus_cl_system_user
 ##   - nimbus_cl_bin_dir
+##   - nimbus_cl_binary_path
 ##   - nimbus_log_dir, nimbus_cl_log_file
 ##   - nimbus_cl_data_dir
 ##   - nimbus_version: steuert Release-Tag (z.B. v25.12.0)
-##   - nimbus_cl_rest_port
 ##   - system_user
 ## Templates:
 ##   - nimbusCL.service.j2

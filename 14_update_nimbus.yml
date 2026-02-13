@@ -15,8 +15,9 @@
 ## Privilege: become nötig für Systemmanagement.
 ## Variablen:
 ##   - nimbus_cl_system_user
-##   - nimbus_cl_bin_dir
 ##   - nimbus_version: steuert Release-Tag (z.B. v25.12.0)
+##   - nimbus_cl_binary_path
+##   - nimbus_cl_rest_address
 ##   - nimbus_cl_rest_port
 ##   - system_user
 ## Templates:
@@ -156,20 +157,31 @@
         state: restarted
         daemon_reload: yes
 
-    # Beacon booten lassen, dann die Version via REST API abfragen.
-    - name: Pause for 20 seconds for Nimbus to start
-      pause:
-        seconds: 20
+    ###################
+    # Prüfen, ob Nimbus erfolgreich gestartet ist
 
-    - name: Fetch and display the Nimbus node version
-      shell: >
-        curl -s http://{{ localhost_ip }}:{{ nimbus_cl_rest_port }}/eth/v1/node/version | jq -r '.data.version'
+    - name: Wait for Nimbus REST API to respond
+      uri:
+        url: "http://{{ nimbus_cl_rest_address }}:{{ nimbus_cl_rest_port }}/eth/v1/node/version"
+        method: GET
+        status_code: 200
+        return_content: yes
       register: node_version
-      failed_when: node_version.rc != 0
-      changed_when: false
+      retries: 12 # Number of polling attempts
+      delay: 5 # Seconds between retries
+      until: node_version.status == 200
+
+    - name: Display Nimbus node version if available
+      debug:
+        msg: >-
+          {% if node_version.status == 200 %}
+            Running Nimbus version is: {{ node_version.content | from_json | json_query('data.version') }}
+          {% else %}
+            Nimbus REST API not reachable
+          {% endif %}
 
     - name: Make sure Nimbus is running
       assert:
-        that: node_version.stdout is defined and node_version.stdout != ""
-        fail_msg: "'Nimbus is not running"
-        success_msg: "Running Nimbus version is: {{ node_version.stdout }}"
+        that: node_version.content is defined and node_version.content != ""
+        fail_msg: "Nimbus is not running"
+        success_msg: "Nimbus successfully started"
