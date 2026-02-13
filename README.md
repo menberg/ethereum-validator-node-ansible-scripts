@@ -1,6 +1,6 @@
-# Ethereum Validator Node Ansible Scripts
+# Ethereum Validator Node Ansible Scripts for Rocket Pool
 
-This Ansible automation suite provides a complete, production-ready setup for Ethereum validator nodes using Reth (Execution Layer) and Nimbus (Consensus Layer) clients.
+This Ansible automation suite provides a complete, production-ready setup for a Rocket Pool Smartnode setup with Docker hybrid mode using own Reth (Execution Layer) and Nimbus (Consensus Layer) clients.
 
 ## Credits
 
@@ -8,7 +8,7 @@ Thanks to Marge (chrochetnode.com) for advice and review on validator architectu
 
 ## Features
 
-- **Complete Node Setup**: Automated installation and configuration of Ethereum validator infrastructure
+- **Complete Node Setup**: Automated installation and configuration of Ethereum validator infrastructure for Rocket Pool node staking.
 - **Security First**: SSH hardening, firewall configuration, and secure user management
 - **Production Ready**: System monitoring, logging, and service management
 - **Modular Design**: Individual playbooks for different setup phases
