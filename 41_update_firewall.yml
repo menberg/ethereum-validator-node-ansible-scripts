@@ -7,12 +7,22 @@
 ##
 ## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become nötig für Konfiguration von Firewall.
+## Variablen: vars/config_project.yml
+##   - reth_rpc_http_port
+##   - reth_rpc_ws_port
+##   - reth_metrics_port
+##   - nimbus_cl_rest_port
+##   - nimbus_cl_metrics_port
 ##
 
 - name: Update UFW Firewall Rules for Rocket Pool Smartnode
   hosts: ethnode
   become: true
   gather_facts: false
+
+  vars_files:
+    - vars/config_project.yml
+    - vars/config_untracked.yml
 
   tasks:
     ###################
@@ -32,29 +42,45 @@
       debug:
         msg: "{{ rp_net }}"
 
-    - name: Allow Rocket Pool access to Reth RPC via HTTP (8545)
+    - name: Allow Rocket Pool access to Reth RPC via HTTP ({{ reth_rpc_http_port }})
       ufw:
         rule: allow
         src: "{{ rp_net }}"
-        port: "8545"
+        port: "{{ reth_rpc_http_port }}"
         proto: tcp
         comment: "Allow Rocketpool Docker to access Reth RPC via HTTP"
 
-    - name: Allow Rocket Pool access to Reth RPC via WS (8546)
+    - name: Allow Rocket Pool access to Reth RPC via WS ({{ reth_rpc_ws_port }})
       ufw:
         rule: allow
         src: "{{ rp_net }}"
-        port: "8546"
+        port: "{{ reth_rpc_ws_port }}"
         proto: tcp
         comment: "Allow Rocketpool Docker to access Reth RPC via WS"
 
-    - name: Allow Rocket Pool access to Nimbus REST via HTTP (5052)
+    - name: Allow Rocket Pool access to Reth metrics ({{ reth_metrics_port }})
       ufw:
         rule: allow
         src: "{{ rp_net }}"
-        port: "5052"
+        port: "{{ reth_metrics_port }}"
+        proto: tcp
+        comment: "Allow Rocketpool Docker to access Reth metrics"
+
+    - name: Allow Rocket Pool access to Nimbus REST via HTTP ({{ nimbus_cl_rest_port }})
+      ufw:
+        rule: allow
+        src: "{{ rp_net }}"
+        port: "{{ nimbus_cl_rest_port }}"
         proto: tcp
         comment: "Allow Rocketpool Docker to access Nimbus REST via HTTP"
+
+    - name: Allow Rocket Pool access to Nimbus metrics ({{ nimbus_cl_metrics_port }})
+      ufw:
+        rule: allow
+        src: "{{ rp_net }}"
+        port: "{{ nimbus_cl_metrics_port }}"
+        proto: tcp
+        comment: "Allow Rocketpool Docker to access Nimbus metrics"
 
     - name: Ensure UFW is enabled
       ufw:
