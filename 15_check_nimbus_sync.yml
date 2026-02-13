@@ -1,0 +1,64 @@
+---
+##
+## Playbook: Nimbus Checkpoint-Sync verifizieren
+## Ziel: Checkpoint-Sync von Nimbus verifizieren durch:
+##   - Vergleich der lokalen Checkpoint-Head-Informationen mit einem vertrauenswürdigen externen Service (z.B. beaconcha.in API).
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory/hosts.yml 15_check_nimbus_sync.yml
+##
+## Targets: Inventory-Gruppe "ethnode"
+## Voraussetzungen:
+##   - Outbound Internet
+##
+
+- name: Verify Nimbus head root matches testing API
+  hosts: ethnode
+  become: false
+  gather_facts: false
+
+  vars_files:
+    - vars/config_project.yml
+    - vars/config_untracked.yml
+
+  vars:
+    local_node_url: "http://{{ nimbus_cl_rest_address }}:{{ nimbus_cl_rest_port }}/eth/v1/beacon/blocks/head/root"
+    remote_node_url: "http://testing.mainnet.beacon-api.nimbus.team/eth/v1/beacon/blocks/head/root"
+
+  tasks:
+    - name: Show local_node_url
+      debug:
+        msg: "{{ local_node_url }}"
+
+    - name: Get head root from local Nimbus node
+      uri:
+        url: "{{ local_node_url }}"
+        return_content: yes
+      register: local_root_response
+
+    - name: Parse local root JSON
+      set_fact:
+        local_root: "{{ local_root_response.content | from_json | json_query('data.root') }}"
+
+    - name: Get head root from remote testing API
+      uri:
+        url: "{{ remote_node_url }}"
+        return_content: yes
+      register: remote_root_response
+
+    - name: Parse remote root JSON
+      set_fact:
+        remote_root: "{{ remote_root_response.content | from_json | json_query('data.root') }}"
+
+    - name: Compare roots and fail if they differ
+      fail:
+        msg: >
+          Head root mismatch! 
+          Local root: {{ local_root }} 
+          Remote root: {{ remote_root }}
+      when: local_root != remote_root
+
+    - name: Success message if roots match
+      debug:
+        msg: "✅ Head root matches the testing API: {{ local_root }}"
+      when: local_root == remote_root
