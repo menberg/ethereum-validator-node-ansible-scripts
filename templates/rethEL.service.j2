@@ -24,7 +24,7 @@ ExecStart={{ reth_binary_path }} node --full \
         --authrpc.jwtsecret {{ reth_jwtsecret_path }} \
         --ipcpath {{ reth_home_dir }}/reth.ipc \
         --http.api eth,net,web3,admin \
-        --http.addr {{ server_ip }} \
+        --http.addr {{ localhost_ip }} \
         --http.port {{ reth_rpc_http_port }} \
 {% if reth_http_corsdomain | length > 0 %}
         --http.corsdomain '{{ reth_http_corsdomain }}' \
@@ -33,7 +33,7 @@ ExecStart={{ reth_binary_path }} node --full \
         --ws.origins '{{ reth_ws_origins }}' \
 {% endif %}
         --ws.api eth,net,web3,admin \
-        --ws.addr {{ server_ip }} \
+        --ws.addr {{ localhost_ip }} \
         --ws.port {{ reth_rpc_ws_port }} \
         --max-outbound-peers {{ reth_max_peers_out }} \
         --max-inbound-peers {{ reth_max_peers_in }} \
