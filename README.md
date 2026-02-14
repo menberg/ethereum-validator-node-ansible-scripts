@@ -70,12 +70,7 @@ all:
 
 ### 3. Configure Variables
 
-Copy and edit configuration files:
-
-```bash
-cp vars/config_untracked.template.yml vars/config_untracked.yml
-# Edit vars/config_untracked.yml with your specific values
-```
+Edit `vars/config_project.yml` to configure variables.
 
 ### 4. Run Setup Playbooks
 

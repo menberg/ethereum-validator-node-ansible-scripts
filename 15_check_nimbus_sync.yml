@@ -19,7 +19,6 @@
 
   vars_files:
     - vars/config_project.yml
-    - vars/config_untracked.yml
 
   vars:
     local_node_url: "http://{{ nimbus_cl_rest_address }}:{{ nimbus_cl_rest_port }}/eth/v1/beacon/blocks/head/root"
