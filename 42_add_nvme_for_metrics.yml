@@ -1,0 +1,30 @@
+---
+##
+## Playbook: Grafana Dashboard die Nutzung des zusätzlichen nvme-Laufwerks ermöglichen
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory/hosts.yml 42_add_nvme_for_metrics.yml
+##
+## Targets: Inventory-Gruppe "ethnode"
+## Privilege: become nötig für Änderungen der Smartnode-Konfiguration.
+## Variablen: vars/config_project.yml
+##   - system_user
+##
+
+- name: Allow Grafana dashboard to report the used disk space of the NVMe
+  hosts: ethnode
+  become: true
+  gather_facts: false
+
+  vars_files:
+    - vars/config_project.yml
+
+  tasks:
+    - name: Ensure NVMe mount is present for node-exporter
+      blockinfile:
+        path: "/home/{{ system_user }}/.rocketpool/override/exporter.yml"
+        insertafter: "x-rp-comment: Add your customizations below this line"
+        marker: "# {mark} ANSIBLE MANAGED NVME MOUNT"
+        block: |2
+              volumes:
+                - /mnt/nvme:/mnt/nvme:ro
