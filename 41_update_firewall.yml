@@ -82,6 +82,14 @@
         proto: tcp
         comment: "Allow Rocketpool Docker to access Nimbus metrics"
 
+    - name: Allow Rocket Pool access to Prometheus node-exporter (9103)
+      ufw:
+        rule: allow
+        src: "{{ rp_net }}"
+        port: "9103"
+        proto: tcp
+        comment: "Allow Rocketpool Docker to access Prometheus node-exporter"
+
     - name: Ensure UFW is enabled
       ufw:
         state: enabled
