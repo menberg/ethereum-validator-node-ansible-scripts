@@ -59,8 +59,8 @@ reth_log_dir: "/var/log/reth"
 reth_log_level: info # debug, info, warn, error
 reth_ext_port: 30303
 reth_ext_discv5_port: 9200
-reth_max_peers_out: 40
-reth_max_peers_in: 24
+reth_max_peers_out: 45
+reth_max_peers_in: 28
 reth_rpc_http_port: 8545
 reth_rpc_ws_port: 8546
 reth_metrics_address: "{{ localhost_ip }}"
@@ -89,8 +89,8 @@ nimbus_cl_node_name: JaNode
 nimbus_ext_tcp_port: 9000
 nimbus_ext_udp_port: 9000
 nimbus_ext_ip: "" # leave empty to auto-detect, or set to specific IP
-nimbus_max_peers: 100
-nimbus_hard_max_peers: 136
+nimbus_max_peers: 80
+nimbus_hard_max_peers: 100
 nimbus_jwt_secret_path: "{{ jwtsecret_path }}"
 nimbus_checkpoint_sync_url: "https://mainnet-checkpoint-sync.stakely.io" # e.g. https://mainnet-checkpoint-sync.stakely.io
 el_http: "http://{{ localhost_ip }}:{{ reth_authrpc_port }}"
