@@ -4,7 +4,7 @@
 ## Ziel: Sync-Fortschritt von Reth anzeigen.
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory/hosts.yml 34_check_reth_sync.yml
+## ansible-playbook -i inventory/hosts.yml 34_check_reth_sync_progress.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
 ## Voraussetzungen:
