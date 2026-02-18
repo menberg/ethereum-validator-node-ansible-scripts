@@ -223,6 +223,21 @@ ansible-playbook -i inventory/hosts.yml 36_update_reth.yml
 - Nimbus CL: `/var/log/nimbus/nimbusCL.jsonl`
 - System: `/var/log/syslog`
 
+### Log Display
+
+- Reth: `tail -f -n 50 /var/log/reth/mainnet/reth.log | jq -c`
+- Nimbus CL: `tail -f -n 50 /var/log/nimbus/nimbusCL.jsonl | jq -c`
+- System: `tail -f -n 50 /var/log/syslog | ccze`
+- Rocketpool: `rocketpool service logs`
+
+### Check Rocket Pool status
+
+`echo \"###########################\";rocketpool node status;echo \"###########################\";rocketpool node sync;echo \"###########################\";rocketpool service status;echo \"###########################\";rocketpool service version;echo \"###########################\";rocketpool megapool status`
+
+## Updating Rocket Pool Smartnode
+
+`rocketpool service stop && wget https://github.com/rocket-pool/smartnode/releases/latest/download/rocketpool-cli-linux-amd64 -O ~/bin/rocketpool && rocketpool service install -d && rocketpool service config`
+
 ## Contributing
 
 1. Fork the repository
