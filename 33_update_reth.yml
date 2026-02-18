@@ -7,7 +7,7 @@
 ##   - Binary ersetzen und Service neu starten.
 ##
 ## Ausführen (Beispiel):
-## ansible-playbook -i inventory/hosts.yml 36_update_reth.yml
+## ansible-playbook -i inventory/hosts.yml 33_update_reth.yml
 ##
 ## Targets: Inventory-Gruppe "ethnode"
 ## Privilege: become nötig für Systemmanagement.
