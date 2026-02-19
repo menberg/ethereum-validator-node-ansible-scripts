@@ -40,9 +40,11 @@ ExecStart={{ nimbus_cl_binary_path }} \
 {% endif %}
     --jwt-secret={{ nimbus_jwt_secret_path }} \
     --subscribe-all-subnets \
+{% if suggested_gas_limit | length > 0 %}
+    --suggested-gas-limit="{{ suggested_gas_limit }}" \
+{% endif %}
     --log-level="{{ nimbus_log_level }}" \
-    --log-format=json \
-    --suggested-gas-limit=60000000
+    --log-format=json
 
 [Install]
 WantedBy=multi-user.target

@@ -42,6 +42,7 @@ jwtsecret_path: "/var/lib/jwtsecrets/jwt.hex"
 ##########################################
 
 network: "mainnet" # set up an environment, e.g "hoodi" or "mainnet"
+suggested_gas_limit: "" # Leave blank to use the default or set a specific value, e.g. "60000000"
 fee_recipient_wallet_address: "" # Leave empty to use the Rocket Pool fee recipient (rp-fee-recipient.txt)
 
 ##########################################
