@@ -1,0 +1,51 @@
+---
+##
+## Playbook: Tuning der Systemparameter
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory/hosts.yml 43_tune_system.yml
+##
+## Targets: Inventory-Gruppe "ethnode"
+## Privilege: become nötig für Änderungen der Kernelparameter.
+## Variablen: vars/config_project.yml
+##   - system_user
+##
+
+- name: Configure VM memory settings for Ethereum node
+  hosts: ethnode
+  become: true
+  gather_facts: false
+
+  vars_files:
+    - vars/config_project.yml
+
+  tasks:
+    ##############################
+    # Configure VM memory settings for Ethereum node
+
+    - name: Ensure sysctl config file exists
+      file:
+        path: /etc/sysctl.d/99-vm-tuning.conf
+        state: touch
+        mode: "0644"
+
+    - name: Set vm.swappiness
+      lineinfile:
+        path: /etc/sysctl.d/99-vm-tuning.conf
+        regexp: "^vm.swappiness"
+        line: "vm.swappiness = 1"
+        state: present
+        create: yes
+
+    - name: Set vm.vfs_cache_pressure
+      lineinfile:
+        path: /etc/sysctl.d/99-vm-tuning.conf
+        regexp: "^vm.vfs_cache_pressure"
+        line: "vm.vfs_cache_pressure = 50"
+        state: present
+        create: yes
+
+    - name: Apply sysctl settings
+      command: sysctl --system
+      register: sysctl_output
+      changed_when: "'Reloading sysctl' in sysctl_output.stdout"
