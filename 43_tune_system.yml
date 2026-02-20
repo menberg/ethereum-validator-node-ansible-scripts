@@ -49,3 +49,28 @@
       command: sysctl --system
       register: sysctl_output
       changed_when: "'Reloading sysctl' in sysctl_output.stdout"
+
+    # noatime,inode64 für die NVMe hinzufügen, um die Leistung zu verbessern.
+    - name: Ensure /mnt/nvme entry in /etc/fstab is tuned for rethEL
+      lineinfile:
+        path: /etc/fstab
+        # Matches exactly: device, /mnt/nvme, xfs, and the space before options
+        regexp: '^(\S+\s+/mnt/nvme\s+xfs)(\s+).*'
+        line: '\1\2defaults,noatime,inode64 0 0'
+        backrefs: yes
+        state: present
+
+    # Systemd neu laden, damit die neuen fstab-Einträge erkannt werden
+    - name: Reload systemd to pick up new fstab entries
+      command: systemctl daemon-reload
+
+    # Sicherstellen, dass die neue fstab-Konfiguration angewendet werden kann
+    - name: Remount /mnt/nvme with updated options
+      command: mount -o remount /mnt/nvme
+      ignore_errors: yes
+      register: remount_result
+
+    - name: Fail if /mnt/nvme cannot be mounted
+      fail:
+        msg: "/mnt/nvme could not be mounted! Check /etc/fstab entry."
+      when: remount_result.rc != 0
