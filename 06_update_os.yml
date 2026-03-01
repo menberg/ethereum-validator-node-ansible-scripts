@@ -24,12 +24,22 @@
         autoremove: yes
 
     # Zeigen, ob ein Reboot erforderlich ist (z.B. nach Kernel-Updates).
+    - name: Check if reboot is required
+      stat:
+        path: /var/run/reboot-required
+      register: reboot_required_file
+
+    - name: Read reboot reason
+      slurp:
+        path: /var/run/reboot-required
+      register: reboot_reason
+      when: reboot_required_file.stat.exists
+
     - name: Display reboot status
       debug:
         msg: >-
-          {% set reboot_content = lookup('file', '/var/run/reboot-required', errors='ignore') | default('') %}
-          {% if reboot_content %}
-            Reboot is required! Reason: {{ reboot_content | trim }}
+          {% if reboot_required_file.stat.exists %}
+            Reboot is required! Reason: {{ reboot_reason.content | b64decode | trim }}
           {% else %}
             No reboot required.
           {% endif %}
