@@ -1,0 +1,61 @@
+---
+##
+## Playbook: Reth Snapshot sync
+##
+## Ausführen (Beispiel):
+## ansible-playbook -i inventory/hosts.yml 32_resync_reth.yml
+##
+## Targets: Inventory-Gruppe "ethnode"
+## Privilege: become nötig für Systemanagement.
+## Variablen:
+##   - reth_system_user
+##   - reth_binary_path
+##   - network
+##   - reth_data_dir
+##   - reth_log_dir
+##   - reth_log_level
+## Templates:
+##   - templates/rethEL.service.j2
+##
+
+- name: Drop Reth database and download snapshot for sync
+  hosts: ethnode
+  become: true
+  gather_facts: false
+
+  vars_files:
+    - vars/config_project.yml
+
+  tasks:
+    ##############################
+    # Service stoppen, bevor Datenbankänderungen vorgenommen werden.
+
+    - name: Stop Reth service
+      systemd:
+        name: "{{ reth_system_user }}"
+        state: stopped
+      failed_when: false # Fehler ignorieren, falls Service noch nicht existiert.
+
+    ##############################
+    # Reth Datenverzeichnis löschen
+
+    - name: Drop reth database
+      command: "sudo -u {{ reth_system_user }} {{ reth_binary_path }} db --chain {{ network }} --datadir {{ reth_data_dir }} drop --force"
+      register: drop_result
+
+    - name: Show db drop result
+      debug:
+        msg: "{{ drop_result.stdout }}"
+
+    ##############################
+    # Reth Snapshot herunterladen
+
+    - name: Download reth snapshot
+      command: "sudo -u rethEL {{ reth_binary_path }} download --chain {{ network }} --datadir {{ reth_data_dir }} --non-interactive --with-txs-distance 10064 --with-receipts-since 15537394 --with-state-history-distance 10064 --log.stdout.format terminal --log.file.format json --log.file.directory {{ reth_log_dir }} --log.file.filter '{{ reth_log_level }}' --log.journald --log.journald.filter error"
+      async: 36000 # Maximum runtime: 10 hours
+      poll: 30 # Check every 30 seconds
+      register: download_result
+
+    - name: Show download result
+      debug:
+        msg: "Download completed: {{ download_result.stdout }}"
