@@ -47,13 +47,6 @@ ExecStart={{ reth_binary_path }} node --full \
         --log.file.filter '{{ reth_log_level }}' \
         --log.journald \
         --log.journald.filter error \
-        --prune.block-interval 5 \
-        --prune.sender-recovery.full \
-        --prune.account-history.distance 10064 \
-        --prune.storage-history.distance 10064 \
-        --prune.bodies.pre-merge \
-        --prune.receipts.pre-merge \
-        --prune.transaction-lookup.distance 10064
 
 [Install]
 WantedBy=multi-user.target
