@@ -33,7 +33,7 @@
       lineinfile:
         path: /etc/sysctl.d/99-vm-tuning.conf
         regexp: "^vm.swappiness"
-        line: "vm.swappiness = 1"
+        line: "vm.swappiness = 0"
         state: present
         create: yes
 
