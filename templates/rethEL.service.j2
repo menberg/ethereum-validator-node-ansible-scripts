@@ -51,9 +51,9 @@ ExecStart={{ reth_binary_path }} node \
         --prune.sender-recovery.full \
         --prune.account-history.distance 10064 \
         --prune.storage-history.distance 10064 \
-        --prune.bodies.pre-merge \
-        --prune.receipts.pre-merge \
-        --prune.transaction-lookup.distance 10064
+        --prune.transaction-lookup.distance 10064 \
+        --prune.bodies.distance 2628000 \
+        --prune.receipts.distance 2628000
 
 [Install]
 WantedBy=multi-user.target
