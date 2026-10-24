@@ -89,6 +89,7 @@ nimbus_cl_metrics_port: 9100
 nimbus_cl_node_name: JaNode
 nimbus_ext_tcp_port: 9000
 nimbus_ext_udp_port: 9000
+nimbus_ext_quic_port: 9001
 nimbus_ext_ip: "" # leave empty to auto-detect, or set to specific IP
 nimbus_max_peers: 90
 nimbus_hard_max_peers: 120

@@ -18,6 +18,7 @@ ExecStart={{ nimbus_cl_binary_path }} \
     --data-dir="{{ nimbus_cl_data_dir }}" \
     --tcp-port={{ nimbus_ext_tcp_port }} \
     --udp-port={{ nimbus_ext_udp_port }} \
+    --quic-port={{ nimbus_ext_quic_port }} \
 {% if nimbus_ext_ip | length > 0 %}
     --nat=extip:{{ nimbus_ext_ip }} \
 {% endif %}

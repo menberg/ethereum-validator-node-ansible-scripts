@@ -71,6 +71,13 @@
         proto: udp
         comment: nimbusCL UDP listening port
 
+    - name: UFW - Allow nimbusCL QUIC listening port
+      ufw:
+        rule: allow
+        port: 9001
+        proto: udp
+        comment: nimbusCL QUIC listening port
+
     - name: UFW - Allow rethEL discv5 discovery port
       ufw:
         rule: allow
